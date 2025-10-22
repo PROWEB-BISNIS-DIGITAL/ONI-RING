@@ -55,3 +55,4 @@ Kelompok Selasa :
 3. Muhammad Fakhri
 4. Muhammad Riffat Gunawan 
 5. Roxane Naufal Fadilah 
+6. Vedi andika Jani
