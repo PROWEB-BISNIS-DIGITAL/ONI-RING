@@ -1,5 +1,6 @@
 # Express.js Project
 
+
 This is a simple Express.js application that demonstrates the basic structure and functionality of an Express web server.
 
 ## Project Structure
@@ -47,3 +48,11 @@ The application will be running on `http://localhost:3000`.
 ## Contributing
 
 Feel free to submit issues or pull requests for improvements or bug fixes.
+
+Kelompok Selasa : 
+1. Muhammad Haikan Syahputra
+2. Falaq Annahri 
+3. Muhammad Fakhri
+4. Muhammad Riffat Gunawan 
+5. Roxane Naufal Fadilah 
+6. Vedi andika Jani
