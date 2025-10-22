@@ -4,6 +4,9 @@ const IndexController = require('./controllers/index')
 const app = express()
 const port = 3000
 
+// untuk Tailwindcsss
+app.use(express.static('public'));
+
 // Set view engine EJS
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
