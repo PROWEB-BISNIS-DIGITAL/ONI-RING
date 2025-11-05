@@ -1,371 +1,247 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onisu - Website makanan enak nagih</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tailwind built CSS -->
-    <link rel="stylesheet" href="/output.css">
-    
+    <title>Cemal-Cemil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ff6b6b',
+                        secondary: '#f4f4f4',
+                        accent: '#ff5252',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+        html{
+            scroll-behavior: smooth;
         }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f9f9f9;
-            color: #2C3E50;
-            line-height: 1.6;
-            overflow-x: hidden;
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
         }
-        header {
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
-            color: white;
-            padding: 1.5rem 2rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        header h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        header p {
-            font-size: 1.1rem;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-        nav {
-            background-color: #2C3E50;
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-        nav li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;   
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-        }
-        nav li a:hover {
-            background: rgba(255,107,53,0.2);
-            transform: translateY(-2px);
-        }
-        section {
-            padding: 5rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-        section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        #home {
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://source.unsplash.com/random/1200x800/?food,restaurant') no-repeat center/cover;
-            color: white;
-            text-align: center;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 0 2rem;
-        }
-        #home h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        #home p {
-            font-size: 1.5rem;
-            font-weight: 300;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        h2 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 1rem;
-            color: #FF6B35;
-        }
-        #about {
-            background: linear-gradient(135deg, #f9f9f9, #e8f4f8);
-        }
-        #about p {
-            font-size: 1.1rem;
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-            font-weight: 400;
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-        .product-card {
-            background: white;
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
+
         .product-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        .product-card img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin-bottom: 1rem;
-        }
-        .product-card h3 {
-            font-size: 1.5rem;
-            color: #2C3E50;
-            margin-bottom: 0.5rem;
-        }
-        .product-card p {
-            color: #7F8C8D;
-            margin-bottom: 1rem;
-        }
-        .price {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #27AE60;
-        }
-        #socialmedia {
-            background: linear-gradient(135deg, #e8f4f8, #f9f9f9);
-            text-align: center;
-        }
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
-            color: white;
-            text-decoration: none;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
-        }   
-        .social-links a:hover {
-            transform: translateY(-5px) rotate(10deg);
-            box-shadow: 0 10px 25px rgba(255,107,53,0.4);
-        }
-        #contactus {
-            background: white;
-        }
-        form {
-            display: grid;
-            gap: 1.5rem;
-            max-width: 600px;
-            margin: 2rem auto 0;
-        }
-        input, textarea {
-            padding: 1rem;
-            border: 2px solid #E0E0E0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #f9f9f9;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #FF6B35;
-            background: white;
-            transform: scale(1.02);
-        }
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        button {
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255,107,53,0.3);
-        }
-        .contact-info {
-            text-align: center;
-            margin-top: 2rem;
-            font-size: 1.1rem;
-            color: #7F8C8D;
-        }
-        footer {
-            background: linear-gradient(135deg, #2C3E50, #34495E);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            font-weight: 300;
-        }
-        @media (max-width: 768px) {
-            header h2 { font-size: 2rem; }
-            #home h1 { font-size: 2.5rem; }
-            #home p { font-size: 1.2rem; }
-            nav ul { gap: 1rem; }
-            nav li a { padding: 0.5rem; font-size: 0.9rem; }
-            section { padding: 3rem 1rem; }
-            h2 { font-size: 2rem; }
-        }
-        @media (max-width: 480px) {
-            nav ul { flex-direction: column; gap: 0.5rem; }
-            .social-links { gap: 1rem; }
-            .social-links a { width: 50px; height: 50px; font-size: 1.2rem; }
+
+        .testimoni-card {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
         }
     </style>
 </head>
-<body>
+
+<body class="bg-secondary text-gray-800">
+    <!-- Header -->
+
+    <!-- Navigation -->
+
     <header>
-        <h2>Onisu</h2>
-        <p>Makanan Onigiri</p>
+
+        <nav class="bg-gray-800 text-white py-4 sticky top-0 z-50">
+            <div class="container mx-auto flex justify-between items-center px-4">
+                <div class="text-xl font-bold">Menu</div>
+                <!-- Hamburger Button for Mobile -->
+                <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <!-- Desktop Menu -->
+                <ul class="hidden md:flex space-x-8">
+                    <li><a href="#home" class="hover:text-primary transition duration-300">Home</a></li>
+                    <li><a href="#about" class="hover:text-primary transition duration-300">About</a></li>
+                    <li><a href="#product" class="hover:text-primary transition duration-300">Product</a></li>
+                    <li><a href="#testimoni" class="hover:text-primary transition duration-300">Testimoni</a></li>
+                    <li><a href="#contact" class="hover:text-primary transition duration-300">Contact Us</a></li>
+                </ul>
+            </div>
+            <!-- Mobile Menu -->
+            <ul id="mobile-menu"
+                class=" md:hidden bg-gray-800 px-4 py-2 space-y-2 hidden transition durati on-300 ease-in-out">
+                <li><a href="#home" class="block py-2 hover:text-primary transition duration-300">Home</a></li>
+                <li><a href="#about" class="block py-2 hover:text-primary transition duration-300">About</a></li>
+                <li><a href="#product" class="block py-2 hover:text-primary transition duration-300">Product</a></li>
+                <li><a href="#testimoni" class="block py-2 hover:text-primary transition duration-300">Testimoni</a>
+                </li>
+                <li><a href="#contact" class="block py-2 hover:text-primary transition duration-300">Contact Us</a></li>
+            </ul>
+        </nav>
+
+        <!-- Home Section -->
+        <section id="home" class="hero-bg text-white py-20 ">
+            <div class="container mx-auto text-center">
+                <h2 class="text-5xl font-bold mb-4 animate-pulse">Selamat Datang di Website <br>Cemal - Cemil</h2>
+                <p class="text-xl mb-8">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iste, architecto?.</p>
+                <a href="#product"
+                    class="bg-accent hover:bg-primary text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300">Lihat
+                    Menu</a>
+            </div>
+        </section>
     </header>
 
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#product">Product</a></li>
-            <li><a href="#socialmedia">Social Media</a></li>
-            <li><a href="#contactus">Contact Us</a></li>
-        </ul>
-    </nav>
-
-    <section id="home">
-        <h1>Selamat Datang di Onisu</h1>
-        <p>Nikmati berbagai hidangan lezat yang dibuat dengan bahan segar. Dari sarapan hingga dessert, kami punya semuanya!</p>
-    </section>
-
-    <section id="about">
-        <h2>Tentang Kami</h2>
-        <p>Onisu adalah restoran keluarga yang didirikan pada tahun 2010. Kami berdedikasi untuk menyajikan makanan autentik Indonesia dengan sentuhan modern. Tim kami terdiri dari koki berpengalaman yang menggunakan bahan-bahan lokal berkualitas tinggi. Kami percaya bahwa makanan adalah cara terbaik untuk menghubungkan orang-orang.</p>
-    </section>
-
-    <section id="product">
-        <h2>Produk Kami</h2>
-        <p class="" style="text-align: center;">Jelajahi menu favorit kami. Setiap hidangan dibuat dengan niat</p>
-        <div class="product-grid">
-            <div class="product-card">
-                <img src="https://www.japanesecooking101.com/wp-content/uploads/2012/06/IMG_3687-1024x768.jpg" alt="Nasi Goreng">
-                <h3>Onigiri Ayam Suwir</h3>
-                <p>Onigiri isi ayam suir, pedas.</p>
-                <div class="price">Rp 7.000</div>
-            </div>
-            <div class="product-card">
-                <img src="https://filebroker-cdn.lazada.co.id/kf/S7dba773de27f4ad1958629b559fdec9el.jpg" alt="Sate Ayam">
-                <h3>Lumring Choco</h3>
-                <p>Lumia kering dengan rasa coklat.</p>
-                <div class="price">Rp 5.000</div>
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8 text-primary">About Us</h2>
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                        alt="Restoran" class="rounded-lg shadow-lg">
+                </div>
+                <div class="md:w-1/2 md:pl-8">
+                    <p class="text-lg leading-relaxed">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas dolore error ea illo, quibusdam nemo! Impedit recusandae aliquam facilis eaque esse molestiae nesciunt quos repudiandae sapiente assumenda culpa ab libero accusamus, accusantium adipisci corrupti praesentium expedita magnam vitae doloremque dolore omnis. Ratione culpa, expedita commodi quo illo deserunt eum perferendis nulla soluta accusamus consequatur ut cumque tempora reiciendis itaque animi ad blanditiis eos minima eaque quae molestias a perspiciatis. Veritatis impedit voluptas cumque earum itaque corrupti nihil iure, harum animi. Dolores aperiam sapiente unde enim aut accusamus assumenda necessitatibus mollitia harum rem quae, quaerat iste architecto esse laborum ullam sunt.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="socialmedia">
-        <h2>Ikuti Kami di Social Media kami coyy</h2>
-        <p>Temukan resep terbaru, promo, dan update di akun kami!</p>
-        <div class="social-links">
-            <a href="https://www.instagram.com/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.facebook.com/" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com/" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="https://www.tiktok.com/@" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
-        </div>
-        <p style="margin-top: 1rem; font-size: 0.9rem; color: #7F8C8D;">Ganti tautan di atas dengan akun social media Anda yang sebenarnya.</p>
-    </section>
-
-    <section id="contactus">
-        <h2>Hubungi Kami</h2>
-        <p style="text-align: center; max-width: 600px; margin: 0 auto 2rem;">Ada pertanyaan? Kirim pesan sekarang!</p>
-        <form>
-            <input type="text" placeholder="Nama Anda" required>
-            <input type="email" placeholder="Email Anda" required>
-            <textarea rows="5" placeholder="Pesan Anda" required></textarea>
-            <button type="submit">Kirim Pesan</button>
-        </form>
-        <div class="contact-info">
-            <p>Alamat: Jl. Makanan Enak No. 123, Jakarta</p>
-            <p>Telepon: 021-1234567 | Email: info@deliciouseats.com</p>
+    <!-- Product Section -->
+    <section id="product" class="py-16 bg-secondary">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-primary">Produk Kami</h2>
+            <div id="product-list" class="grid grid-cols-111 md:grid-cols-2 lg:flex d-flex justify-center gap-8">
+                <!-- Produk akan ditampilkan di sini menggunakan JavaScript -->
+            </div>
         </div>
     </section>
 
-    <footer>
-        <p>&copy; 2023 Delicious Eats. Semua hak dilindungi. Dibuat dengan ❤️ untuk makanan lezat.</p>
+    <!-- Testimoni Section -->
+    <section id="testimoni" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-primary">Testimoni</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="testimoni-card rounded-lg p-6 shadow-md">
+                    <p class="text-gray-700 italic mb-4">"Makanan di sini luar biasa! Saya selalu kembali untuk nasi
+                        gorengnya."</p>
+                    <p class="font-semibold">- Andi, Jakarta</p>
+                </div>
+                <div class="testimoni-card rounded-lg p-6 shadow-md">
+                    <p class="text-gray-700 italic mb-4">"Pelayanan cepat dan ramah. Ayam bakarnya sangat enak."</p>
+                    <p class="font-semibold">- Siti, Bandung</p>
+                </div>
+                <div class="testimoni-card rounded-lg p-6 shadow-md">
+                    <p class="text-gray-700 italic mb-4">"Tempat yang cocok untuk keluarga. Semua menu
+                        direkomendasikan."</p>
+                    <p class="font-semibold">- Budi, Surabaya</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="py-16 bg-secondary">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-primary">Kirim Pesan & Feedback</h2>
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <form class="bg-white p-8 rounded-lg shadow-md">
+                        <div class="mb-4">
+                            <input type="text" name="name" placeholder="Nama Anda"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                required>
+                        </div>
+                        <div class="mb-4">
+                            <input type="email" name="email" placeholder="Email Anda"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                required>
+                        </div>
+                        <div class="mb-4">
+                            <textarea name="message" placeholder="Pesan Anda" rows="5"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                required></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-primary hover:bg-accent text-white py-2 px-4 rounded-md transition duration-300">Kirim
+                            Pesan</button>
+                    </form>
+                </div>
+                <div class="md:w-1/2 md:pl-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-4">Informasi Kontak</h3>
+                        <p class="mb-2"><strong>Alamat:</strong> Jl. Makanan Lezat No. 123, Kota Enak, Indonesia</p>
+                        <p class="mb-2"><strong>Telepon:</strong> (021) 123-4567</p>
+                        <p class="mb-2"><strong>Email:</strong> info@makananlezat.com</p>
+                        <p class="mb-4"><strong>Jam Operasional:</strong> Senin - Minggu, 10:00 - 22:00</p>
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.816666!3d-6.200000!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTInMDAuMCJOIDEwNsKwNDknMDAuMCJF!5e0!3m2!1sen!2sid!4v1630000000000!5m2!1sen!2sid"
+                            width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2023 Restoran Makanan Lezat. Semua hak dilindungi.</p>
+        </div>
     </footer>
 
     <script>
-        // Smooth scrolling untuk navigasi
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                target.scrollIntoView({ behavior: 'smooth' });
+        // Data produk disimpan dalam array
+        const products = [
+            {
+                name: "Onigiri Ayam Suwir",
+                description: "Porsi pas rasa pas!.",
+                price: "Rp7.000",
+                image: "/img/onigiri.jpg"
+            },
+            {
+                name: "Es Teh Manis",
+                description: "Minuman segar untuk menemani hidangan Anda.",
+                price: "Rp 5.000",
+                image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+            }
+        ];
+
+        // Fungsi untuk menampilkan produk
+        function displayProducts() {
+            const productList = document.getElementById('product-list');
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card justify-center bg-white rounded-lg shadow-md p-6 transition duration-300';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-44 object-cover rounded-md mb-4">
+                    <h3 class="text-xl font-semibold mb-2">${product.name}</h3>
+                    <p class="text-gray-600 mb-4">${product.description}</p>
+                    <p class="text-primary font-bold text-lg">${product.price}</p>
+                                <button 
+                class="add-to-cart w-full bg-primary hover:bg-accent text-white py-2 px-4 rounded-md transition duration-300"
+            >
+                + Tambah ke Keranjang
+            </button>
+                `;
+                productList.appendChild(productCard);
             });
-        });
+        }
 
-        // Fade-in animation saat scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
+        // Panggil fungsi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', displayProducts);
 
-        document.querySelectorAll('section').forEach(section => {
-            observer.observe(section);
-        });
+        // Toggle menu mobile
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
 
-        // Handle form submit (demo)
-        document.querySelector('form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Terima kasih! Pesan Anda telah dikirim. (Ini demo, integrasikan dengan server untuk fungsi nyata.)');
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
     </script>
 </body>
+
 </html>

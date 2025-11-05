@@ -5,7 +5,7 @@ const app = express()
 const port = 3000
 
 // untuk Tailwindcsss
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Set view engine EJS
 app.set('views', path.join(__dirname, 'views'))
@@ -15,8 +15,7 @@ app.set('view engine', 'ejs')
 const indexController = new IndexController()
 
 // Route utama
-app.get('/', (req, res) => indexController.getIndex(req, res))
-app.get('/home', (req, res) => indexController.getHome(req, res))
+app.get('/', (req, res) => indexController.getHome(req, res))
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
