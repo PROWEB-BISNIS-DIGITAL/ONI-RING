@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1555861496-0666c8981751?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .error-code {
+            font-size: 10rem;
+            line-height: 1;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <a href="/" class="text-2xl font-bold text-red-500">Cemal-Cemil</a>
+            <a href="/" class="text-gray-300 hover:text-white transition duration-300">← Kembali ke Beranda</a>
+        </div>
+    </nav>
+
+    <!-- Error Content -->
+    <section class="hero-bg text-white py-32">
+        <div class="container mx-auto text-center px-4">
+            <div class="error-code font-bold mb-4">500</div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Terjadi Kesalahan</h1>
+            <div class="bg-red-900 bg-opacity-50 p-6 rounded-lg max-w-2xl mx-auto mb-8">
+                <p class="text-xl mb-4">Maaf, terjadi kesalahan pada server kami.</p>
+                <% if (error) { %>
+                    <p class="text-gray-300 italic">"<%= error %>"</p>
+                <% } %>
+            </div>
+            
+            <div class="space-y-4 max-w-md mx-auto">
+                <a href="/" 
+                   class="block w-full bg-red-500 hover:bg-red-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg">
+                    ← Kembali ke Beranda
+                </a>
+                
+                <button onclick="window.location.reload()" 
+                   class="block w-full bg-blue-500 hover:bg-blue-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg">
+                    🔄 Coba Lagi
+                </button>
+                
+                <a href="/#contact" 
+                   class="block w-full bg-green-500 hover:bg-green-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg">
+                    📞 Laporkan Masalah
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Troubleshooting Tips -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-2xl font-bold text-center mb-10 text-gray-800">Tips Troubleshooting</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="text-center p-6">
+                    <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-red-500 text-2xl">1</span>
+                    </div>
+                    <h4 class="font-semibold text-lg mb-2">Refresh Halaman</h4>
+                    <p class="text-gray-600">Tekan F5 atau tombol refresh di browser Anda.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-red-500 text-2xl">2</span>
+                    </div>
+                    <h4 class="font-semibold text-lg mb-2">Clear Cache</h4>
+                    <p class="text-gray-600">Bersihkan cache browser dan coba lagi.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-red-500 text-2xl">3</span>
+                    </div>
+                    <h4 class="font-semibold text-lg mb-2">Hubungi Support</h4>
+                    <p class="text-gray-600">Hubungi tim support jika masalah berlanjut.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto text-center">
+            <p class="text-lg">&copy; 2024 Cemal-Cemil. Semua hak dilindungi.</p>
+            <p class="mt-2 text-gray-400">Jika masalah terus berlanjut, hubungi: support@cemalcemil.com</p>
+        </div>
+    </footer>
+</body>
+</html>

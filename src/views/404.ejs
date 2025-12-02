@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <a href="/" class="text-2xl font-bold text-red-500">Cemal-Cemil</a>
+            <% if (user) { %>
+                <span class="text-gray-300">Halo, <%= user.name %></span>
+            <% } else { %>
+                <a href="/auth/login" class="text-gray-300 hover:text-white transition duration-300">Login</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <!-- 404 Content -->
+    <section class="hero-bg text-white py-32">
+        <div class="container mx-auto text-center px-4">
+            <div class="animate__animated animate__bounceIn mb-8">
+                <h1 class="text-9xl font-bold text-red-500">404</h1>
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 mt-4">Halaman Tidak Ditemukan</h2>
+                <p class="text-xl md:text-2xl mb-8">Sepertinya halaman yang Anda cari tidak ada atau telah dipindahkan.</p>
+            </div>
+            
+            <div class="space-y-4 max-w-md mx-auto">
+                <a href="/" 
+                   class="block w-full bg-red-500 hover:bg-red-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg transform hover:scale-105 pulse-animation">
+                    ← Kembali ke Beranda
+                </a>
+                
+                <% if (user && user.role === 'admin') { %>
+                    <a href="/admin/dashboard" 
+                       class="block w-full bg-blue-500 hover:bg-blue-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg">
+                        Dashboard Admin
+                    </a>
+                <% } else if (user) { %>
+                    <a href="/profile" 
+                       class="block w-full bg-green-500 hover:bg-green-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg">
+                        Profile Saya
+                    </a>
+                <% } else { %>
+                    <a href="/auth/login" 
+                       class="block w-full bg-green-500 hover:bg-green-600 text-white py-4 px-6 rounded-lg transition duration-300 font-semibold text-lg">
+                        Login ke Akun
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Suggestion -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800">Mungkin Anda Mencari:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <a href="/#product" class="bg-gray-100 hover:bg-red-100 p-6 rounded-lg transition duration-300">
+                    <div class="text-red-500 text-3xl mb-3">🍔</div>
+                    <h4 class="font-semibold text-lg mb-2">Produk Kami</h4>
+                    <p class="text-gray-600">Lihat menu makanan dan minuman</p>
+                </a>
+                
+                <a href="/#contact" class="bg-gray-100 hover:bg-red-100 p-6 rounded-lg transition duration-300">
+                    <div class="text-red-500 text-3xl mb-3">📞</div>
+                    <h4 class="font-semibold text-lg mb-2">Kontak Kami</h4>
+                    <p class="text-gray-600">Hubungi customer service</p>
+                </a>
+                
+                <a href="/#testimoni" class="bg-gray-100 hover:bg-red-100 p-6 rounded-lg transition duration-300">
+                    <div class="text-red-500 text-3xl mb-3">⭐</div>
+                    <h4 class="font-semibold text-lg mb-2">Testimoni</h4>
+                    <p class="text-gray-600">Lihat review pelanggan</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto text-center">
+            <p class="text-lg">&copy; 2024 Cemal-Cemil. Semua hak dilindungi.</p>
+            <p class="mt-2 text-gray-400">Dibuat dengan ❤️ untuk pecinta kuliner</p>
+        </div>
+    </footer>
+</body>
+</html>

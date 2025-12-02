@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background-color: #f9fafb;
+        }
+        
+        .dashboard-card {
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal-container {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* Custom scrollbar for modal */
+        .modal-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .modal-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .modal-container::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+        
+        .modal-container::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <%- include('./partialsAdmin/sidebar') %>
+
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="text-3xl font-bold mb-8 text-gray-800">Dashboard Admin</h1>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Total Pesanan</p>
+                            <p class="text-2xl font-bold text-blue-600">156</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-shopping-cart text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">+8 pesanan hari ini</p>
+                </div>
+
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Total Produk</p>
+                            <p class="text-2xl font-bold text-purple-600">24</p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-utensils text-purple-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">6 produk aktif</p>
+                </div>
+
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Total Pengguna</p>
+                            <p class="text-2xl font-bold text-red-600">89</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <i class="fas fa-users text-red-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">+3 user baru</p>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Pesanan Terbaru</h2>
+                    <a href="/admin/orders" class="text-red-500 hover:text-red-600 font-semibold">
+                        Lihat Semua →
+                    </a>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- Order 1 -->
+                            <tr id="order-001">
+                                <td class="px-6 py-4 whitespace-nowrap">#ORD-001</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Budi Santoso</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Rp 75.000</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="status-badge px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">2 Des 2024</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-3" title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-green-500 hover:text-green-700 mr-2" title="Approve Pesanan" onclick="approveOrder('ORD-001')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700" title="Cancel Pesanan" onclick="openCancelModal('ORD-001', 'Budi Santoso', 75000)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Order 2 -->
+                            <tr id="order-002">
+                                <td class="px-6 py-4 whitespace-nowrap">#ORD-002</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Siti Aisyah</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Rp 125.000</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="status-badge px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">1 Des 2024</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-3" title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-green-500 hover:text-green-700 mr-2" title="Approve Pesanan" onclick="approveOrder('ORD-002')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700" title="Cancel Pesanan" onclick="openCancelModal('ORD-002', 'Siti Aisyah', 125000)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800">Tambah Produk Baru</h3>
+                    <p class="text-gray-600 mb-4">Tambahkan menu makanan atau minuman baru ke katalog.</p>
+                    <a href="/admin/products" class="inline-block bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300">
+                        <i class="fas fa-plus mr-2"></i>Tambah Produk
+                    </a>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800">Kelola Pesanan</h3>
+                    <p class="text-gray-600 mb-4">Approve atau cancel pesanan yang masuk dari customer.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">#ORD-001 - Budi Santoso</p>
+                                <p class="text-sm text-gray-500">Rp 75.000 • 2 Des 2024</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="approveOrder('ORD-001')">
+                                    <i class="fas fa-check mr-1"></i>Approve
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="openCancelModal('ORD-001', 'Budi Santoso', 75000)">
+                                    <i class="fas fa-times mr-1"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">#ORD-002 - Siti Aisyah</p>
+                                <p class="text-sm text-gray-500">Rp 125.000 • 1 Des 2024</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="approveOrder('ORD-002')">
+                                    <i class="fas fa-check mr-1"></i>Approve
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="openCancelModal('ORD-002', 'Siti Aisyah', 125000)">
+                                    <i class="fas fa-times mr-1"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Cancel Order Modal -->
+    <div id="cancelModal" class="modal-overlay">
+        <div class="modal-container">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="flex items-center">
+                    <div class="bg-red-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Cancel Pesanan</h3>
+                        <p class="text-sm text-gray-500">Konfirmasi pembatalan pesanan</p>
+                    </div>
+                </div>
+                <button onclick="closeCancelModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Warning Alert -->
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex">
+                        <i class="fas fa-info-circle text-red-500 mt-0.5 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-red-700">Peringatan!</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                Pembatalan pesanan akan mengirim notifikasi ke customer. 
+                                Tindakan ini tidak dapat dibatalkan.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-700 mb-3">Detail Pesanan</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">ID Pesanan</p>
+                                <p id="cancelOrderId" class="font-medium text-gray-800">#ORD-001</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Customer</p>
+                                <p id="cancelCustomer" class="font-medium text-gray-800">Budi Santoso</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Pesanan</p>
+                                <p id="cancelTotal" class="font-medium text-gray-800">Rp 75.000</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Tanggal Pesan</p>
+                                <p class="font-medium text-gray-800">2 Des 2024</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancel Reason -->
+                <div class="mb-6">
+                    <label for="cancelReason" class="block text-sm font-medium text-gray-700 mb-2">
+                        Alasan Pembatalan <span class="text-red-500">*</span>
+                    </label>
+                    <select id="cancelReason" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200">
+                        <option value="">Pilih alasan pembatalan</option>
+                        <option value="stok_habis">Stok produk habis</option>
+                        <option value="pembayaran_gagal">Pembayaran gagal/tidak valid</option>
+                        <option value="customer_batal">Customer meminta pembatalan</option>
+                        <option value="operasional">Kendala operasional</option>
+                        <option value="waktu_habis">Melebihi batas waktu</option>
+                        <option value="data_invalid">Data pesanan tidak lengkap</option>
+                        <option value="lainnya">Alasan lainnya</option>
+                    </select>
+                    <p id="reasonError" class="text-red-500 text-sm mt-1 hidden">Silakan pilih alasan pembatalan</p>
+                </div>
+
+                <!-- Additional Notes -->
+                <div class="mb-6">
+                    <label for="cancelNotes" class="block text-sm font-medium text-gray-700 mb-2">
+                        Catatan Tambahan (Opsional)
+                    </label>
+                    <textarea id="cancelNotes" rows="4" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200" placeholder="Tambahkan catatan atau penjelasan lebih detail..."></textarea>
+                </div>
+
+                <!-- Notification Info -->
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex">
+                        <i class="fas fa-envelope text-blue-500 mt-0.5 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-blue-700">Notifikasi ke Customer</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                Customer akan menerima email dan notifikasi tentang pembatalan pesanan ini.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button onclick="closeCancelModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 font-medium">
+                    Kembali
+                </button>
+                <button onclick="confirmCancel()" class="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 font-medium flex items-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Batalkan Pesanan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentOrderId = null;
+
+        // Open cancel modal
+        function openCancelModal(orderId, customer, total) {
+            currentOrderId = orderId;
+            
+            // Set modal content
+            document.getElementById('cancelOrderId').textContent = `#${orderId}`;
+            document.getElementById('cancelCustomer').textContent = customer;
+            document.getElementById('cancelTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            
+            // Reset form
+            document.getElementById('cancelReason').value = '';
+            document.getElementById('cancelNotes').value = '';
+            document.getElementById('reasonError').classList.add('hidden');
+            
+            // Show modal
+            document.getElementById('cancelModal').style.display = 'flex';
+        }
+
+        // Close cancel modal
+        function closeCancelModal() {
+            document.getElementById('cancelModal').style.display = 'none';
+            currentOrderId = null;
+        }
+
+        // Confirm cancel
+        function confirmCancel() {
+            const reason = document.getElementById('cancelReason').value;
+            const notes = document.getElementById('cancelNotes').value;
+            
+            // Validate reason
+            if (!reason) {
+                document.getElementById('reasonError').classList.remove('hidden');
+                document.getElementById('cancelReason').focus();
+                return;
+            }
+            
+            // Show loading state
+            const confirmBtn = document.querySelector('#cancelModal .modal-footer button:last-child');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+            confirmBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Update UI in table
+                if (currentOrderId) {
+                    const orderRow = document.getElementById(`order-${currentOrderId}`);
+                    if (orderRow) {
+                        const statusBadge = orderRow.querySelector('.status-badge');
+                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full bg-red-100 text-red-800';
+                        statusBadge.textContent = 'Cancelled';
+                        
+                        // Disable action buttons
+                        const actionButtons = orderRow.querySelectorAll('button');
+                        actionButtons.forEach(btn => {
+                            if (btn.innerHTML.includes('fa-check') || btn.innerHTML.includes('fa-times')) {
+                                btn.disabled = true;
+                                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                            }
+                        });
+                    }
+                }
+                
+                // Close modal
+                closeCancelModal();
+                
+                // Show success message
+                alert(`✅ Pesanan #${currentOrderId} berhasil dibatalakan!\nAlasan: ${getReasonText(reason)}\nCatatan: ${notes || 'Tidak ada catatan'}`);
+                
+                // Reset button state
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+                
+            }, 1500);
+        }
+
+        // Approve order function
+        function approveOrder(orderId) {
+            if (confirm(`Apakah Anda yakin ingin approve pesanan #${orderId}?`)) {
+                const orderRow = document.getElementById(`order-${orderId}`);
+                if (orderRow) {
+                    const statusBadge = orderRow.querySelector('.status-badge');
+                    statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full bg-green-100 text-green-800';
+                    statusBadge.textContent = 'Approved';
+                    
+                    // Disable action buttons
+                    const actionButtons = orderRow.querySelectorAll('button');
+                    actionButtons.forEach(btn => {
+                        if (btn.innerHTML.includes('fa-check') || btn.innerHTML.includes('fa-times')) {
+                            btn.disabled = true;
+                            btn.classList.add('opacity-50', 'cursor-not-allowed');
+                        }
+                    });
+                    
+                    alert(`✅ Pesanan #${orderId} berhasil diapprove!`);
+                }
+            }
+        }
+
+        // Helper function to get reason text
+        function getReasonText(reason) {
+            const reasons = {
+                'stok_habis': 'Stok produk habis',
+                'pembayaran_gagal': 'Pembayaran gagal/tidak valid',
+                'customer_batal': 'Customer meminta pembatalan',
+                'operasional': 'Kendala operasional',
+                'waktu_habis': 'Melebihi batas waktu',
+                'data_invalid': 'Data pesanan tidak lengkap',
+                'lainnya': 'Alasan lainnya'
+            };
+            return reasons[reason] || reason;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('cancelModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCancelModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('cancelModal').style.display === 'flex') {
+                closeCancelModal();
+            }
+        });
+    </script>
+</body>
+</html>

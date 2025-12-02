@@ -1,10 +1,28 @@
-function setRoutes(app) {
-    const IndexController = require('../controllers/index').IndexController;
-    const indexController = new IndexController();
+const express = require('express');
+const router = express.Router();
 
-    app.get('/', indexController.getIndex.bind(indexController));
-    app.get('/home', indexController.getHome.bind(indexController));
-}
+// Route utama - Tampilkan halaman home
+router.get('/', (req, res) => {
+    res.render('home', {
+        title: 'Cemal-Cemil - Home',
+        user: req.session.user || null
+    });
+});
 
+// Route untuk about
+router.get('/about', (req, res) => {
+    res.render('about', {
+        title: 'Tentang Kami - Cemal-Cemil',
+        user: req.session.user || null
+    });
+});
 
-module.exports = setRoutes;
+// Route untuk contact
+router.get('/contact', (req, res) => {
+    res.render('contact', {
+        title: 'Kontak - Cemal-Cemil',
+        user: req.session.user || null
+    });
+});
+
+module.exports = router;

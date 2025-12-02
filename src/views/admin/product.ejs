@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ff6b6b',
+                        accent: '#ff5252',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .product-card {
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.2);
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .badge-active {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .badge-inactive {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+\       <%- include('./partialsAdmin/sidebar') %>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Manajemen Produk</h1>
+                    <p class="text-gray-600 mt-2">Kelola semua produk yang tersedia di Cemal-Cemil</p>
+                </div>
+                <button onclick="showAddModal()"
+                    class="mt-4 md:mt-0 bg-primary hover:bg-accent text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-md hover:shadow-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Tambah Produk Baru
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Produk</p>
+                            <p id="total-products" class="text-2xl font-bold text-gray-800">0</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-box text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Produk Aktif</p>
+                            <p id="active-products" class="text-2xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Nilai</p>
+                            <p id="total-value" class="text-2xl font-bold text-primary">Rp 0</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <i class="fas fa-money-bill-wave text-primary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="w-full md:w-auto">
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Cari produk..."
+                                class="w-full md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <select id="status-filter"
+                            class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">Semua Status</option>
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
+                        </select>
+                        <select id="category-filter"
+                            class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">Semua Kategori</option>
+                            <option value="Makanan">Makanan</option>
+                            <option value="Minuman">Minuman</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product List -->
+            <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-12">
+                <i class="fas fa-box-open text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum ada produk</h3>
+                <p class="text-gray-500 mb-6">Tambahkan produk pertama Anda dengan klik tombol "Tambah Produk Baru"</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit Product -->
+    <div id="product-modal"
+        class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="bg-primary text-white p-6 flex justify-between items-center">
+                <h3 id="modal-title" class="text-2xl font-bold">Tambah Produk Baru</h3>
+                <button onclick="hideModal()" class="text-white hover:text-gray-200 text-3xl">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <form id="product-form" class="space-y-6">
+                    <input type="hidden" id="product-id">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Nama Produk *</label>
+                            <input type="text" id="product-name" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                placeholder="Contoh: Onigiri Ayam Suwir">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Harga (Rp) *</label>
+                            <input type="number" id="product-price" required min="0"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                placeholder="Contoh: 7000">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Deskripsi</label>
+                        <textarea id="product-description" rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="Deskripsi produk..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Kategori</label>
+                            <input type="text" id="product-category"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                placeholder="Contoh: Makanan">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+                            <select id="product-status" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="active">Aktif</option>
+                                <option value="inactive">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">URL Gambar</label>
+                        <input type="text" id="product-image"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="https://example.com/image.jpg">
+                        <p class="text-gray-500 text-sm mt-2">Biarkan kosong untuk menggunakan gambar default</p>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <button type="button" onclick="hideModal()"
+                            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300 font-semibold">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-3 bg-primary hover:bg-accent text-white rounded-lg transition duration-300 font-semibold shadow-md hover:shadow-lg">
+                            <i class="fas fa-save mr-2"></i>Simpan Produk
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Hapus Produk</h3>
+                    <p class="text-gray-600 mb-6">Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat
+                        dibatalkan.</p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="hideDeleteModal()"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">
+                            Batal
+                        </button>
+                        <button onclick="confirmDelete()"
+                            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-300 font-semibold">
+                            Ya, Hapus
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data produk dengan status dan kategori
+        let products = [
+            {
+                id: 1,
+                name: "Onigiri Ayam Suwir",
+                description: "Porsi pas rasa pas!",
+                price: 7000,
+                image: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                category: "Makanan",
+                status: "active"
+            },
+            {
+                id: 2,
+                name: "Es Teh Manis",
+                description: "Minuman segar untuk menemani hidangan Anda.",
+                price: 5000,
+                image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                category: "Minuman",
+                status: "active"
+            },
+            {
+                id: 3,
+                name: "Nasi Goreng Spesial",
+                description: "Nasi goreng dengan bumbu rahasia yang menggugah selera.",
+                price: 15000,
+                image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                category: "Makanan",
+                status: "active"
+            },
+            {
+                id: 4,
+                name: "Ayam Bakar Madu",
+                description: "Ayam bakar dengan saus madu yang manis dan gurih.",
+                price: 20000,
+                image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                category: "Makanan",
+                status: "active"
+            },
+            {
+                id: 5,
+                name: "Jus Alpukat",
+                description: "Jus alpukat segar yang kaya nutrisi.",
+                price: 8000,
+                image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                category: "Minuman",
+                status: "active"
+            },
+            {
+                id: 6,
+                name: "Mie Goreng Pedas",
+                description: "Mie goreng dengan tingkat kepedasan yang bisa disesuaikan.",
+                price: 12000,
+                image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                category: "Makanan",
+                status: "inactive"
+            }
+        ];
+
+        let productToDelete = null;
+
+        // Format currency
+        function formatCurrency(amount) {
+            return 'Rp ' + amount.toLocaleString('id-ID');
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalProducts = products.length;
+            const activeProducts = products.filter(p => p.status === 'active').length;
+            const totalValue = products.reduce((sum, product) => sum + product.price, 0);
+
+            document.getElementById('total-products').textContent = totalProducts;
+            document.getElementById('active-products').textContent = activeProducts;
+            document.getElementById('total-value').textContent = formatCurrency(totalValue);
+
+            // Show/hide empty state
+            const emptyState = document.getElementById('empty-state');
+            if (totalProducts === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        // Filter products
+        function getFilteredProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+
+            return products.filter(product => {
+                // Search filter
+                const matchesSearch = searchTerm === '' ||
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm);
+
+                // Status filter
+                const matchesStatus = statusFilter === 'all' || product.status === statusFilter;
+
+                // Category filter
+                const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+
+                return matchesSearch && matchesStatus && matchesCategory;
+            });
+        }
+
+        // Display products for admin
+        function displayProducts() {
+            const productList = document.getElementById('product-list');
+            const filteredProducts = getFilteredProducts();
+
+            if (filteredProducts.length === 0) {
+                productList.innerHTML = '';
+                document.getElementById('empty-state').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('empty-state').classList.add('hidden');
+
+            let html = '';
+            filteredProducts.forEach(product => {
+                const isActive = product.status === 'active';
+                const statusClass = isActive ? 'badge-active' : 'badge-inactive';
+                const statusText = isActive ? 'Aktif' : 'Nonaktif';
+
+                html += `
+                    <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100">
+                        <div class="relative">
+                            <img src="${product.image}" 
+                                 alt="${product.name}" 
+                                 class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="${statusClass}">
+                                    ${statusText}
+                                </span>
+                            </div>
+                            <div class="absolute top-3 left-3 flex space-x-2">
+                                <button onclick="editProduct(${product.id})" 
+                                        class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition duration-300">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="showDeleteModal(${product.id})" 
+                                        class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition duration-300">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                ${formatCurrency(product.price)}
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-lg font-bold text-gray-800">${product.name}</h3>
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                    ${product.category}
+                                </span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">${product.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">
+                                    ID: #${product.id.toString().padStart(3, '0')}
+                                </span>
+                                <button onclick="toggleStatus(${product.id})" 
+                                        class="text-sm ${isActive ? 'text-yellow-600 hover:text-yellow-700' : 'text-green-600 hover:text-green-700'}">
+                                    <i class="fas ${isActive ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i>
+                                    ${isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            productList.innerHTML = html;
+            updateStats();
+        }
+
+        // Modal functions
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = 'Tambah Produk Baru';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-id').value = '';
+            document.getElementById('product-status').value = 'active';
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                document.getElementById('modal-title').textContent = 'Edit Produk';
+                document.getElementById('product-id').value = product.id;
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-description').value = product.description || '';
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-image').value = product.image;
+                document.getElementById('product-category').value = product.category || '';
+                document.getElementById('product-status').value = product.status;
+                document.getElementById('product-modal').classList.remove('hidden');
+            }
+        }
+
+        // Toggle product status
+        function toggleStatus(id) {
+            const productIndex = products.findIndex(p => p.id === id);
+            if (productIndex !== -1) {
+                products[productIndex].status = products[productIndex].status === 'active' ? 'inactive' : 'active';
+                displayProducts();
+                showNotification(`Status produk berhasil diubah!`, 'success');
+            }
+        }
+
+        // Delete modal functions
+        function showDeleteModal(id) {
+            productToDelete = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function hideDeleteModal() {
+            productToDelete = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDelete() {
+            if (productToDelete) {
+                products = products.filter(p => p.id !== productToDelete);
+                displayProducts();
+                hideDeleteModal();
+                showNotification('Produk berhasil dihapus!', 'success');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('product-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById('product-id').value;
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = parseInt(document.getElementById('product-price').value);
+            const image = document.getElementById('product-image').value ||
+                'https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80';
+            const category = document.getElementById('product-category').value || 'Umum';
+            const status = document.getElementById('product-status').value;
+
+            if (id) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id === parseInt(id));
+                if (index !== -1) {
+                    products[index] = {
+                        id: parseInt(id),
+                        name,
+                        description,
+                        price,
+                        image,
+                        category,
+                        status
+                    };
+                    showNotification('Produk berhasil diperbarui!', 'success');
+                }
+            } else {
+                // Add new product
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({
+                    id: newId,
+                    name,
+                    description,
+                    price,
+                    image,
+                    category,
+                    status
+                });
+                showNotification('Produk berhasil ditambahkan!', 'success');
+            }
+
+            displayProducts();
+            hideModal();
+        });
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            // Remove existing notification
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-semibold z-50 animate__animated animate__fadeInRight ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.remove('animate__fadeInRight');
+                notification.classList.add('animate__fadeOutRight');
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            displayProducts();
+
+            // Setup search functionality
+            document.getElementById('search-input').addEventListener('input', displayProducts);
+            document.getElementById('status-filter').addEventListener('change', displayProducts);
+            document.getElementById('category-filter').addEventListener('change', displayProducts);
+
+            // Close modals when clicking outside
+            document.getElementById('product-modal').addEventListener('click', function (e) {
+                if (e.target.id === 'product-modal') {
+                    hideModal();
+                }
+            });
+
+            document.getElementById('delete-modal').addEventListener('click', function (e) {
+                if (e.target.id === 'delete-modal') {
+                    hideDeleteModal();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
