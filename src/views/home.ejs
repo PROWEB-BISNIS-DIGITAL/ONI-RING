@@ -324,7 +324,32 @@
     <section id="product" class="py-20 bg-secondary">
         <div class="container mx-auto px-4">
             <h2 class="text-4xl font-bold text-center mb-12 text-primary">Produk Kami</h2>
+            
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto mb-8">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="product-search" 
+                        placeholder="Cari produk favorit Anda..." 
+                        class="w-full px-6 py-4 pr-12 border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition duration-300 shadow-md"
+                    >
+                    <svg class="w-6 h-6 absolute right-5 top-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            
             <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            
+            <!-- No Results Message -->
+            <div id="no-results" class="hidden text-center py-12">
+                <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Produk tidak ditemukan</h3>
+                <p class="text-gray-500">Coba cari dengan kata kunci lain</p>
+            </div>
         </div>
     </section>
 
@@ -431,54 +456,28 @@
     </footer>
 
     <script>
-        // Data produk
-        const products = [
-            {
-                id: 1,
-                name: "Onigiri Ayam Suwir",
-                description: "Porsi pas rasa pas!",
-                price: 7000,
-                image: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            },
-            {
-                id: 2,
-                name: "Es Teh Manis",
-                description: "Minuman segar untuk menemani hidangan Anda.",
-                price: 5000,
-                image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            },
-            {
-                id: 3,
-                name: "Nasi Goreng Spesial",
-                description: "Nasi goreng dengan bumbu rahasia yang menggugah selera.",
-                price: 15000,
-                image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            },
-            {
-                id: 4,
-                name: "Ayam Bakar Madu",
-                description: "Ayam bakar dengan saus madu yang manis dan gurih.",
-                price: 20000,
-                image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            },
-            {
-                id: 5,
-                name: "Jus Alpukat",
-                description: "Jus alpukat segar yang kaya nutrisi.",
-                price: 8000,
-                image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            },
-            {
-                id: 6,
-                name: "Mie Goreng Pedas",
-                description: "Mie goreng dengan tingkat kepedasan yang bisa disesuaikan.",
-                price: 12000,
-                image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            }
-        ];
-
-        // Shopping cart
+        // Data produk akan diambil dari database
+        let products = [];
         let cart = [];
+
+        // Fetch products from database
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                
+                if (data.success) {
+                    products = data.products;
+                    displayProducts();
+                } else {
+                    console.error('Failed to fetch products:', data.message);
+                    showNotification('❌ Gagal memuat produk');
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                showNotification('❌ Gagal memuat produk');
+            }
+        }
 
         // Format currency
         function formatCurrency(amount) {
@@ -486,21 +485,45 @@
         }
 
         // Display products
-        function displayProducts() {
+        function displayProducts(filteredProducts = null) {
             const productList = document.getElementById('product-list');
-            products.forEach(product => {
+            const noResults = document.getElementById('no-results');
+            const productsToShow = filteredProducts || products;
+            
+            // Clear existing products
+            productList.innerHTML = '';
+            
+            if (productsToShow.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            
+            productsToShow.forEach(product => {
+                // Skip inactive products
+                if (product.status !== 'active') return;
+                
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card bg-white rounded-lg shadow-lg overflow-hidden';
                 productCard.innerHTML = `
                     <div class="relative overflow-hidden">
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover transform hover:scale-110 transition duration-500">
+                        <img src="${product.image || 'https://via.placeholder.com/400x300?text=No+Image'}" 
+                             alt="${product.name}" 
+                             class="w-full h-48 object-cover transform hover:scale-110 transition duration-500"
+                             onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                         <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full font-bold">
                             ${formatCurrency(product.price)}
                         </div>
+                        ${product.category ? `
+                            <div class="absolute top-2 left-2 bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
+                                ${product.category}
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="p-6">
                         <h3 class="text-xl font-bold mb-2 text-gray-800">${product.name}</h3>
-                        <p class="text-gray-600 mb-4">${product.description}</p>
+                        <p class="text-gray-600 mb-4 line-clamp-2">${product.description || 'Produk berkualitas dari Cemal-Cemil'}</p>
                         <button 
                             onclick="addToCart(${product.id})"
                             class="w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 font-semibold flex items-center justify-center"
@@ -516,9 +539,35 @@
             });
         }
 
+        // Search functionality
+        document.getElementById('product-search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                displayProducts();
+                return;
+            }
+            
+            const filteredProducts = products.filter(product => {
+                const nameMatch = product.name.toLowerCase().includes(searchTerm);
+                const descMatch = product.description && product.description.toLowerCase().includes(searchTerm);
+                const categoryMatch = product.category && product.category.toLowerCase().includes(searchTerm);
+                
+                return nameMatch || descMatch || categoryMatch;
+            });
+            
+            displayProducts(filteredProducts);
+        });
+
         // Add to cart
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
+            
+            if (!product) {
+                showNotification('❌ Produk tidak ditemukan');
+                return;
+            }
+            
             const existingItem = cart.find(item => item.id === productId);
 
             if (existingItem) {
@@ -528,7 +577,7 @@
             }
 
             updateCartUI();
-            showNotification('Produk ditambahkan ke keranjang!');
+            showNotification('✅ Produk ditambahkan ke keranjang!');
         }
 
         // Update cart UI
@@ -809,7 +858,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            displayProducts();
+            fetchProducts(); // Fetch dari database
         });
     </script>
 </body>

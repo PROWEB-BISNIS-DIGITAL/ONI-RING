@@ -55,6 +55,21 @@ const adminRoutes = require('./routes/admin');
 const debugRoutes = require('./routes/debug');
 const ordersPublicRoutes = require('./routes/orders');
 
+// Di app.js atau index.js, tambahkan:
+
+// Routes
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const adminRouter = require('./routes/admin');
+const orderRouter = require('./routes/orders');
+const apiRouter = require('./routes/api'); // TAMBAHKAN INI
+
+// Use routes
+app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/admin', adminRouter);
+app.use('/orders', orderRouter);
+app.use('/api', apiRouter); // TAMBAHKAN INI
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
