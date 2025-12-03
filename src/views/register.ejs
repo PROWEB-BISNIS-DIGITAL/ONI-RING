@@ -7,106 +7,303 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        html {
-            scroll-behavior: smooth;
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
         }
-        .hero-bg {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://wallpaperaccess.com/full/329019.jpg');
+        
+        .landscape-layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        
+        .left-side {
+            flex: 1;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://wallpaperaccess.com/full/329019.jpg');
             background-size: cover;
             background-position: center;
-            animation: fadeIn 1s ease-in;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            animation: slideInLeft 1s ease-out;
         }
+        
+        .right-side {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+            animation: slideInRight 1s ease-out;
+        }
+        
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        
+        /* Responsive for mobile */
+        @media (max-width: 768px) {
+            .landscape-layout {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            
+            .left-side {
+                min-height: 40vh;
+                animation: slideInTop 1s ease-out;
+            }
+            
+            .right-side {
+                min-height: 60vh;
+                animation: slideInBottom 1s ease-out;
+            }
+            
+            @keyframes slideInTop {
+                from {
+                    transform: translateY(-100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideInBottom {
+                from {
+                    transform: translateY(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        }
+        
+        /* Custom scrollbar */
+        .right-side::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .right-side::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .right-side::-webkit-scrollbar-thumb {
+            background: #dc2626;
+            border-radius: 3px;
+        }
+        
+        .right-side::-webkit-scrollbar-thumb:hover {
+            background: #b91c1c;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-    <!-- Navigation -->
-    <nav class="bg-gray-800 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center px-4">
-            <a href="/" class="text-2xl font-bold text-red-500">Cemal-Cemil</a>
-            <a href="/" class="hover:text-red-400 transition duration-300">← Kembali ke Beranda</a>
+    <!-- Landscape Layout Container -->
+    <div class="landscape-layout">
+        <!-- Left Side - Hero Image & Branding -->
+        <div class="left-side">
+            <!-- Back Button -->
+            <div class="absolute top-4 left-4">
+                <a href="/" class="text-white hover:text-red-300 transition duration-300 flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Kembali
+                </a>
+            </div>
+            
+            <!-- Brand Logo -->
+            <div class="mb-8">
+                <a href="/" class="text-4xl font-bold text-red-500 inline-block hover:scale-105 transition-transform duration-300">
+                    Cemal-Cemil
+                </a>
+            </div>
+            
+            <!-- Hero Content -->
+            <div class="max-w-md">
+                <h1 class="text-5xl font-bold text-white mb-6 animate__animated animate__fadeInDown">
+                    Bergabung dengan Kami!
+                </h1>
+                <p class="text-xl text-gray-200 mb-8 animate__animated animate__fadeInUp">
+                    Daftarkan diri Anda dan temukan berbagai kuliner terbaik dari seluruh nusantara.
+                </p>
+                
+                <!-- Features List -->
+                <div class="space-y-4 animate__animated animate__fadeInUp">
+                    <div class="flex items-start">
+                        <!-- <svg class="w-6 h-6 text-red-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-200">Akses ke ribuan resep dan restoran</span> -->
+                    </div>
+                    <div class="flex items-start">
+                        <!-- <svg class="w-6 h-6 text-red-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-200">Diskon khusus untuk member</span> -->
+                    </div>
+                    <div class="flex items-start">
+                        <!-- <svg class="w-6 h-6 text-red-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span class="text-gray-200">Komunitas pecinta kuliner</span> -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer on Left Side -->
+            <div class="absolute bottom-4 left-4 right-4">
+                <p class="text-gray-300 text-sm">&copy; 2025 Cemal-Cemil. Semua hak dilindungi.</p>
+                <p class="text-gray-400 text-xs mt-1">Dibuat dengan ai untuk pecinta kuliner</p>
+            </div>
         </div>
-    </nav>
-
-    <!-- Register Section -->
-    <section class="hero-bg text-white py-20">
-        <div class="container mx-auto text-center px-4">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6 animate__animated animate__fadeInDown">Daftar Akun Baru</h2>
-            <p class="text-lg md:text-xl mb-8 animate__animated animate__fadeInUp">Bergabunglah dengan komunitas kami!</p>
-        </div>
-    </section>
-
-    <!-- Register Form -->
-    <section class="py-16">
-        <div class="container mx-auto px-4">
-            <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+        
+        <!-- Right Side - Registration Form -->
+        <div class="right-side">
+            <div class="max-w-md w-full mx-auto">
+                <!-- Form Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Buat Akun Baru</h2>
+                    <p class="text-gray-600">Isi data diri Anda untuk bergabung</p>
+                </div>
+                
+                <!-- Error Message -->
                 <% if (error) { %>
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                        <%= error %>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 animate__animated animate__shakeX">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700"><%= error %></p>
+                            </div>
+                        </div>
                     </div>
                 <% } %>
                 
-                <form method="POST" action="/auth/register" class="space-y-6">
+                <!-- Registration Form -->
+                <form method="POST" action="/auth/register" class="space-y-4">
+                    <!-- Name Field -->
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Nama Lengkap</label>
-                        <input type="text" name="name" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                               placeholder="Nama Anda">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                            Nama Lengkap
+                        </label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200"
+                               placeholder="Masukkan nama lengkap Anda">
                     </div>
                     
+                    <!-- Email Field -->
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
-                        <input type="email" name="email" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                               placeholder="email@contoh.com">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                            Email
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200"
+                               placeholder="contoh@email.com">
                     </div>
                     
+                    <!-- Phone Field -->
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Nomor Telepon</label>
-                        <input type="tel" name="phone"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
+                            Nomor Telepon
+                        </label>
+                        <input type="tel" 
+                               id="phone" 
+                               name="phone"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200"
                                placeholder="08xxxxxxxxxx">
                     </div>
                     
+                    <!-- Password Field -->
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Password</label>
-                        <input type="password" name="password" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                               placeholder="••••••••">
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200"
+                               placeholder="Minimal 8 karakter">
                     </div>
                     
+                    <!-- Confirm Password Field -->
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Konfirmasi Password</label>
-                        <input type="password" name="confirmPassword" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                               placeholder="••••••••">
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">
+                            Konfirmasi Password
+                        </label>
+                        <input type="password" 
+                               id="confirmPassword" 
+                               name="confirmPassword" 
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200"
+                               placeholder="Ulangi password Anda">
                     </div>
                     
+                    <!-- Submit Button -->
                     <button type="submit"
-                            class="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg">
-                        Daftar
+                            class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-[1.02] active:scale-[0.98] mt-2">
+                        Daftar Sekarang
                     </button>
                 </form>
                 
+                <!-- Login Link -->
                 <div class="mt-6 pt-6 border-t border-gray-200 text-center">
                     <p class="text-gray-600">
                         Sudah punya akun? 
-                        <a href="/auth/login" class="text-red-500 font-semibold hover:underline">Masuk di sini</a>
+                        <a href="/auth/login" 
+                           class="text-red-500 font-semibold hover:text-red-600 hover:underline transition duration-300">
+                            Masuk di sini
+                        </a>
                     </p>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto text-center">
-            <p class="text-lg">&copy; 2024 Cemal-Cemil. Semua hak dilindungi.</p>
-            <p class="mt-2 text-gray-400">Dibuat dengan ❤️ untuk pecinta kuliner</p>
-        </div>
-    </footer>
+    </div>
 </body>
 </html>
