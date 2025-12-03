@@ -1,25 +1,27 @@
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
 
-const dbConfig = {
+// Konfigurasi koneksi database
+const pool = mysql.createPool({
     host: 'localhost',
-    user: 'root', // ganti dengan username MySQL Anda
-    password: '', // ganti dengan password MySQL Anda
+    user: 'root',
+    password: '', // sesuaikan dengan password MySQL Anda
     database: 'cemilan_ku',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-};
+});
 
-const pool = mysql.createPool(dbConfig);
+// Membuat promise pool untuk async/await
+const promisePool = pool.promise();
 
-// Test connection
-pool.getConnection()
-    .then(connection => {
-        console.log('✅ Connected to MySQL database');
-        connection.release();
-    })
-    .catch(err => {
-        console.error('❌ Database connection failed:', err.message);
-    });
+// Test koneksi
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Error connecting to database:', err.message);
+        return;
+    }
+    console.log('✅ Database connected successfully');
+    connection.release();
+});
 
-module.exports = pool;
+module.exports = promisePool;

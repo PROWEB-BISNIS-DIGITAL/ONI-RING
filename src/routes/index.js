@@ -1,6 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const authRoutes = require('./auth');
+const adminRoutes = require('./admin');
+const orderRoutes = require('./orders');
 
+// Public routes
+router.use('/auth', authRoutes);
+router.use('/orders', orderRoutes); // Tambahkan ini
+
+// Admin routes (protected)
+router.use('/admin', adminRoutes);
+
+module.exports = router;
 // Route utama - Tampilkan halaman home
 router.get('/', (req, res) => {
     res.render('home', {

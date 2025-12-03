@@ -47,13 +47,18 @@ class AuthController {
                 email: user.email,
                 role: user.role
             };
-            
-            // 5. Redirect berdasarkan role
-            if (user.role === 'admin') {
-                res.redirect('/admin/dashboard');
-            } else {
-                res.redirect('/');
-            }
+            // Also set legacy/session shorthand used by middleware
+            req.session.userId = user.id;
+            req.session.role = user.role;
+
+            // 5. Save session then redirect berdasarkan role (hindari race condition dengan store)
+            req.session.save((err) => {
+                if (err) console.error('Session save error:', err);
+                if (user.role === 'admin') {
+                    return res.redirect('/admin/dashboard');
+                }
+                return res.redirect('/');
+            });
             
         } catch (error) {
             console.error('Login error:', error);
@@ -117,8 +122,14 @@ class AuthController {
                 email,
                 role: 'user'
             };
-            
-            res.redirect('/');
+            // Also set legacy/session shorthand used by middleware
+            req.session.userId = result.insertId;
+            req.session.role = 'user';
+            // Save session then redirect
+            req.session.save((err) => {
+                if (err) console.error('Session save error:', err);
+                return res.redirect('/');
+            });
             
         } catch (error) {
             console.error('Register error:', error);

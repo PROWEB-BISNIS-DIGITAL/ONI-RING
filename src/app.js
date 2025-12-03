@@ -52,11 +52,21 @@ app.set('view engine', 'ejs');
 const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const debugRoutes = require('./routes/debug');
+const ordersPublicRoutes = require('./routes/orders');
 
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+
+// Mount debug routes only in non-production for quick checks
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/debug', debugRoutes);
+}
+
+// Public orders endpoint
+app.use('/orders', ordersPublicRoutes);
 
 // 404 handler
 app.use((req, res) => {

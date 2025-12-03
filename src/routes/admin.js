@@ -1,53 +1,42 @@
 const express = require('express');
 const router = express.Router();
+
+// Import controllers
+const dashboardController = require('../controllers/dashboardController');
+const ordersController = require('../controllers/ordersController');
+const productsController = require('../controllers/productsController');
+const usersController = require('../controllers/usersController');
+
+// Middleware untuk check admin (pastikan Anda sudah punya middleware ini)
 const { isAdmin } = require('../middleware/authMiddleware');
 
-// Admin dashboard (hanya admin yang bisa akses)
-router.get('/dashboard', isAdmin, (req, res) => {
-    res.render('admin/dashboard', {
-        title: 'Admin Dashboard - Cemal-Cemil',
-        user: req.session.user
-    });
-});
+// Apply middleware ke semua route admin
+router.use(isAdmin);
 
-// Admin products management
-router.get('/product', isAdmin, (req, res) => {
-    res.render('admin/product', {
-        title: 'Kelola Produk - Cemal-Cemil',
-        user: req.session.user
-    });
-});
+// ============ DASHBOARD ROUTES ============
+router.get('/dashboard', dashboardController.getDashboard);
 
-// Admin orders management
-router.get('/orders', isAdmin, (req, res) => {
-    res.render('admin/orders', {
-        title: 'Kelola Pesanan - Cemal-Cemil',
-        user: req.session.user
-    });
-});
+// ============ ORDERS ROUTES ============
+router.get('/orders', ordersController.getOrders);
+router.get('/orders/:orderId', ordersController.getOrderDetail);
+router.post('/orders/:orderId/approve', ordersController.approveOrder);
+router.post('/orders/:orderId/cancel', ordersController.cancelOrder);
+router.post('/orders/:orderId/complete', ordersController.completeOrder);
 
-// Admin users management
-router.get('/users', isAdmin, (req, res) => {
-    res.render('admin/users', {
-        title: 'Kelola Pengguna - Cemal-Cemil',
-        user: req.session.user
-    });
-});
+// ============ PRODUCTS ROUTES ============
+router.get('/products', productsController.getProducts);
+router.post('/products', productsController.addProduct);
+router.get('/products/:productId', productsController.getProductById);
+router.put('/products/:productId', productsController.updateProduct);
+router.delete('/products/:productId', productsController.deleteProduct);
+router.post('/products/:productId/toggle-status', productsController.toggleProductStatus);
 
-// Admin messages/contact
-router.get('/messages', isAdmin, (req, res) => {
-    res.render('admin/messages', {
-        title: 'Pesan Masuk - Cemal-Cemil',
-        user: req.session.user
-    });
-});
-
-// Admin settings
-router.get('/settings', isAdmin, (req, res) => {
-    res.render('admin/settings', {
-        title: 'Pengaturan - Cemal-Cemil',
-        user: req.session.user
-    });
-});
+// ============ USERS ROUTES ============
+router.get('/users', usersController.getUsers);
+router.get('/users/:userId', usersController.getUserById);
+router.post('/users', usersController.addUser);
+router.put('/users/:userId', usersController.updateUser);
+router.delete('/users/:userId', usersController.deleteUser);
+router.post('/users/:userId/toggle-role', usersController.toggleUserRole);
 
 module.exports = router;
