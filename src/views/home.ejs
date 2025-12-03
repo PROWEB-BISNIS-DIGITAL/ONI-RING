@@ -324,7 +324,32 @@
     <section id="product" class="py-20 bg-secondary">
         <div class="container mx-auto px-4">
             <h2 class="text-4xl font-bold text-center mb-12 text-primary">Produk Kami</h2>
+            
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto mb-8">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="product-search" 
+                        placeholder="Cari produk favorit Anda..." 
+                        class="w-full px-6 py-4 pr-12 border-2 border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition duration-300 shadow-md"
+                    >
+                    <svg class="w-6 h-6 absolute right-5 top-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            
             <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            
+            <!-- No Results Message -->
+            <div id="no-results" class="hidden text-center py-12">
+                <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Produk tidak ditemukan</h3>
+                <p class="text-gray-500">Coba cari dengan kata kunci lain</p>
+            </div>
         </div>
     </section>
 
@@ -430,55 +455,29 @@
         </div>
     </footer>
 
-    <script>
-    // Data produk
-    const products = [
-        {
-            id: 1,
-            name: "Onigiri Ayam Suwir",
-            description: "Porsi pas rasa pas!",
-            price: 7000,
-            image: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-        },
-        {
-            id: 2,
-            name: "Es Teh Manis",
-            description: "Minuman segar untuk menemani hidangan Anda.",
-            price: 5000,
-            image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-        },
-        {
-            id: 3,
-            name: "Nasi Goreng Spesial",
-            description: "Nasi goreng dengan bumbu rahasia yang menggugah selera.",
-            price: 15000,
-            image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-        },
-        {
-            id: 4,
-            name: "Ayam Bakar Madu",
-            description: "Ayam bakar dengan saus madu yang manis dan gurih.",
-            price: 20000,
-            image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-        },
-        {
-            id: 5,
-            name: "Jus Alpukat",
-            description: "Jus alpukat segar yang kaya nutrisi.",
-            price: 8000,
-            image: "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-        },
-        {
-            id: 6,
-            name: "Mie Goreng Pedas",
-            description: "Mie goreng dengan tingkat kepedasan yang bisa disesuaikan.",
-            price: 12000,
-            image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-        }
-    ];
-
-    // Shopping cart
+<script>
+    // Data produk akan diambil dari database
+    let products = [];
     let cart = [];
+
+    // Fetch products from database
+    async function fetchProducts() {
+        try {
+            const response = await fetch('/api/products');
+            const data = await response.json();
+            
+            if (data.success) {
+                products = data.products;
+                displayProducts();
+            } else {
+                console.error('Failed to fetch products:', data.message);
+                showNotification('❌ Gagal memuat produk');
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            showNotification('❌ Gagal memuat produk');
+        }
+    }
 
     // Format currency
     function formatCurrency(amount) {
@@ -486,21 +485,45 @@
     }
 
     // Display products
-    function displayProducts() {
+    function displayProducts(filteredProducts = null) {
         const productList = document.getElementById('product-list');
-        products.forEach(product => {
+        const noResults = document.getElementById('no-results');
+        const productsToShow = filteredProducts || products;
+        
+        // Clear existing products
+        productList.innerHTML = '';
+        
+        if (productsToShow.length === 0) {
+            noResults.classList.remove('hidden');
+            return;
+        }
+        
+        noResults.classList.add('hidden');
+        
+        productsToShow.forEach(product => {
+            // Skip inactive products
+            if (product.status !== 'active') return;
+            
             const productCard = document.createElement('div');
             productCard.className = 'product-card bg-white rounded-lg shadow-lg overflow-hidden';
             productCard.innerHTML = `
                 <div class="relative overflow-hidden">
-                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover transform hover:scale-110 transition duration-500">
+                    <img src="${product.image || 'https://via.placeholder.com/400x300?text=No+Image'}" 
+                         alt="${product.name}" 
+                         class="w-full h-48 object-cover transform hover:scale-110 transition duration-500"
+                         onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
                     <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full font-bold">
                         ${formatCurrency(product.price)}
                     </div>
+                    ${product.category ? `
+                        <div class="absolute top-2 left-2 bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
+                            ${product.category}
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-bold mb-2 text-gray-800">${product.name}</h3>
-                    <p class="text-gray-600 mb-4">${product.description}</p>
+                    <p class="text-gray-600 mb-4 line-clamp-2">${product.description || 'Produk berkualitas dari Cemal-Cemil'}</p>
                     <button 
                         onclick="addToCart(${product.id})"
                         class="w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 font-semibold flex items-center justify-center"
@@ -516,9 +539,35 @@
         });
     }
 
+    // Search functionality
+    document.getElementById('product-search').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        
+        if (searchTerm === '') {
+            displayProducts();
+            return;
+        }
+        
+        const filteredProducts = products.filter(product => {
+            const nameMatch = product.name.toLowerCase().includes(searchTerm);
+            const descMatch = product.description && product.description.toLowerCase().includes(searchTerm);
+            const categoryMatch = product.category && product.category.toLowerCase().includes(searchTerm);
+            
+            return nameMatch || descMatch || categoryMatch;
+        });
+        
+        displayProducts(filteredProducts);
+    });
+
     // Add to cart
     function addToCart(productId) {
         const product = products.find(p => p.id === productId);
+        
+        if (!product) {
+            showNotification('❌ Produk tidak ditemukan');
+            return;
+        }
+        
         const existingItem = cart.find(item => item.id === productId);
 
         if (existingItem) {
@@ -528,7 +577,7 @@
         }
 
         updateCartUI();
-        showNotification('Produk ditambahkan ke keranjang!');
+        showNotification('✅ Produk ditambahkan ke keranjang!');
     }
 
     // Update cart UI
@@ -543,7 +592,7 @@
     // Show notification
     function showNotification(message) {
         const notification = document.createElement('div');
-        notification.className = 'fixed top-20 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 animate__animated animate__fadeInRight';
+        notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate__animated animate__fadeInRight';
         notification.textContent = message;
         document.body.appendChild(notification);
         setTimeout(() => {
@@ -678,7 +727,7 @@
     });
 
     // ============================================
-    // CHECKOUT FORM SUBMISSION - FIXED VERSION
+    // CHECKOUT FORM SUBMISSION - DENGAN POPUP SUCCESS
     // ============================================
     document.getElementById('checkout-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -747,7 +796,7 @@
             console.log('Response:', data); // Debug
             
             if (data.success) {
-                // Show success popup
+                // Show success popup (versi landscape hijau kecil)
                 showSuccessPopup(name, data.orderId || Date.now(), total, payment, phone);
                 
                 // Reset cart
@@ -776,10 +825,10 @@
     });
 
     // ============================================
-    // FUNCTION UNTUK SHOW SUCCESS POPUP (LANDSCAPE)
+    // FUNCTION UNTUK SHOW SUCCESS POPUP (LANDSCAPE HIJAU KECIL)
     // ============================================
     function showSuccessPopup(customerName, orderId, totalAmount, paymentMethod, phoneNumber) {
-        // Generate order number dengan format yang lebih baik
+        // Generate order number
         const formattedOrderId = orderId.toString().slice(-6).padStart(6, '0');
         
         // Buat overlay modal
@@ -787,143 +836,104 @@
         overlay.id = 'success-popup-overlay';
         overlay.className = 'fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 animate__animated animate__fadeIn';
         
-        // Buat konten popup dengan layout landscape
+        // Buat konten popup landscape kecil
         const popupContent = document.createElement('div');
-        popupContent.className = 'bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden animate__animated animate__zoomIn success-popup-landscape';
+        popupContent.className = 'bg-white rounded-xl shadow-2xl w-full max-w-2xl animate__animated animate__zoomIn success-popup-landscape-small';
         
-        // Popup content
+        // Popup content landscape kecil
         popupContent.innerHTML = `
-            <!-- Header dengan tema merah -->
-            <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 text-center">
-                <div class="flex justify-center mb-4">
-                    <div class="bg-white rounded-full p-4 animate__animated animate__bounceIn">
-                        <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <h3 class="text-3xl font-bold text-white mb-2">Pesanan Berhasil!</h3>
-                <p class="text-red-100 text-lg">Terima kasih, ${customerName}</p>
-            </div>
-            
-            <!-- Content Landscape -->
             <div class="flex flex-col md:flex-row">
-                <!-- Left Side - Order Details -->
-                <div class="md:w-1/2 p-6 border-r border-gray-200">
+                <!-- Left Side - Success Icon & Order Info -->
+                <div class="md:w-2/5 bg-gradient-to-b from-green-500 to-emerald-600 text-white p-6 flex flex-col items-center justify-center">
+                    <div class="mb-4">
+                        <div class="bg-white rounded-full p-4 animate__animated animate__bounceIn">
+                            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-center">Pesanan Berhasil!</h3>
+                    <p class="text-green-100 text-center mb-6">Terima kasih, ${customerName}</p>
+                    
                     <!-- Order ID -->
-                    <div class="text-center mb-8">
-                        <p class="text-gray-600 mb-2 text-lg">Kode Pesanan</p>
-                        <div class="inline-block bg-red-50 border-2 border-red-200 px-8 py-4 rounded-xl animate__animated animate__pulse">
-                            <span class="text-3xl font-bold text-red-600 tracking-widest">ORD-${formattedOrderId}</span>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4 w-full">
+                        <p class="text-green-100 text-sm mb-2">Kode Pesanan</p>
+                        <div class="bg-white rounded-lg p-3 text-center">
+                            <span class="text-xl font-bold text-green-600 tracking-wide">ORD-${formattedOrderId}</span>
                         </div>
-                        <p class="text-gray-500 text-sm mt-2">Simpan kode ini untuk tracking</p>
-                    </div>
-                    
-                    <!-- Order Summary -->
-                    <div class="mb-6">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4">Rincian Pesanan</h4>
-                        <div class="space-y-3">
-                            ${cart.map(item => `
-                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <div class="flex items-center">
-                                        <span class="font-medium text-gray-700">${item.name} x${item.quantity}</span>
-                                    </div>
-                                    <span class="font-semibold text-red-600">${formatCurrency(item.price * item.quantity)}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <!-- Contact Info -->
-                    <div class="bg-red-50 p-4 rounded-lg">
-                        <h5 class="font-semibold text-red-700 mb-2">📞 Kontak Anda</h5>
-                        <p class="text-gray-700">${phoneNumber || 'Nomor belum diisi'}</p>
-                        <p class="text-sm text-gray-500 mt-1">Kami akan menghubungi via WhatsApp</p>
                     </div>
                 </div>
                 
-                <!-- Right Side - Payment & Status -->
-                <div class="md:w-1/2 p-6">
-                    <!-- Total Payment -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-xl">
+                <!-- Right Side - Order Details -->
+                <div class="md:w-3/5 p-6">
+                    <!-- Customer Info -->
+                    <div class="mb-4">
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">📋 Informasi Pesanan</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Nama:</span>
+                                <span class="font-medium">${customerName}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Telepon:</span>
+                                <span class="font-medium">${phoneNumber || '-'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Jumlah Item:</span>
+                                <span class="font-medium">${cart.reduce((sum, item) => sum + item.quantity, 0)} item</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total & Payment -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg mb-3">
                             <div>
-                                <span class="text-lg font-bold text-gray-800">Total Pembayaran</span>
-                                <p class="text-sm text-gray-600">Termasuk semua biaya</p>
+                                <span class="font-bold text-gray-800">Total Pembayaran</span>
                             </div>
-                            <span class="text-3xl font-bold text-red-600">Rp ${totalAmount.toLocaleString('id-ID')}</span>
+                            <span class="text-xl font-bold text-green-600">Rp ${totalAmount.toLocaleString('id-ID')}</span>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    ${getPaymentIconSmall(paymentMethod)}
+                                </div>
+                                <div>
+                                    <span class="font-bold text-gray-800">${getPaymentName(paymentMethod)}</span>
+                                    <p class="text-xs text-gray-600">${getPaymentMessage(paymentMethod)}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Payment Method -->
+                    <!-- Status -->
                     <div class="mb-6">
-                        <h4 class="text-xl font-bold text-gray-800 mb-3">💳 Metode Pembayaran</h4>
-                        <div class="flex items-center p-4 bg-white border-2 border-red-200 rounded-lg">
-                            ${getPaymentIcon(paymentMethod)}
-                            <div class="ml-3">
-                                <span class="font-bold text-lg text-gray-800">${getPaymentName(paymentMethod)}</span>
-                                <p class="text-sm text-gray-600">${getPaymentMessage(paymentMethod)}</p>
-                            </div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium text-gray-700">Status Pesanan:</span>
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Diproses</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full w-1/3 animate-pulse"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>Dikirim</span>
+                            <span>Selesai</span>
                         </div>
                     </div>
                     
-                    <!-- Order Status -->
-                    <div class="mb-8">
-                        <h4 class="text-xl font-bold text-gray-800 mb-3">📦 Status Pesanan</h4>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3">
-                                        <span class="text-white font-bold">1</span>
-                                    </div>
-                                    <span class="font-medium ${paymentMethod === 'COD' ? 'text-red-600' : 'text-gray-600'}">Pembayaran ${paymentMethod === 'COD' ? 'COD' : 'Diverifikasi'}</span>
-                                </div>
-                                <div class="w-3 h-3 rounded-full ${paymentMethod === 'COD' ? 'bg-red-500 animate-pulse' : 'bg-green-500'}"></div>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-                                        <span class="text-white font-bold">2</span>
-                                    </div>
-                                    <span class="font-medium text-yellow-600">Diproses</span>
-                                </div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                                        <span class="text-gray-600 font-bold">3</span>
-                                    </div>
-                                    <span class="font-medium text-gray-400">Dikirim</span>
-                                </div>
-                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                                        <span class="text-gray-600 font-bold">4</span>
-                                    </div>
-                                    <span class="font-medium text-gray-400">Selesai</span>
-                                </div>
-                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Action Button -->
+                    <!-- Button -->
                     <button id="close-success-popup" 
-                            class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 px-6 rounded-xl transition duration-300 transform hover:scale-105 font-bold text-lg shadow-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold shadow-md flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
-                        Selesai
+                        OK, Pesanan Selesai
                     </button>
                     
-                    <p class="text-center text-gray-500 text-sm mt-4">
-                        ⏱️ Popup akan tertutup otomatis dalam 15 detik
+                    <!-- Note -->
+                    <p class="text-center text-gray-500 text-xs mt-3">
+                        Notifikasi akan dikirim via WhatsApp dalam 5 menit
                     </p>
                 </div>
             </div>
@@ -932,8 +942,8 @@
         // Tambahkan ke overlay
         overlay.appendChild(popupContent);
         
-        // Tambahkan efek konfeti merah
-        createRedConfettiEffect();
+        // Tambahkan efek konfeti hijau
+        createGreenConfettiEffect();
         
         // Tambahkan ke body
         document.body.appendChild(overlay);
@@ -946,43 +956,35 @@
                 setTimeout(() => overlay.remove(), 500);
             });
             
-            // Auto close setelah 15 detik
+            // Auto close setelah 10 detik
             setTimeout(() => {
                 if (document.body.contains(overlay)) {
                     overlay.classList.remove('animate__fadeIn');
                     overlay.classList.add('animate__fadeOut');
                     setTimeout(() => overlay.remove(), 500);
                 }
-            }, 15000);
+            }, 10000);
         }, 100);
     }
 
     // ============================================
-    // HELPER FUNCTIONS UNTUK POPUP
+    // HELPER FUNCTIONS UNTUK POPUP LANDSCAPE
     // ============================================
-    function getPaymentIcon(paymentMethod) {
+    function getPaymentIconSmall(paymentMethod) {
         const icons = {
-            'COD': `<div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>`,
-            'GoPay': `<div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" class="w-8 h-8">
-                      </div>`,
-            'OVO': `<div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg" alt="OVO" class="w-8 h-8">
-                    </div>`,
-            'DANA': `<div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA" class="w-8 h-8">
-                     </div>`
+            'COD': `<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>`,
+            'GoPay': `<img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" class="w-6 h-6">`,
+            'OVO': `<img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg" alt="OVO" class="w-6 h-6">`,
+            'DANA': `<img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA" class="w-6 h-6">`
         };
         return icons[paymentMethod] || icons['COD'];
     }
 
     function getPaymentName(paymentMethod) {
         const names = {
-            'COD': 'Cash On Delivery (COD)',
+            'COD': 'Cash On Delivery',
             'GoPay': 'GoPay',
             'OVO': 'OVO',
             'DANA': 'DANA'
@@ -992,30 +994,30 @@
 
     function getPaymentMessage(paymentMethod) {
         const messages = {
-            'COD': 'Bayar tunai saat pesanan diterima',
-            'GoPay': 'Pembayaran via aplikasi GoPay',
-            'OVO': 'Pembayaran via aplikasi OVO',
-            'DANA': 'Pembayaran via aplikasi DANA'
+            'COD': 'Bayar saat pesanan diterima',
+            'GoPay': 'Pembayaran via GoPay',
+            'OVO': 'Pembayaran via OVO',
+            'DANA': 'Pembayaran via DANA'
         };
-        return messages[paymentMethod] || 'Pembayaran digital';
+        return messages[paymentMethod] || 'Metode pembayaran';
     }
 
     // ============================================
-    // EFEK KONFETI MERAH
+    // EFEK KONFETI HIJAU
     // ============================================
-    function createRedConfettiEffect() {
-        const confettiCount = 30;
-        const colors = ['#dc2626', '#ef4444', '#f87171', '#fca5a5', '#fee2e2'];
+    function createGreenConfettiEffect() {
+        const confettiCount = 25;
+        const colors = ['#10b981', '#34d399', '#059669', '#047857', '#065f46'];
         
         for (let i = 0; i < confettiCount; i++) {
             const confetti = document.createElement('div');
-            confetti.className = 'confetti-red';
+            confetti.className = 'confetti-green';
             confetti.style.cssText = `
                 position: fixed;
-                width: 12px;
-                height: 12px;
+                width: 10px;
+                height: 10px;
                 background-color: ${colors[Math.floor(Math.random() * colors.length)]};
-                top: 30%;
+                top: 40%;
                 left: 50%;
                 border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
                 opacity: 0.9;
@@ -1025,7 +1027,7 @@
             
             // Animasi
             const angle = Math.random() * Math.PI * 2;
-            const velocity = 60 + Math.random() * 120;
+            const velocity = 50 + Math.random() * 100;
             const rotation = Math.random() * 360;
             
             const animation = confetti.animate([
@@ -1079,19 +1081,19 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-        displayProducts();
+        fetchProducts(); // Fetch dari database
         
-        // Tambahkan style untuk popup landscape dan confetti
+        // Tambahkan style untuk popup landscape kecil dan confetti
         const style = document.createElement('style');
         style.textContent = `
-            .success-popup-landscape {
-                animation: popupSlideIn 0.6s ease-out;
+            .success-popup-landscape-small {
+                animation: popupSlideIn 0.5s ease-out;
             }
             
             @keyframes popupSlideIn {
                 0% {
                     opacity: 0;
-                    transform: translateY(-20px) scale(0.95);
+                    transform: translateY(-15px) scale(0.95);
                 }
                 100% {
                     opacity: 1;
@@ -1099,38 +1101,45 @@
                 }
             }
             
-            .confetti-red {
-                animation: fallRed linear forwards;
+            .confetti-green {
+                animation: fallGreen linear forwards;
             }
             
-            @keyframes fallRed {
+            @keyframes fallGreen {
                 0% {
-                    transform: translateY(-20px) rotate(0deg);
+                    transform: translateY(0) rotate(0deg);
                     opacity: 1;
                 }
                 100% {
-                    transform: translateY(100vh) rotate(720deg);
+                    transform: translateY(100vh) rotate(360deg);
                     opacity: 0;
                 }
             }
             
+            /* Responsif untuk mobile */
             @media (max-width: 768px) {
-                .success-popup-landscape {
-                    max-height: 90vh;
-                    overflow-y: auto;
+                .success-popup-landscape-small {
+                    max-width: 95%;
                 }
                 
-                .success-popup-landscape .flex-col.md\\:flex-row {
+                .success-popup-landscape-small .flex-col.md\\:flex-row {
                     flex-direction: column;
                 }
                 
-                .success-popup-landscape .md\\:w-1\\/2 {
+                .success-popup-landscape-small .md\\:w-2\\/5,
+                .success-popup-landscape-small .md\\:w-3\\/5 {
                     width: 100%;
                 }
                 
-                .success-popup-landscape .border-r {
-                    border-right: none;
-                    border-bottom: 1px solid #e5e7eb;
+                .success-popup-landscape-small .md\\:w-2\\/5 {
+                    padding: 1.5rem;
+                }
+            }
+            
+            /* Untuk desktop landscape */
+            @media (min-width: 769px) {
+                .success-popup-landscape-small {
+                    max-width: 600px;
                 }
             }
         `;

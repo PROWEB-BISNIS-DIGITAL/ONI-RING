@@ -13,6 +13,7 @@ class AuthController {
     // Proses login
     async login(req, res) {
         try {
+            // mengambil data email dan password dari input
             const { email, password } = req.body;
             
             // 1. Cari user di database
