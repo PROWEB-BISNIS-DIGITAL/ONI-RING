@@ -7,44 +7,89 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        html {
-            scroll-behavior: smooth;
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Menghilangkan scroll */
         }
-        .hero-bg {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://wallpaperaccess.com/full/329019.jpg');
+        .full-page-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://wallpaperaccess.com/full/329019.jpg');
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             animation: fadeIn 1s ease-in;
+        }
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+        .login-form-wrapper {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-    <!-- Navigation -->
-    <nav class="bg-gray-800 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center px-4">
-            <a href="/" class="text-2xl font-bold text-red-500">Cemal-Cemil</a>
-            <a href="/" class="hover:text-red-400 transition duration-300">← Kembali ke Beranda</a>
-        </div>
-    </nav>
+    <!-- Full Page Background -->
+    <div class="full-page-bg"></div>
+    
+    <!-- Fixed Login Container -->
+    <div class="login-container">
+        <!-- Navigation Bar (Compact) -->
+        <nav class="absolute top-0 left-0 w-full bg-gray-800 bg-opacity-90 text-white py-3 px-4 z-10">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-red-500">Cemal-Cemil</a>
+                <a href="/" class="text-sm hover:text-red-400 transition duration-300">← Kembali</a>
+            </div>
+        </nav>
 
-    <!-- Login Section -->
-    <section class="hero-bg text-white py-20">
-        <div class="container mx-auto text-center px-4">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6 animate__animated animate__fadeInDown">Masuk ke Akun</h2>
-            <p class="text-lg md:text-xl mb-8 animate__animated animate__fadeInUp">Selamat datang kembali!</p>
-        </div>
-    </section>
-
-    <!-- Login Form -->
-    <section class="py-16">
-        <div class="container mx-auto px-4">
-            <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <!-- Login Content -->
+        <div class="login-form-wrapper px-4">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-white animate__animated animate__fadeInDown">
+                    Masuk ke Akun
+                </h2>
+                <p class="text-lg text-white animate__animated animate__fadeInUp">
+                    Selamat datang kembali!
+                </p>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="bg-white bg-opacity-95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-white border-opacity-20 animate__animated animate__fadeIn">
                 <% if (error) { %>
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 animate__animated animate__shakeX">
                         <%= error %>
                     </div>
                 <% } %>
@@ -65,7 +110,7 @@
                     </div>
                     
                     <button type="submit"
-                            class="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg">
+                            class="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg transform hover:scale-[1.02] active:scale-[0.98]">
                         Masuk
                     </button>
                 </form>
@@ -73,19 +118,21 @@
                 <div class="mt-6 pt-6 border-t border-gray-200 text-center">
                     <p class="text-gray-600">
                         Belum punya akun? 
-                        <a href="/auth/register" class="text-red-500 font-semibold hover:underline">Daftar di sini</a>
+                        <a href="/auth/register" class="text-red-500 font-semibold hover:underline transition duration-300">
+                            Daftar di sini
+                        </a>
                     </p>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto text-center">
-            <p class="text-lg">&copy; 2024 Cemal-Cemil. Semua hak dilindungi.</p>
-            <p class="mt-2 text-gray-400">Dibuat dengan ❤️ untuk pecinta kuliner</p>
-        </div>
-    </footer>
+        <!-- Fixed Footer (Bottom) -->
+        <footer class="absolute bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 text-white py-4 px-4">
+            <div class="text-center">
+                <p class="text-sm">&copy; 2024 Cemal-Cemil. Semua hak dilindungi.</p>
+                <p class="text-xs text-gray-300 mt-1">Dibuat dengan ❤️ untuk pecinta kuliner</p>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>
