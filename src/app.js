@@ -1,22 +1,91 @@
-const express = require('express')
-const path = require('path')
-const IndexController = require('./controllers/index')
-const app = express()
-const port = 3000
+const express = require('express');
+const path = require('path');
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+const pool = require('./config/database');
+const { userToLocals } = require('./middleware/authMiddleware');
 
-// untuk Tailwindcsss
+const app = express();
+const port = 3000;
+
+// Konfigurasi session store
+const sessionStore = new MySQLStore({
+    expiration: 86400000, // 1 hari
+    createDatabaseTable: true,
+    schema: {
+        tableName: 'sessions',
+        columnNames: {
+            session_id: 'session_id',
+            expires: 'expires',
+            data: 'data'
+        }
+    }
+}, pool);
+
+// Middleware
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-// Set view engine EJS
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
+// Session middleware
+app.use(session({
+    key: 'onin_ring_session',
+    secret: 'onin_ring_secret_key_2024',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 1 hari
+        httpOnly: true,
+        secure: false // true jika HTTPS
+    }
+}));
 
-// Controller
-const indexController = new IndexController()
+// Middleware untuk menyimpan user ke locals
+app.use(userToLocals);
 
-// Route utama
-app.get('/', (req, res) => indexController.getHome(req, res))
+// Set view engine
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// Import routes
+const indexRoutes = require('./routes/index');
+const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
+const debugRoutes = require('./routes/debug');
+const ordersPublicRoutes = require('./routes/orders');
+
+// Routes
+app.use('/', indexRoutes);
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+
+// Mount debug routes only in non-production for quick checks
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/debug', debugRoutes);
+}
+
+// Public orders endpoint
+app.use('/orders', ordersPublicRoutes);
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).render('404', { 
+        title: 'Halaman Tidak Ditemukan',
+        user: req.session.user || null
+    });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error('❌ Server Error:', err.stack);
+    res.status(500).render('error', { 
+        title: 'Terjadi Kesalahan',
+        error: err.message,
+        user: req.session.user || null
+    });
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+    console.log(`✅ Server berjalan di http://localhost:${port}`);
+});

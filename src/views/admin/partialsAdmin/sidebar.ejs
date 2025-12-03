@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Admin Navigation -->
+    <nav class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <div class="flex items-center space-x-4">
+                <a href="/admin/dashboard" class="text-2xl font-bold text-red-500">Admin Panel</a>
+                <span class="text-gray-400">|</span>
+                <span class="text-gray-300">Cemal-Cemil</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-300">
+                    <i class="fas fa-user-circle mr-2"></i>
+                    <%= user.name %>
+                </span>
+                <a href="/auth/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition duration-300">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="sidebar bg-gray-900 text-white w-64">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-400">NAVIGASI</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="/admin/dashboard"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Dashboard') ? 'active-menu' : '' %>">
+                            <i class="fas fa-tachometer-alt mr-3 w-6"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/products"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Produk') ? 'active-menu' : '' %>">
+                            <i class="fas fa-utensils mr-3 w-6"></i>
+                            Produk
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/orders"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Pesanan') ? 'active-menu' : '' %>">
+                            <i class="fas fa-shopping-cart mr-3 w-6"></i>
+                            Pesanan
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/users"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Pengguna') ? 'active-menu' : '' %>">
+                            <i class="fas fa-users mr-3 w-6"></i>
+                            Pengguna
+                        </a>
+                    </li>
+                </ul>
+
+                <h3 class="text-lg font-semibold mt-8 mb-4 text-gray-400">QUICK LINKS</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="/" target="_blank"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300">
+                            <i class="fas fa-external-link-alt mr-3 w-6"></i>
+                            Lihat Website
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+</body>
+
+</html>

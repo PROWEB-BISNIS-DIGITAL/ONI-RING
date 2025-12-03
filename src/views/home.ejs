@@ -26,7 +26,7 @@
             scroll-behavior: smooth;
         }
         .hero-bg {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://wallpaperaccess.com/full/329019.jpg');
             background-size: cover;
             background-position: center;
             animation: fadeIn 1s ease-in;
@@ -101,8 +101,18 @@
         <div class="container mx-auto flex justify-between items-center px-4">
             <div class="text-2xl font-bold text-primary">Cemal-Cemil</div>
             
-            <!-- Cart Button -->
+            <!-- Desktop Menu -->
+            <ul class="hidden md:flex space-x-8">
+                <li><a href="#home" class="hover:text-primary transition duration-300">Home</a></li>
+                <li><a href="#about" class="hover:text-primary transition duration-300">About</a></li>
+                <li><a href="#product" class="hover:text-primary transition duration-300">Product</a></li>
+                <li><a href="#testimoni" class="hover:text-primary transition duration-300">Testimoni</a></li>
+                <li><a href="#contact" class="hover:text-primary transition duration-300">Contact</a></li>
+            </ul>
+            
+            <!-- Cart & Auth -->
             <div class="flex items-center space-x-4">
+                <!-- Cart Button -->
                 <button id="cart-button" class="relative bg-primary hover:bg-accent px-4 py-2 rounded-full transition duration-300 flex items-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -110,22 +120,37 @@
                     <span id="cart-count" class="ml-2 cart-badge bg-white text-primary font-bold px-2 py-1 rounded-full text-sm">0</span>
                 </button>
                 
-                <!-- Hamburger Button -->
-                <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+                <!-- Auth Section -->
+                <div class="flex items-center space-x-4">
+                    <% if (user) { %>
+                        <div class="hidden md:flex items-center space-x-3">
+                            <span class="text-gray-300">Halo, <%= user.name %></span>
+                            <% if (user.role === 'admin') { %>
+                                <a href="/admin/dashboard" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition duration-300">
+                                    Admin
+                                </a>
+                            <% } %>
+                            <a href="/auth/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition duration-300">
+                                Logout
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <div class="hidden md:flex items-center space-x-3">
+                            <a href="/auth/login" class="text-gray-300 hover:text-white transition duration-300">Login</a>
+                            <a href="/auth/register" class="bg-primary hover:bg-accent px-4 py-2 rounded-lg transition duration-300">
+                                Daftar
+                            </a>
+                        </div>
+                    <% } %>
+                    
+                    <!-- Hamburger Button (Mobile) -->
+                    <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            
-            <!-- Desktop Menu -->
-            <ul class="hidden md:flex space-x-8 absolute left-1/2 transform -translate-x-1/2">
-                <li><a href="#home" class="hover:text-primary transition duration-300">Home</a></li>
-                <li><a href="#about" class="hover:text-primary transition duration-300">About</a></li>
-                <li><a href="#product" class="hover:text-primary transition duration-300">Product</a></li>
-                <li><a href="#testimoni" class="hover:text-primary transition duration-300">Testimoni</a></li>
-                <li><a href="#contact" class="hover:text-primary transition duration-300">Contact</a></li>
-            </ul>
         </div>
         
         <!-- Mobile Menu -->
@@ -135,6 +160,20 @@
             <li><a href="#product" class="block py-2 hover:text-primary transition duration-300">Product</a></li>
             <li><a href="#testimoni" class="block py-2 hover:text-primary transition duration-300">Testimoni</a></li>
             <li><a href="#contact" class="block py-2 hover:text-primary transition duration-300">Contact</a></li>
+            <% if (user) { %>
+                <li class="border-t border-gray-700 pt-2">
+                    <span class="block py-2 text-gray-400">Logged in as: <%= user.name %></span>
+                    <% if (user.role === 'admin') { %>
+                        <a href="/admin/dashboard" class="block py-2 text-green-400 hover:text-green-300 transition duration-300">Admin Dashboard</a>
+                    <% } %>
+                    <a href="/auth/logout" class="block py-2 text-red-400 hover:text-red-300 transition duration-300">Logout</a>
+                </li>
+            <% } else { %>
+                <li class="border-t border-gray-700 pt-2">
+                    <a href="/auth/login" class="block py-2 text-primary hover:text-accent transition duration-300">Login</a>
+                    <a href="/auth/register" class="block py-2 text-primary hover:text-accent transition duration-300">Register</a>
+                </li>
+            <% } %>
         </ul>
     </nav>
 
@@ -197,7 +236,7 @@
                         <label class="block text-gray-700 font-semibold mb-2">Metode Pembayaran *</label>
                         <div class="space-y-3">
                             <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-primary transition duration-300">
-                                <input type="radio" name="payment" value="COD" data-type="wa" required class="mr-3 w-5 h-5 text-primary">
+                                <input type="radio" name="payment" value="COD" required class="mr-3 w-5 h-5 text-primary">
                                 <div class="flex-1">
                                     <span class="font-semibold">Cash On Delivery (COD)</span>
                                     <p class="text-sm text-gray-600">Bayar saat pesanan diterima</p>
@@ -205,7 +244,7 @@
                             </label>
 
                             <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-primary transition duration-300">
-                                <input type="radio" name="payment" value="GoPay" data-type="gopay" required class="mr-3 w-5 h-5 text-primary">
+                                <input type="radio" name="payment" value="GoPay" required class="mr-3 w-5 h-5 text-primary">
                                 <div class="flex-1 flex items-center justify-between">
                                     <div>
                                         <span class="font-semibold">GoPay</span>
@@ -214,8 +253,9 @@
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" class="h-8">
                                 </div>
                             </label>
+
                             <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-primary transition duration-300">
-                                <input type="radio" name="payment" value="OVO" data-type="ovo" required class="mr-3 w-5 h-5 text-primary">
+                                <input type="radio" name="payment" value="OVO" required class="mr-3 w-5 h-5 text-primary">
                                 <div class="flex-1 flex items-center justify-between">
                                     <div>
                                         <span class="font-semibold">OVO</span>
@@ -224,8 +264,9 @@
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg" alt="OVO" class="h-8">
                                 </div>
                             </label>
+
                             <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-primary transition duration-300">
-                                <input type="radio" name="payment" value="DANA" data-type="dana" required class="mr-3 w-5 h-5 text-primary">
+                                <input type="radio" name="payment" value="DANA" required class="mr-3 w-5 h-5 text-primary">
                                 <div class="flex-1 flex items-center justify-between">
                                     <div>
                                         <span class="font-semibold">DANA</span>
@@ -243,10 +284,7 @@
                             <span id="checkout-total" class="text-2xl font-bold text-primary">Rp 0</span>
                         </div>
                         <button type="submit" id="submit-order-btn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            <span id="submit-btn-text">Kirim Pesanan via WhatsApp</span>
+                            <span id="submit-btn-text">Checkout</span>
                         </button>
                     </div>
                 </form>
@@ -271,8 +309,8 @@
             <h2 class="text-4xl font-bold text-center mb-12 text-primary">Tentang Kami</h2>
             <div class="flex flex-col md:flex-row items-center gap-8">
                 <div class="md:w-1/2 transform hover:scale-105 transition duration-300">
-                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        alt="Restoran" class="rounded-lg shadow-2xl">
+                    <img src="https://coupleeatsfood.com/wp-content/uploads/2017/04/Tuna-Mayo-Onigiri-Japanese-Rice-Balls.jpg"
+                        alt="Restoran" class="rounded-lg shadow-2xl h-25">
                 </div>
                 <div class="md:w-1/2">
                     <p class="text-lg leading-relaxed mb-4">Cemal-Cemil adalah tempat terbaik untuk menikmati berbagai macam makanan dan minuman berkualitas dengan harga terjangkau.</p>
@@ -601,10 +639,7 @@
                 return;
             }
             
-            // Display order summary
             displayOrderSummary();
-            
-            // Hide cart modal and show checkout modal
             document.getElementById('cart-modal').classList.add('hidden');
             document.getElementById('checkout-modal').classList.remove('hidden');
         });
@@ -634,240 +669,123 @@
             document.getElementById('cart-modal').classList.remove('hidden');
         });
 
-        // E-Wallet Configuration
-        const ewalletConfig = {
-            gopay: {
-                phoneNumber: '085797401995', // Ganti dengan nomor GoPay merchant
-                deepLink: 'gojek://gopay/merchanttransfer?id=', // Deep link GoPay
-                fallbackUrl: 'https://gojek.com/gopay' // Fallback jika app tidak terinstall
-            },
-            ovo: {
-                phoneNumber: '085797401995', // Ganti dengan nomor OVO merchant
-                deepLink: 'ovomobilepay://pay?',
-                fallbackUrl: 'https://ovo.id'
-            },
-            dana: {
-                phoneNumber: '085797401995', // Ganti dengan nomor DANA merchant
-                deepLink: 'dana://qr?',
-                fallbackUrl: 'https://dana.id'
-            }
-        };
-
-        // Handle checkout form submission
-        document.getElementById('checkout-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('customer-name').value;
-            const phone = document.getElementById('customer-phone').value;
-            const address = document.getElementById('customer-address').value;
-            const paymentElement = document.querySelector('input[name="payment"]:checked');
-            const payment = paymentElement.value;
-            const paymentType = paymentElement.getAttribute('data-type');
-            
-            // Calculate total
-            let total = 0;
-            cart.forEach(item => {
-                total += item.price * item.quantity;
-            });
-            
-            // Build order details for WhatsApp
-            let orderDetails = `*PESANAN BARU - CEMAL CEMIL*%0A%0A`;
-            orderDetails += `*Nama:* ${encodeURIComponent(name)}%0A`;
-            orderDetails += `*No. Telp:* ${phone}%0A`;
-            orderDetails += `*Alamat:* ${encodeURIComponent(address)}%0A%0A`;
-            orderDetails += `*Detail Pesanan:*%0A`;
-            
-            cart.forEach(item => {
-                const subtotal = item.price * item.quantity;
-                orderDetails += `- ${encodeURIComponent(item.name)} x${item.quantity} = ${formatCurrency(subtotal)}%0A`;
-            });
-            
-            orderDetails += `%0A*Total: ${formatCurrency(total)}*%0A`;
-            orderDetails += `*Metode Pembayaran:* ${encodeURIComponent(payment)}%0A%0A`;
-            
-            // Determine where to send based on payment type
-            if (paymentType === 'wa') {
-                // COD and Transfer Bank goes to WhatsApp
-                orderDetails += `Terima kasih telah memesan! 😊`;
-                const waNumber = '6285797401995'; // Ganti dengan nomor WA bisnis Anda
-                const waLink = `https://wa.me/${waNumber}?text=${orderDetails}`;
-                window.open(waLink, '_blank');
-                showNotification('Mengarahkan ke WhatsApp...');
-                
-                // Clear cart and close modal
-                setTimeout(() => {
-                    cart = [];
-                    updateCartUI();
-                    document.getElementById('checkout-modal').classList.add('hidden');
-                    document.getElementById('checkout-form').reset();
-                }, 1000);
-                
-            } else if (paymentType === 'gopay') {
-                // Try to open GoPay app
-                showNotification('Membuka aplikasi GoPay...');
-                
-                // Generate order ID
-                const orderId = 'CEMAL' + Date.now();
-                
-                // Try deep link first
-                const gopayDeepLink = `gojek://gopay/merchanttransfer?id=${ewalletConfig.gopay.phoneNumber}&amount=${total}&note=Cemal-Cemil Order ${orderId}`;
-                
-                // Create temporary link and try to open app
-                const a = document.createElement('a');
-                a.href = gopayDeepLink;
-                a.click();
-                
-                // If app doesn't open in 2 seconds, show instructions
-                setTimeout(() => {
-                    const confirmMsg = confirm(
-                        `PEMBAYARAN GOPAY\n\n` +
-                        `Total: ${formatCurrency(total)}\n` +
-                        `Nomor Merchant: ${ewalletConfig.gopay.phoneNumber}\n` +
-                        `Order ID: ${orderId}\n\n` +
-                        `Aplikasi GoPay tidak terbuka?\n` +
-                        `1. Buka aplikasi Gojek/GoPay\n` +
-                        `2. Pilih menu Transfer\n` +
-                        `3. Masukkan nomor: ${ewalletConfig.gopay.phoneNumber}\n` +
-                        `4. Masukkan jumlah: ${formatCurrency(total)}\n` +
-                        `5. Catatan: ${orderId}\n\n` +
-                        `Klik OK untuk kirim detail pesanan ke WhatsApp`
-                    );
-                    
-                    if (confirmMsg) {
-                        // Send order details to WhatsApp
-                        orderDetails += `*Nomor GoPay Merchant:* ${ewalletConfig.gopay.phoneNumber}%0A`;
-                        orderDetails += `*Order ID:* ${orderId}%0A%0A`;
-                        orderDetails += `Mohon transfer ke nomor GoPay di atas dan kirim bukti pembayaran. Terima kasih! 😊`;
-                        
-                        const waNumber = '6285797401995';
-                        const waLink = `https://wa.me/${waNumber}?text=${orderDetails}`;
-                        window.open(waLink, '_blank');
-                    }
-                    
-                    clearCartAndClose();
-                }, 2000);
-                
-            } else if (paymentType === 'ovo') {
-                // Try to open OVO app
-                showNotification('Membuka aplikasi OVO...');
-                
-                const orderId = 'CEMAL' + Date.now();
-                
-                // Try OVO deep link
-                const ovoDeepLink = `ovomobilepay://pay?phoneNumber=${ewalletConfig.ovo.phoneNumber}&amount=${total}&note=Cemal-Cemil Order ${orderId}`;
-                
-                const a = document.createElement('a');
-                a.href = ovoDeepLink;
-                a.click();
-                
-                setTimeout(() => {
-                    const confirmMsg = confirm(
-                        `PEMBAYARAN OVO\n\n` +
-                        `Total: ${formatCurrency(total)}\n` +
-                        `Nomor Merchant: ${ewalletConfig.ovo.phoneNumber}\n` +
-                        `Order ID: ${orderId}\n\n` +
-                        `Aplikasi OVO tidak terbuka?\n` +
-                        `1. Buka aplikasi OVO\n` +
-                        `2. Pilih menu Transfer\n` +
-                        `3. Masukkan nomor: ${ewalletConfig.ovo.phoneNumber}\n` +
-                        `4. Masukkan jumlah: ${formatCurrency(total)}\n` +
-                        `5. Catatan: ${orderId}\n\n` +
-                        `Klik OK untuk kirim detail pesanan ke WhatsApp`
-                    );
-                    
-                    if (confirmMsg) {
-                        orderDetails += `*Nomor OVO Merchant:* ${ewalletConfig.ovo.phoneNumber}%0A`;
-                        orderDetails += `*Order ID:* ${orderId}%0A%0A`;
-                        orderDetails += `Mohon transfer ke nomor OVO di atas dan kirim bukti pembayaran. Terima kasih! 😊`;
-                        
-                        const waNumber = '6285797401995';
-                        const waLink = `https://wa.me/${waNumber}?text=${orderDetails}`;
-                        window.open(waLink, '_blank');
-                    }
-                    
-                    clearCartAndClose();
-                }, 2000);
-                
-            } else if (paymentType === 'dana') {
-                // Try to open DANA app
-                showNotification('Membuka aplikasi DANA...');
-                
-                const orderId = 'CEMAL' + Date.now();
-                
-                // Try DANA deep link
-                const danaDeepLink = `dana://qr?phoneNumber=${ewalletConfig.dana.phoneNumber}&amount=${total}&note=Cemal-Cemil Order ${orderId}`;
-                
-                const a = document.createElement('a');
-                a.href = danaDeepLink;
-                a.click();
-                
-                setTimeout(() => {
-                    const confirmMsg = confirm(
-                        `PEMBAYARAN DANA\n\n` +
-                        `Total: ${formatCurrency(total)}\n` +
-                        `Nomor Merchant: ${ewalletConfig.dana.phoneNumber}\n` +
-                        `Order ID: ${orderId}\n\n` +
-                        `Aplikasi DANA tidak terbuka?\n` +
-                        `1. Buka aplikasi DANA\n` +
-                        `2. Pilih menu Kirim\n` +
-                        `3. Masukkan nomor: ${ewalletConfig.dana.phoneNumber}\n` +
-                        `4. Masukkan jumlah: ${formatCurrency(total)}\n` +
-                        `5. Catatan: ${orderId}\n\n` +
-                        `Klik OK untuk kirim detail pesanan ke WhatsApp`
-                    );
-                    
-                    if (confirmMsg) {
-                        orderDetails += `*Nomor DANA Merchant:* ${ewalletConfig.dana.phoneNumber}%0A`;
-                        orderDetails += `*Order ID:* ${orderId}%0A%0A`;
-                        orderDetails += `Mohon transfer ke nomor DANA di atas dan kirim bukti pembayaran. Terima kasih! 😊`;
-                        
-                        const waNumber = '6285797401995';
-                        const waLink = `https://wa.me/${waNumber}?text=${orderDetails}`;
-                        window.open(waLink, '_blank');
-                    }
-                    
-                    clearCartAndClose();
-                }, 2000);
-            }
-        });
-
-        // Helper function to clear cart and close modal
-        function clearCartAndClose() {
-            cart = [];
-            updateCartUI();
-            document.getElementById('checkout-modal').classList.add('hidden');
-            document.getElementById('checkout-form').reset();
-        }
-
-        // Update button text based on payment selection
-        document.querySelectorAll('input[name="payment"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const submitBtn = document.getElementById('submit-btn-text');
-                const submitBtnContainer = document.getElementById('submit-order-btn');
-                const paymentType = this.getAttribute('data-type');
-                
-                if (paymentType === 'wa') {
-                    submitBtn.textContent = 'Kirim Pesanan via WhatsApp';
-                    submitBtnContainer.className = 'w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg flex items-center justify-center';
-                } else if (paymentType === 'gopay') {
-                    submitBtn.textContent = 'Bayar dengan GoPay';
-                    submitBtnContainer.className = 'w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg flex items-center justify-center';
-                } else if (paymentType === 'ovo') {
-                    submitBtn.textContent = 'Bayar dengan OVO';
-                    submitBtnContainer.className = 'w-full bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg flex items-center justify-center';
-                } else if (paymentType === 'dana') {
-                    submitBtn.textContent = 'Bayar dengan DANA';
-                    submitBtnContainer.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold text-lg flex items-center justify-center';
-                }
-            });
-        });
-
         // Close checkout modal when clicking outside
         document.getElementById('checkout-modal').addEventListener('click', (e) => {
             if (e.target.id === 'checkout-modal') {
                 document.getElementById('checkout-modal').classList.add('hidden');
                 document.getElementById('cart-modal').classList.remove('hidden');
             }
+        });
+
+        // ============================================
+        // CHECKOUT FORM SUBMISSION - FIXED VERSION
+        // ============================================
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const address = document.getElementById('customer-address').value.trim();
+            const paymentElement = document.querySelector('input[name="payment"]:checked');
+            
+            if (!paymentElement) {
+                showNotification('❌ Pilih metode pembayaran terlebih dahulu!');
+                return;
+            }
+            
+            const payment = paymentElement.value;
+
+            // Validasi
+            if (!name || !phone || !address) {
+                showNotification('❌ Lengkapi semua data pelanggan!');
+                return;
+            }
+
+            if (!cart || cart.length === 0) {
+                showNotification('❌ Keranjang Anda kosong');
+                return;
+            }
+
+            // Calculate total and build items
+            let total = 0;
+            const items = cart.map(item => {
+                total += item.price * item.quantity;
+                return {
+                    product_id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                };
+            });
+
+            const payload = { 
+                name, 
+                phone, 
+                address, 
+                payment, 
+                items, 
+                total 
+            };
+
+            console.log('Sending order:', payload); // Debug
+
+            try {
+                const submitBtn = document.getElementById('submit-order-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="animate-spin mr-2">⟳</span> Mengirim...';
+
+                const res = await fetch('/orders', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                console.log('Response:', data); // Debug
+                
+                if (data.success) {
+                    showNotification(`✅ Pesanan berhasil dibuat! ID Order: ${data.orderId}`);
+                    
+                    // Reset cart
+                    cart = [];
+                    updateCartUI();
+                    
+                    // Close modals
+                    document.getElementById('checkout-modal').classList.add('hidden');
+                    document.getElementById('checkout-form').reset();
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        alert(`Terima kasih ${name}! Pesanan Anda (#ORD-${data.orderId}) sedang diproses.\n\nTotal: Rp ${total.toLocaleString('id-ID')}\nMetode: ${payment}`);
+                    }, 500);
+                    
+                } else {
+                    showNotification(`❌ ${data.message || 'Gagal membuat pesanan'}`);
+                }
+
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('❌ Terjadi kesalahan jaringan. Coba lagi.');
+                
+                const submitBtn = document.getElementById('submit-order-btn');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Checkout';
+            }
+        });
+
+        // Update button text based on payment selection
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const submitBtn = document.getElementById('submit-btn-text');
+                const payment = this.value || '';
+                submitBtn.textContent = payment ? `Kirim Pesanan (${payment})` : 'Kirim Pesanan';
+            });
         });
 
         // Contact form
