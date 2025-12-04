@@ -25,12 +25,18 @@
             border: 1px solid #d1d5db;
             font-size: 0.875rem;
             background: white;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         
         .status-select:focus {
             outline: none;
             border-color: #ef4444;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        
+        .status-select:hover {
+            border-color: #9ca3af;
         }
         
         /* Modal Styles */
@@ -117,7 +123,7 @@
 <body class="bg-gray-100">
     <%- include('./partialsAdmin/sidebar') %>
 
-    <main class="main-content" style="flex: 1; padding: 2rem;">
+    <main class="main-content " style="flex: 1; padding: 2rem ;">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -247,7 +253,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <select class="status-select" onchange="updateStatus('<%= order.id %>', this.value)">
+                                        <select class="status-select" data-order-id="<%= order.id %>">
                                             <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
                                             <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
                                             <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Diproses</option>
@@ -285,14 +291,14 @@
         </div>
     </main>
 
-    <!-- Modal Popup -->
+    <!-- Modal Detail Pesanan -->
     <div id="orderDetailModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header bg-orange-400">
-                <h2 class="text-xl font-bold text-gray-800  ">Detail Pesanan</h2>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-header" style="background-color: #f97316;">
+                <h2 class="text-xl font-bold text-white">Detail Pesanan</h2>
+                <button class="close-modal" onclick="closeModal()" style="color: white;">&times;</button>
             </div>
-            <div class="modal-body bg-gray-100">
+            <div class="modal-body" style="background-color: #f3f4f6;">
                 <!-- Content will be dynamically loaded here -->
                 <div id="modalContent" class="space-y-6">
                     <!-- Loading state -->
@@ -345,10 +351,6 @@
                                         <span class="font-medium" id="modalCustomerPhone"></span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="text-gray-600">Email:</span>
-                                        <span class="font-medium" id="modalCustomerEmail"></span>
-                                    </div>
-                                    <div class="flex justify-between">
                                         <span class="text-gray-600">Alamat:</span>
                                         <span class="font-medium text-right" id="modalCustomerAddress"></span>
                                     </div>
@@ -395,6 +397,104 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Ubah Status -->
+    <div id="confirmStatusModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="background-color: #f59e0b;">
+                <h2 class="text-xl font-bold text-white">Konfirmasi Perubahan</h2>
+                <button class="close-modal" onclick="closeConfirmModal()" style="color: white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mb-4">
+                        <i class="fas fa-exclamation text-yellow-600 text-2xl"></i>
+                    </div>
+                    <p id="confirmMessage" class="text-gray-700 text-lg mb-2">
+                        <!-- Pesan akan diisi oleh JavaScript -->
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        Apakah Anda yakin ingin melanjutkan?
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-yellow-500 mt-1 mr-2"></i>
+                        <div class="text-sm text-yellow-700">
+                            Perubahan status akan dicatat dan dapat mempengaruhi notifikasi kepada customer.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center space-x-3 pt-4">
+                    <button onclick="closeConfirmModal()" 
+                            class="px-5 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
+                        Batal
+                    </button>
+                    <button id="confirmYesButton" 
+                            class="px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium">
+                        Ya, Ubah Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sukses Update Status -->
+    <div id="updateStatusModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="background-color: #10b981;" id="updateStatusHeader">
+                <h2 class="text-xl font-bold text-white" id="updateStatusTitle">Status Diperbarui</h2>
+                <button class="close-modal" onclick="closeUpdateStatusModal()" style="color: white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="updateStatusContent">
+                    <div class="text-center mb-4">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-3">
+                            <i class="fas fa-check text-green-600 text-xl"></i>
+                        </div>
+                        <p id="updateStatusMessage" class="text-gray-600 mb-2">
+                            Status pesanan berhasil diubah ke:
+                        </p>
+                        <div class="font-medium text-gray-800 mb-1" id="updateStatusValue"></div>
+                        <div class="text-sm text-gray-500" id="updateStatusDate"></div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="text-sm text-gray-500 mb-1">Detail pesanan:</div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">ID Pesanan:</span>
+                            <span class="font-medium" id="updateOrderId"></span>
+                        </div>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span class="text-gray-600">Customer:</span>
+                            <span class="font-medium" id="updateCustomerName"></span>
+                        </div>
+                    </div>
+                    <div class="text-center pt-4 border-t">
+                        <button onclick="closeUpdateStatusModal()" 
+                                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="updateStatusError" class="hidden text-center">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mb-3">
+                        <i class="fas fa-times text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-red-700 mb-2">Terjadi Kesalahan</h3>
+                    <p id="errorMessage" class="text-gray-600 mb-4"></p>
+                    <div class="text-center">
+                        <button onclick="closeUpdateStatusModal()" 
+                                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Filter functionality
         document.querySelectorAll('.filter-btn').forEach(button => {
@@ -428,12 +528,86 @@
             });
         });
         
-        // Update status
-        async function updateStatus(orderId, newStatus) {
-            if (!confirm(`Ubah status pesanan menjadi "${newStatus}"?`)) {
-                location.reload();
+        // Status Update Variables
+        let pendingStatusUpdate = {
+            orderId: null,
+            newStatus: null,
+            selectElement: null,
+            originalStatus: null
+        };
+        
+        // Setup status select change listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.status-select').forEach(select => {
+                // Store original value
+                select.setAttribute('data-original-value', select.value);
+                
+                select.addEventListener('change', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    const newStatus = this.value;
+                    const originalStatus = this.getAttribute('data-original-value');
+                    
+                    // Show confirmation modal
+                    openStatusConfirm(orderId, newStatus, this, originalStatus);
+                });
+            });
+            
+            // Setup confirm button
+            document.getElementById('confirmYesButton').addEventListener('click', executeStatusUpdate);
+        });
+        
+        // Function to open confirmation modal
+        function openStatusConfirm(orderId, newStatus, selectElement, originalStatus) {
+            pendingStatusUpdate = {
+                orderId: orderId,
+                newStatus: newStatus,
+                selectElement: selectElement,
+                originalStatus: originalStatus
+            };
+            
+            // Format status text for display
+            const statusText = {
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'processing': 'Diproses',
+                'completed': 'Selesai',
+                'cancelled': 'Dibatalkan'
+            }[newStatus] || newStatus;
+            
+            // Update confirmation message
+            document.getElementById('confirmMessage').textContent = 
+                `Ubah status pesanan menjadi "${statusText}"?`;
+            
+            // Show modal
+            document.getElementById('confirmStatusModal').classList.add('active');
+        }
+        
+        // Function to close confirmation modal
+        function closeConfirmModal() {
+            document.getElementById('confirmStatusModal').classList.remove('active');
+            
+            // Reset select to original value
+            if (pendingStatusUpdate.selectElement && pendingStatusUpdate.originalStatus) {
+                pendingStatusUpdate.selectElement.value = pendingStatusUpdate.originalStatus;
+            }
+            
+            // Reset pending update
+            pendingStatusUpdate = {
+                orderId: null,
+                newStatus: null,
+                selectElement: null,
+                originalStatus: null
+            };
+        }
+        
+        // Function to execute status update after confirmation
+        async function executeStatusUpdate() {
+            if (!pendingStatusUpdate.orderId || !pendingStatusUpdate.newStatus) {
+                closeConfirmModal();
                 return;
             }
+            
+            const { orderId, newStatus, selectElement } = pendingStatusUpdate;
             
             try {
                 const res = await fetch(`/admin/orders/${orderId}/status`, {
@@ -445,20 +619,113 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert('✅ ' + data.message);
-                    location.reload();
+                    closeConfirmModal();
+                    
+                    // Get order data from row
+                    const orderRow = document.querySelector(`tr[data-order*='"id":"${orderId}"']`);
+                    if (orderRow) {
+                        const orderData = JSON.parse(orderRow.getAttribute('data-order'));
+                        showSuccessStatusUpdate(orderData, newStatus);
+                        
+                        // Update data-original-value on select
+                        if (selectElement) {
+                            selectElement.setAttribute('data-original-value', newStatus);
+                            selectElement.setAttribute('data-status', newStatus);
+                            // Update row status
+                            orderRow.setAttribute('data-status', newStatus);
+                        }
+                    }
+                    
                 } else {
-                    alert('❌ ' + data.message);
-                    location.reload();
+                    closeConfirmModal();
+                    showErrorStatusUpdate(data.message || 'Gagal mengupdate status');
+                    
+                    // Reset select to original value on error
+                    if (selectElement && pendingStatusUpdate.originalStatus) {
+                        selectElement.value = pendingStatusUpdate.originalStatus;
+                    }
                 }
             } catch (err) {
                 console.error(err);
-                alert('❌ Terjadi kesalahan');
-                location.reload();
+                closeConfirmModal();
+                showErrorStatusUpdate('Terjadi kesalahan jaringan');
+                
+                // Reset select to original value on error
+                if (selectElement && pendingStatusUpdate.originalStatus) {
+                    selectElement.value = pendingStatusUpdate.originalStatus;
+                }
             }
         }
         
-        // Modal functions
+        // Function to show success status update modal
+        function showSuccessStatusUpdate(order, newStatus) {
+            const modal = document.getElementById('updateStatusModal');
+            const successContent = document.getElementById('updateStatusContent');
+            const errorContent = document.getElementById('updateStatusError');
+            
+            // Reset display
+            successContent.classList.remove('hidden');
+            errorContent.classList.add('hidden');
+            
+            // Set green header for success
+            document.getElementById('updateStatusHeader').style.backgroundColor = '#10b981';
+            document.getElementById('updateStatusTitle').textContent = 'Berhasil Diperbarui';
+            
+            // Format status text
+            const statusText = {
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'processing': 'Diproses',
+                'completed': 'Selesai',
+                'cancelled': 'Dibatalkan'
+            }[newStatus] || newStatus;
+            
+            // Format date like "3 Des, 19.01"
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Fill data
+            document.getElementById('updateStatusValue').textContent = statusText;
+            document.getElementById('updateStatusDate').textContent = formattedDate;
+            document.getElementById('updateOrderId').textContent = `#ORD-${order.id.toString().padStart(3, '0')}`;
+            document.getElementById('updateCustomerName').textContent = order.customer_name;
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        // Function to show error status update modal
+        function showErrorStatusUpdate(message) {
+            const modal = document.getElementById('updateStatusModal');
+            const successContent = document.getElementById('updateStatusContent');
+            const errorContent = document.getElementById('updateStatusError');
+            
+            // Reset display
+            successContent.classList.add('hidden');
+            errorContent.classList.remove('hidden');
+            
+            // Set red header for error
+            document.getElementById('updateStatusHeader').style.backgroundColor = '#ef4444';
+            document.getElementById('updateStatusTitle').textContent = 'Gagal Diperbarui';
+            
+            // Fill error message
+            document.getElementById('errorMessage').textContent = message;
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        // Function to close update status modal
+        function closeUpdateStatusModal() {
+            document.getElementById('updateStatusModal').classList.remove('active');
+        }
+        
+        // Modal functions for order detail
         function viewDetail(orderId) {
             const modal = document.getElementById('orderDetailModal');
             const modalLoading = document.getElementById('modalLoading');
@@ -510,13 +777,12 @@
             document.getElementById('modalPayment').textContent = order.payment_method || 'Tidak diketahui';
             document.getElementById('modalTotal').textContent = `Rp ${order.total.toLocaleString('id-ID')}`;
             
-            // Populate customer info
+            // Populate customer info - HANYA YANG ADA DI DATABASE
             document.getElementById('modalCustomerName').textContent = order.customer_name || '-';
             document.getElementById('modalCustomerPhone').textContent = order.customer_phone || '-';
-            document.getElementById('modalCustomerEmail').textContent = order.customer_email || '-';
             document.getElementById('modalCustomerAddress').textContent = order.customer_address || '-';
             
-            // Populate items
+            // Populate items - GUNAKAN product_name DARI DATABASE
             const itemsContainer = document.getElementById('modalItems');
             itemsContainer.innerHTML = '';
             
@@ -529,8 +795,7 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="py-3 px-4">
-                            <div class="font-medium">${item.name || 'Produk'}</div>
-                            ${item.variant ? `<div class="text-sm text-gray-500">Varian: ${item.variant}</div>` : ''}
+                            <div class="font-medium">${item.product_name || 'Produk'}</div>
                         </td>
                         <td class="py-3 px-4">Rp ${item.price.toLocaleString('id-ID')}</td>
                         <td class="py-3 px-4">${item.quantity}</td>
@@ -550,14 +815,9 @@
             
             document.getElementById('modalItemsTotal').textContent = `Rp ${itemsTotal.toLocaleString('id-ID')}`;
             
-            // Populate notes if exists
+            // Populate notes if exists - DISEMBUNYIKAN KARENA TIDAK ADA DI DATABASE
             const notesSection = document.getElementById('modalNotesSection');
-            if (order.notes) {
-                document.getElementById('modalNotes').textContent = order.notes;
-                notesSection.classList.remove('hidden');
-            } else {
-                notesSection.classList.add('hidden');
-            }
+            notesSection.classList.add('hidden');
         }
         
         async function fetchOrderDetail(orderId) {
@@ -606,16 +866,22 @@
         }
         
         // Close modal when clicking outside
-        document.getElementById('orderDetailModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    if (this.id === 'orderDetailModal') closeModal();
+                    if (this.id === 'confirmStatusModal') closeConfirmModal();
+                    if (this.id === 'updateStatusModal') closeUpdateStatusModal();
+                }
+            });
         });
         
         // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeModal();
+                if (document.getElementById('orderDetailModal').classList.contains('active')) closeModal();
+                if (document.getElementById('confirmStatusModal').classList.contains('active')) closeConfirmModal();
+                if (document.getElementById('updateStatusModal').classList.contains('active')) closeUpdateStatusModal();
             }
         });
     </script>

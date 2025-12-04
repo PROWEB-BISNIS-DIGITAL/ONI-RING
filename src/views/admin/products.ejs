@@ -62,6 +62,119 @@
             background-color: #ef4444;
             color: white;
         }
+
+        /* Notification Popup Styles */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            min-width: 300px;
+            max-width: 400px;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
+            opacity: 1;
+        }
+
+        .notification-success {
+            background-color: #10b981;
+            color: white;
+            border-left: 4px solid #059669;
+        }
+
+        .notification-error {
+            background-color: #ef4444;
+            color: white;
+            border-left: 4px solid #dc2626;
+        }
+
+        .notification-warning {
+            background-color: #f59e0b;
+            color: white;
+            border-left: 4px solid #d97706;
+        }
+
+        .notification-info {
+            background-color: #3b82f6;
+            color: white;
+            border-left: 4px solid #1d4ed8;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Confirmation Popup */
+        .confirmation-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .confirmation-popup.show {
+            display: flex;
+        }
+
+        .confirmation-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            animation: popupAppear 0.3s ease;
+        }
+
+        @keyframes popupAppear {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -178,7 +291,7 @@
                                 <span class="text-xs text-gray-500">
                                     ID: #<%= product.id.toString().padStart(3, '0') %>
                                 </span>
-                                <button onclick="toggleStatus(<%= product.id %>, '<%= product.status %>')" class="text-sm <%= product.status === 'active' ? 'text-yellow-600 hover:text-yellow-700' : 'text-green-600 hover:text-green-700' %>">
+                                <button onclick="showStatusConfirmation(<%= product.id %>, '<%= product.status %>', '<%= product.name %>')" class="text-sm <%= product.status === 'active' ? 'text-yellow-600 hover:text-yellow-700' : 'text-green-600 hover:text-green-700' %>">
                                     <i class="fas <%= product.status === 'active' ? 'fa-eye-slash' : 'fa-eye' %> mr-1"></i>
                                     <%= product.status === 'active' ? 'Nonaktifkan' : 'Aktifkan' %>
                                 </button>
@@ -282,8 +395,31 @@
         </div>
     </div>
 
+    <!-- Status Confirmation Popup -->
+    <div id="status-confirmation" class="confirmation-popup">
+        <div class="confirmation-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                    <i class="fas fa-exchange-alt text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2" id="status-confirmation-title">Ubah Status Produk</h3>
+                <p class="text-gray-600 mb-4" id="status-confirmation-message"></p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="hideStatusConfirmation()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">
+                        Batal
+                    </button>
+                    <button onclick="confirmStatusChange()" class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition duration-300 font-semibold">
+                        Ya, Ubah Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let productToDelete = null;
+        let productToToggle = null;
+        let currentStatus = null;
         let editingProductId = null;
 
         document.getElementById('product-modal').style.display = 'none';
@@ -320,12 +456,29 @@
                         document.getElementById('product-modal').classList.add('show');
                     }
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    showNotification('Gagal memuat data produk', 'error');
+                });
         }
 
-        function toggleStatus(id, currentStatus) {
-            if (confirm(`Ubah status produk menjadi ${currentStatus === 'active' ? 'nonaktif' : 'aktif'}?`)) {
-                fetch(`/admin/products/${id}/toggle-status`, {
+        function showStatusConfirmation(id, status, productName) {
+            productToToggle = id;
+            currentStatus = status;
+            const newStatus = status === 'active' ? 'nonaktif' : 'aktif';
+            document.getElementById('status-confirmation-title').textContent = 'Ubah Status Produk';
+            document.getElementById('status-confirmation-message').textContent = 
+                `Ubah status produk "${productName}" menjadi ${newStatus}?`;
+            document.getElementById('status-confirmation').classList.add('show');
+        }
+
+        function hideStatusConfirmation() {
+            document.getElementById('status-confirmation').classList.remove('show');
+        }
+
+        function confirmStatusChange() {
+            if (productToToggle) {
+                fetch(`/admin/products/${productToToggle}/toggle-status`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 })
@@ -333,6 +486,7 @@
                 .then(data => {
                     if (data.success) {
                         showNotification(data.message, 'success');
+                        hideStatusConfirmation();
                         setTimeout(() => location.reload(), 500);
                     } else {
                         showNotification(data.message, 'error');
@@ -389,7 +543,17 @@
             const category = document.getElementById('product-category').value;
             const status = document.getElementById('product-status').value;
 
-            const data = { name, description, price, image, category, status };
+            // Gunakan default image jika URL kosong
+            const imageUrl = image || '/images/default-product.jpg';
+
+            const data = { 
+                name, 
+                description, 
+                price, 
+                image: imageUrl, 
+                category, 
+                status 
+            };
 
             const url = id ? `/admin/products/${id}` : '/admin/products';
             const method = id ? 'PUT' : 'POST';
@@ -416,7 +580,26 @@
         });
 
         function showNotification(message, type = 'success') {
-            alert((type === 'success' ? '✅ ' : '❌ ') + message);
+            const container = document.createElement('div');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️';
+            const title = type === 'success' ? 'Berhasil!' : type === 'error' ? 'Error!' : 'Peringatan!';
+            
+            container.className = `notification-popup notification-${type}`;
+            container.innerHTML = `
+                <div class="notification-icon">${icon}</div>
+                <div class="notification-content">
+                    <div class="notification-message">${message}</div>
+                </div>
+            `;
+
+            document.body.appendChild(container);
+
+            // Remove notification after animation
+            setTimeout(() => {
+                if (container.parentNode) {
+                    container.parentNode.removeChild(container);
+                }
+            }, 3000);
         }
 
         // Filter functionality
@@ -446,12 +629,17 @@
             });
         }
 
+        // Close modals when clicking outside
         document.getElementById('product-modal').addEventListener('click', function(e) {
             if (e.target.id === 'product-modal') hideModal();
         });
 
         document.getElementById('delete-modal').addEventListener('click', function(e) {
             if (e.target.id === 'delete-modal') hideDeleteModal();
+        });
+
+        document.getElementById('status-confirmation').addEventListener('click', function(e) {
+            if (e.target.id === 'status-confirmation') hideStatusConfirmation();
         });
     </script>
 </body>
