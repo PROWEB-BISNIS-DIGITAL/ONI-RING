@@ -11,25 +11,26 @@ exports.getUsers = async (req, res) => {
                 email,
                 phone,
                 role,
+                status, 
                 created_at,
                 updated_at,
-                CASE 
-                    WHEN updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1
-                    ELSE 0
-                END as isActive
+                status = 'active' as isActive
             FROM users
             ORDER BY created_at DESC
         `);
 
         res.render('admin/users', {
             title: 'Data Pengguna',
-            users: users
+            users: users,
+            user: req.user || req.session.user  // TAMBAHKAN INI
         });
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).render('error', {
+            title: 'Terjadi Kesalahan',
             message: 'Terjadi kesalahan saat memuat data pengguna',
-            error: error
+            error: error,
+            user: req.user || req.session.user
         });
     }
 };
@@ -46,6 +47,7 @@ exports.getUserById = async (req, res) => {
                 email,
                 phone,
                 role,
+                status,
                 created_at,
                 updated_at
             FROM users 
@@ -56,7 +58,13 @@ exports.getUserById = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
         }
 
-        res.json({ success: true, user: users[0] });
+        res.json({ 
+            success: true, 
+            user: {
+                ...users[0],
+                isActive: users[0].status === 'active'  // TAMBAHKAN isActive DARI STATUS
+            }
+        });
     } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).json({ success: false, message: 'Gagal memuat data user' });
@@ -65,7 +73,7 @@ exports.getUserById = async (req, res) => {
 
 // Add User (dipanggil via AJAX)
 exports.addUser = async (req, res) => {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone, role, status = 'active' } = req.body;  // TAMBAHKAN STATUS
     
     try {
         // Check if email already exists
@@ -84,9 +92,9 @@ exports.addUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const [result] = await pool.query(`
-            INSERT INTO users (name, email, password, phone, role, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, NOW(), NOW())
-        `, [name, email, hashedPassword, phone || null, role || 'user']);
+            INSERT INTO users (name, email, password, phone, role, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+        `, [name, email, hashedPassword, phone || null, role || 'user', status]);
 
         res.json({ 
             success: true, 
@@ -102,7 +110,7 @@ exports.addUser = async (req, res) => {
 // Update User (dipanggil via AJAX)
 exports.updateUser = async (req, res) => {
     const { userId } = req.params;
-    const { name, email, phone, role, password } = req.body;
+    const { name, email, phone, role, password, status } = req.body;  // TAMBAHKAN STATUS
     
     try {
         // Check if email is taken by another user
@@ -120,9 +128,9 @@ exports.updateUser = async (req, res) => {
         // Update query
         let query = `
             UPDATE users 
-            SET name = ?, email = ?, phone = ?, role = ?, updated_at = NOW()
+            SET name = ?, email = ?, phone = ?, role = ?, status = ?, updated_at = NOW()
         `;
-        let params = [name, email, phone, role];
+        let params = [name, email, phone, role, status || 'active'];
 
         // If password is provided, hash and update it
         if (password && password.trim() !== '') {
@@ -190,5 +198,77 @@ exports.toggleUserRole = async (req, res) => {
     } catch (error) {
         console.error('Error toggling user role:', error);
         res.status(500).json({ success: false, message: 'Gagal mengubah role user' });
+    }
+};
+
+// Toggle User Status - FUNCTION BARU
+exports.toggleUserStatus = async (req, res) => {
+    const { userId } = req.params;
+    
+    try {
+        // Toggle status: 'active' <-> 'inactive'
+        await pool.query(`
+            UPDATE users 
+            SET status = CASE 
+                WHEN status = 'active' THEN 'inactive' 
+                ELSE 'active' 
+            END,
+            updated_at = NOW()
+            WHERE id = ?
+        `, [userId]);
+
+        // Ambil data user setelah update
+        const [users] = await pool.query(
+            'SELECT * FROM users WHERE id = ?',
+            [userId]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User tidak ditemukan' 
+            });
+        }
+
+        const newStatus = users[0].status;
+        const statusText = newStatus === 'active' ? 'aktif' : 'nonaktif';
+
+        res.json({ 
+            success: true, 
+            message: `Status user berhasil diubah menjadi ${statusText}!`,
+            newStatus: newStatus
+        });
+    } catch (error) {
+        console.error('Error toggling user status:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal mengubah status user' 
+        });
+    }
+};
+
+// Get User Stats - FUNCTION BARU (opsional)
+exports.getUserStats = async (req, res) => {
+    try {
+        const [stats] = await pool.query(`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_count,
+                SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_count,
+                SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admin_count,
+                SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as user_count
+            FROM users
+        `);
+
+        res.json({ 
+            success: true, 
+            stats: stats[0] 
+        });
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal memuat statistik user' 
+        });
     }
 };
