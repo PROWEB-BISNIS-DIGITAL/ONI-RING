@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .status-badge {
@@ -12,12 +15,32 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-confirmed { background: #dbeafe; color: #1e40af; }
-        .status-processing { background: #e0e7ff; color: #4338ca; }
-        .status-completed { background: #d1fae5; color: #065f46; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-        
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-confirmed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-processing {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         .status-select {
             padding: 0.5rem;
             border-radius: 0.5rem;
@@ -25,13 +48,13 @@
             font-size: 0.875rem;
             background: white;
         }
-        
+
         .status-select:focus {
             outline: none;
             border-color: #ef4444;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
-        
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -45,11 +68,11 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .modal.active {
             display: flex;
         }
-        
+
         .modal-content {
             background: white;
             border-radius: 1rem;
@@ -59,18 +82,19 @@
             overflow-y: auto;
             animation: modalFadeIn 0.3s ease-out;
         }
-        
+
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .modal-header {
             padding: 1.5rem;
             border-bottom: 1px solid #e5e7eb;
@@ -78,11 +102,11 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .modal-body {
             padding: 1.5rem;
         }
-        
+
         .close-modal {
             background: none;
             border: none;
@@ -91,11 +115,11 @@
             color: #6b7280;
             transition: color 0.2s;
         }
-        
+
         .close-modal:hover {
             color: #ef4444;
         }
-        
+
         .filter-btn {
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
@@ -103,7 +127,7 @@
             transition: all 0.2s;
             cursor: pointer;
         }
-        
+
         /* Status badge for modal */
         .status-badge-modal {
             padding: 0.5rem 1rem;
@@ -113,301 +137,342 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-100">
-    <%- include('./partialsAdmin/sidebar') %>
 
-    <main class="main-content bg-gray-300 h-screen" style="flex: 1; padding: 2rem;">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Data Pesanan</h1>
-                <p class="text-gray-600 mt-1">Kelola semua pesanan Cemal-Cemil</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Cari pesanan..." 
-                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 w-64">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                </div>
-            </div>
-        </div>
+    <div class="flex pt-16 min-h-screen">
+        <%- include('./partialsAdmin/sidebar') %>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-                <div class="flex items-center justify-between">
+
+
+            <main class="main-content bg-gray-300 h-screen" style="flex: 1; padding: 2rem;">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-8">
                     <div>
-                        <p class="text-gray-500">Total Pesanan</p>
-                        <p class="text-2xl font-bold text-blue-600"><%= orders.length %></p>
+                        <h1 class="text-3xl font-bold text-gray-800">Data Pesanan</h1>
+                        <p class="text-gray-600 mt-1">Kelola semua pesanan Cemal-Cemil</p>
                     </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <i class="fas fa-shopping-cart text-blue-600 text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Pending</p>
-                        <p class="text-2xl font-bold text-yellow-600">
-                            <%= orders.filter(o => o.status === 'pending').length %>
-                        </p>
-                    </div>
-                    <div class="bg-yellow-100 p-3 rounded-full">
-                        <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Cari pesanan..."
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 w-64">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Selesai</p>
-                        <p class="text-2xl font-bold text-green-600">
-                            <%= orders.filter(o => o.status === 'completed').length %>
-                        </p>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Total Pesanan</p>
+                                <p class="text-2xl font-bold text-blue-600">
+                                    <%= orders.length %>
+                                </p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-shopping-cart text-blue-600 text-2xl"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Pending</p>
+                                <p class="text-2xl font-bold text-yellow-600">
+                                    <%= orders.filter(o=> o.status === 'pending').length %>
+                                </p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Selesai</p>
+                                <p class="text-2xl font-bold text-green-600">
+                                    <%= orders.filter(o=> o.status === 'completed').length %>
+                                </p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Total Revenue</p>
+                                <p class="text-2xl font-bold text-purple-600">
+                                    Rp <%= orders.reduce((sum, o)=> sum + o.total, 0).toLocaleString('id-ID') %>
+                                </p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-money-bill-wave text-purple-600 text-2xl"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Total Revenue</p>
-                        <p class="text-2xl font-bold text-purple-600">
-                            Rp <%= orders.reduce((sum, o) => sum + o.total, 0).toLocaleString('id-ID') %>
-                        </p>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <i class="fas fa-money-bill-wave text-purple-600 text-2xl"></i>
+                <!-- Filter -->
+                <div class="bg-white rounded-lg shadow p-4 mb-6">
+                    <div class="flex flex-wrap items-center space-x-2">
+                        <span class="text-gray-700 mr-3">Filter:</span>
+                        <button class="filter-btn active bg-red-500 text-white" data-filter="all">Semua</button>
+                        <button class="filter-btn bg-white text-gray-700 border" data-filter="pending">Pending</button>
+                        <button class="filter-btn bg-white text-gray-700 border"
+                            data-filter="confirmed">Confirmed</button>
+                        <button class="filter-btn bg-white text-gray-700 border"
+                            data-filter="processing">Diproses</button>
+                        <button class="filter-btn bg-white text-gray-700 border"
+                            data-filter="completed">Selesai</button>
+                        <button class="filter-btn bg-white text-gray-700 border"
+                            data-filter="cancelled">Dibatalkan</button>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Filter -->
-        <div class="bg-white rounded-lg shadow p-4 mb-6">
-            <div class="flex flex-wrap items-center space-x-2">
-                <span class="text-gray-700 mr-3">Filter:</span>
-                <button class="filter-btn active bg-red-500 text-white" data-filter="all">Semua</button>
-                <button class="filter-btn bg-white text-gray-700 border" data-filter="pending">Pending</button>
-                <button class="filter-btn bg-white text-gray-700 border" data-filter="confirmed">Confirmed</button>
-                <button class="filter-btn bg-white text-gray-700 border" data-filter="processing">Diproses</button>
-                <button class="filter-btn bg-white text-gray-700 border" data-filter="completed">Selesai</button>
-                <button class="filter-btn bg-white text-gray-700 border" data-filter="cancelled">Dibatalkan</button>
-            </div>
-        </div>
+                <!-- Orders Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Daftar Pesanan</h2>
+                        <span class="text-sm text-gray-500">Total: <%= orders.length %> pesanan</span>
+                    </div>
 
-        <!-- Orders Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="px-6 py-4 border-b flex justify-between items-center">
-                <h2 class="text-xl font-bold">Daftar Pesanan</h2>
-                <span class="text-sm text-gray-500">Total: <%= orders.length %> pesanan</span>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (orders && orders.length > 0) { %>
-                            <% orders.forEach(order => { %>
-                                <tr class="hover:bg-gray-50 order-row" data-status="<%= order.status %>" data-order='<%= JSON.stringify(order) %>'>
-                                    <td class="px-6 py-4 whitespace-nowrap">    
-                                        <div class="text-sm font-medium">#ORD-<%= order.id.toString().padStart(3, '0') %></div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-medium"><%= order.customer_name %></div>
-                                        <div class="text-sm text-gray-500"><%= order.customer_phone %></div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm"><%= order.items ? order.items.length : 0 %> items</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium">Rp <%= order.total.toLocaleString('id-ID') %></div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                            <%= order.payment_method %>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <select class="status-select" onchange="updateStatus('<%= order.id %>', this.value)">
-                                            <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                            <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
-                                            <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Diproses</option>
-                                            <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Selesai</option>
-                                            <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Dibatalkan</option>
-                                        </select>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <%= new Date(order.created_at).toLocaleDateString('id-ID', { 
-                                            day: 'numeric', 
-                                            month: 'short', 
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        }) %>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <button onclick="viewDetail('<%= order.id %>')" 
-                                            class="text-blue-500 hover:text-blue-700 mr-3" title="Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi
+                                    </th>
                                 </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                                    <i class="fas fa-inbox text-4xl mb-2"></i>
-                                    <p>Belum ada pesanan</p>
-                                </td>
-                            </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal Popup -->
-    <div id="orderDetailModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header bg-orange-400">
-                <h2 class="text-xl font-bold text-gray-800  ">Detail Pesanan</h2>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body bg-gray-100">
-                <!-- Content will be dynamically loaded here -->
-                <div id="modalContent" class="space-y-6">
-                    <!-- Loading state -->
-                    <div id="modalLoading" class="text-center py-8">
-                        <i class="fas fa-spinner fa-spin text-3xl text-blue-500 mb-4"></i>
-                        <p class="text-gray-600">Memuat detail pesanan...</p>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% if (orders && orders.length> 0) { %>
+                                    <% orders.forEach(order=> { %>
+                                        <tr class="hover:bg-gray-50 order-row" data-status="<%= order.status %>"
+                                            data-order='<%= JSON.stringify(order) %>'>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium">#ORD-<%=
+                                                        order.id.toString().padStart(3, '0' ) %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-medium">
+                                                    <%= order.customer_name %>
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    <%= order.customer_phone %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm">
+                                                    <%= order.items ? order.items.length : 0 %> items
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium">Rp <%=
+                                                        order.total.toLocaleString('id-ID') %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                                    <%= order.payment_method %>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <select class="status-select"
+                                                    onchange="updateStatus('<%= order.id %>', this.value)">
+                                                    <option value="pending" <%=order.status==='pending' ? 'selected'
+                                                        : '' %>>Pending</option>
+                                                    <option value="confirmed" <%=order.status==='confirmed' ? 'selected'
+                                                        : '' %>>Confirmed</option>
+                                                    <option value="processing" <%=order.status==='processing'
+                                                        ? 'selected' : '' %>>Diproses</option>
+                                                    <option value="completed" <%=order.status==='completed' ? 'selected'
+                                                        : '' %>>Selesai</option>
+                                                    <option value="cancelled" <%=order.status==='cancelled' ? 'selected'
+                                                        : '' %>>Dibatalkan</option>
+                                                </select>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <%= new Date(order.created_at).toLocaleDateString('id-ID', {
+                                                    day: 'numeric' , month: 'short' , hour: '2-digit' ,
+                                                    minute: '2-digit' }) %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <button onclick="viewDetail('<%= order.id %>')"
+                                                    class="text-blue-500 hover:text-blue-700 mr-3" title="Detail">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                                                        <i class="fas fa-inbox text-4xl mb-2"></i>
+                                                        <p>Belum ada pesanan</p>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
                     </div>
-                    
-                    <!-- Actual content (hidden by default) -->
-                    <div id="modalData" class="hidden">
-                        <!-- Order Info -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Pesanan</h3>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">ID Pesanan:</span>
-                                        <span class="font-medium" id="modalOrderId"></span>
+                </div>
+            </main>
+
+            <!-- Modal Popup -->
+            <div id="orderDetailModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header bg-orange-400">
+                        <h2 class="text-xl font-bold text-gray-800  ">Detail Pesanan</h2>
+                        <button class="close-modal" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body bg-gray-100">
+                        <!-- Content will be dynamically loaded here -->
+                        <div id="modalContent" class="space-y-6">
+                            <!-- Loading state -->
+                            <div id="modalLoading" class="text-center py-8">
+                                <i class="fas fa-spinner fa-spin text-3xl text-blue-500 mb-4"></i>
+                                <p class="text-gray-600">Memuat detail pesanan...</p>
+                            </div>
+
+                            <!-- Actual content (hidden by default) -->
+                            <div id="modalData" class="hidden">
+                                <!-- Order Info -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Pesanan</h3>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">ID Pesanan:</span>
+                                                <span class="font-medium" id="modalOrderId"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Tanggal:</span>
+                                                <span class="font-medium" id="modalDate"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Status:</span>
+                                                <span class="font-medium">
+                                                    <span id="modalStatus" class="status-badge-modal"></span>
+                                                </span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Metode Pembayaran:</span>
+                                                <span class="font-medium" id="modalPayment"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Total:</span>
+                                                <span class="font-medium text-red-600" id="modalTotal"></span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Tanggal:</span>
-                                        <span class="font-medium" id="modalDate"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Status:</span>
-                                        <span class="font-medium">
-                                            <span id="modalStatus" class="status-badge-modal"></span>
-                                        </span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Metode Pembayaran:</span>
-                                        <span class="font-medium" id="modalPayment"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total:</span>
-                                        <span class="font-medium text-red-600" id="modalTotal"></span>
+
+                                    <div>
+                                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Customer</h3>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Nama:</span>
+                                                <span class="font-medium" id="modalCustomerName"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Telepon:</span>
+                                                <span class="font-medium" id="modalCustomerPhone"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Email:</span>
+                                                <span class="font-medium" id="modalCustomerEmail"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Alamat:</span>
+                                                <span class="font-medium text-right" id="modalCustomerAddress"></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div>
-                                <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Customer</h3>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Nama:</span>
-                                        <span class="font-medium" id="modalCustomerName"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Telepon:</span>
-                                        <span class="font-medium" id="modalCustomerPhone"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Email:</span>
-                                        <span class="font-medium" id="modalCustomerEmail"></span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Alamat:</span>
-                                        <span class="font-medium text-right" id="modalCustomerAddress"></span>
+
+                                <!-- Order Items -->
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Item Pesanan</h3>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full bg-white border border-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
+                                                        Produk</th>
+                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
+                                                        Harga</th>
+                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
+                                                        Qty</th>
+                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
+                                                        Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="modalItems" class="divide-y divide-gray-200">
+
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-gray-50">
+                                                    <td colspan="3"
+                                                        class="py-3 px-4 text-right font-medium text-gray-700">Total
+                                                    </td>
+                                                    <td class="py-3 px-4 font-bold text-red-600" id="modalItemsTotal">
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Order Items -->
-                        <div>
-                            <h3 class="text-lg font-semibold mb-4 text-gray-700">Item Pesanan</h3>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full bg-white border border-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Produk</th>
-                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Harga</th>
-                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Qty</th>
-                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="modalItems" class="divide-y divide-gray-200">
-                                            
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="bg-gray-50">
-                                            <td colspan="3" class="py-3 px-4 text-right font-medium text-gray-700">Total</td>
-                                            <td class="py-3 px-4 font-bold text-red-600" id="modalItemsTotal"></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Order Notes -->
-                        <div id="modalNotesSection" class="hidden">
-                            <h3 class="text-lg font-semibold mb-4 text-gray-700">Catatan Pesanan</h3>
-                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                <p class="text-gray-700" id="modalNotes"></p>
+
+                                <!-- Order Notes -->
+                                <div id="modalNotesSection" class="hidden">
+                                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Catatan Pesanan</h3>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <p class="text-gray-700" id="modalNotes"></p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
     </div>
+
 
     <script>
         // Filter functionality
         document.querySelectorAll('.filter-btn').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const filter = this.getAttribute('data-filter');
-                
+
                 document.querySelectorAll('.filter-btn').forEach(btn => {
                     btn.classList.remove('active', 'bg-red-500', 'text-white');
                     btn.classList.add('bg-white', 'text-gray-700', 'border');
                 });
-                
+
                 this.classList.add('active', 'bg-red-500', 'text-white');
                 this.classList.remove('bg-white', 'text-gray-700', 'border');
-                
+
                 document.querySelectorAll('.order-row').forEach(row => {
                     if (filter === 'all' || row.dataset.status === filter) {
                         row.style.display = '';
@@ -417,32 +482,32 @@
                 });
             });
         });
-        
+
         // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
+        document.getElementById('searchInput').addEventListener('input', function (e) {
             const searchTerm = e.target.value.toLowerCase();
             document.querySelectorAll('.order-row').forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         });
-        
+
         // Update status
         async function updateStatus(orderId, newStatus) {
             if (!confirm(`Ubah status pesanan menjadi "${newStatus}"?`)) {
                 location.reload();
                 return;
             }
-            
+
             try {
                 const res = await fetch(`/admin/orders/${orderId}/status`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: newStatus })
                 });
-                
+
                 const data = await res.json();
-                
+
                 if (data.success) {
                     alert('✅ ' + data.message);
                     location.reload();
@@ -456,18 +521,18 @@
                 location.reload();
             }
         }
-        
+
         // Modal functions
         function viewDetail(orderId) {
             const modal = document.getElementById('orderDetailModal');
             const modalLoading = document.getElementById('modalLoading');
             const modalData = document.getElementById('modalData');
-            
+
             // Show modal and loading state
             modal.classList.add('active');
             modalLoading.classList.remove('hidden');
             modalData.classList.add('hidden');
-            
+
             // Get order data from data attribute
             const orderRow = document.querySelector(`tr[data-order*='"id":"${orderId}"']`);
             if (orderRow) {
@@ -478,15 +543,15 @@
                 fetchOrderDetail(orderId);
             }
         }
-        
+
         function populateModal(order) {
             const modalLoading = document.getElementById('modalLoading');
             const modalData = document.getElementById('modalData');
-            
+
             // Hide loading, show data
             modalLoading.classList.add('hidden');
             modalData.classList.remove('hidden');
-            
+
             // Format date
             const orderDate = new Date(order.created_at);
             const formattedDate = orderDate.toLocaleDateString('id-ID', {
@@ -497,34 +562,34 @@
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            
+
             // Set status class
             const statusElement = document.getElementById('modalStatus');
             statusElement.textContent = getStatusText(order.status);
             statusElement.className = `status-badge-modal ${getStatusClass(order.status)}`;
-            
+
             // Populate order info
             document.getElementById('modalOrderId').textContent = `#ORD-${order.id.toString().padStart(3, '0')}`;
             document.getElementById('modalDate').textContent = formattedDate;
             document.getElementById('modalPayment').textContent = order.payment_method || 'Tidak diketahui';
             document.getElementById('modalTotal').textContent = `Rp ${order.total.toLocaleString('id-ID')}`;
-            
+
             // Populate customer info
             document.getElementById('modalCustomerName').textContent = order.customer_name || '-';
             document.getElementById('modalCustomerPhone').textContent = order.customer_phone || '-';
             document.getElementById('modalCustomerEmail').textContent = order.customer_email || '-';
             document.getElementById('modalCustomerAddress').textContent = order.customer_address || '-';
-            
+
             // Populate items
             const itemsContainer = document.getElementById('modalItems');
             itemsContainer.innerHTML = '';
-            
+
             let itemsTotal = 0;
             if (order.items && order.items.length > 0) {
                 order.items.forEach(item => {
                     const subtotal = item.price * item.quantity;
                     itemsTotal += subtotal;
-                    
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="py-3 px-4">
@@ -546,9 +611,9 @@
                     </tr>
                 `;
             }
-            
+
             document.getElementById('modalItemsTotal').textContent = `Rp ${itemsTotal.toLocaleString('id-ID')}`;
-            
+
             // Populate notes if exists
             const notesSection = document.getElementById('modalNotesSection');
             if (order.notes) {
@@ -558,12 +623,12 @@
                 notesSection.classList.add('hidden');
             }
         }
-        
+
         async function fetchOrderDetail(orderId) {
             try {
                 const res = await fetch(`/admin/orders/${orderId}`);
                 const data = await res.json();
-                
+
                 if (data.success) {
                     populateModal(data.order);
                 } else {
@@ -576,11 +641,11 @@
                 closeModal();
             }
         }
-        
+
         function closeModal() {
             document.getElementById('orderDetailModal').classList.remove('active');
         }
-        
+
         // Helper functions for status
         function getStatusText(status) {
             const statusMap = {
@@ -592,7 +657,7 @@
             };
             return statusMap[status] || status;
         }
-        
+
         function getStatusClass(status) {
             const classMap = {
                 'pending': 'bg-yellow-100 text-yellow-800',
@@ -603,20 +668,21 @@
             };
             return classMap[status] || 'bg-gray-100 text-gray-800';
         }
-        
+
         // Close modal when clicking outside
-        document.getElementById('orderDetailModal').addEventListener('click', function(e) {
+        document.getElementById('orderDetailModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeModal();
             }
         });
-        
+
         // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeModal();
             }
         });
     </script>
 </body>
+
 </html>

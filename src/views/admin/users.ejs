@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         
         .main-wrapper {
@@ -96,23 +97,25 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <%- include('./partialsAdmin/sidebar') %>
-
-    <!-- Main Content -->
-    <main class="main-content bg-gray-300">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Data Pengguna</h1>
-                <p class="text-gray-600 mt-1">Kelola data pengguna Cemal-Cemil</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Cari pengguna..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-64">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                </div>
-            </div>
-        </div>
+                <div class="flex pt-16 min-h-screen">
+                    <%- include('./partialsAdmin/sidebar') %>
+                    
+                    
+                    <!-- Main Content -->
+                    <main class="main-content bg-gray-300">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center mb-8">
+                            <div>
+                                <h1 class="text-3xl font-bold text-gray-800">Data Pengguna</h1>
+                                <p class="text-gray-600 mt-1">Kelola data pengguna Cemal-Cemil</p>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="relative">
+                                    <input type="text" id="searchInput" placeholder="Cari pengguna..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-64">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -355,6 +358,8 @@
             </div>
         </div>
     </div>
+    
+</div>
 
     <script>
         let userToDeleteId = null;

@@ -79,26 +79,28 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <%- include('./partialsAdmin/sidebar') %>
+            <div class="flex pt-16 min-h-screen">
+                <%- include('./partialsAdmin/sidebar') %>
 
-    <!-- Main Content -->
-    <main class=" p-6 min-h-screen w-screen bg-gray-300">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Manajemen Laporan Keuangan</h1>
-                <p class="text-gray-600">Kelola omset, laba rugi, dan laporan keuangan harian</p>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Omset Hari Ini -->
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Omset Hari Ini</p>
-                        <p class="text-2xl font-bold text-green-600">
+                
+                <!-- Main Content -->
+                <main class=" p-6 min-h-screen w-screen bg-gray-300">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800">Manajemen Laporan Keuangan</h1>
+                            <p class="text-gray-600">Kelola omset, laba rugi, dan laporan keuangan harian</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <!-- Omset Hari Ini -->
+                        <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Omset Hari Ini</p>
+                                    <p class="text-2xl font-bold text-green-600">
                             Rp <%= data.omset_hari_ini ? data.omset_hari_ini.toLocaleString('id-ID') : '0' %>
                         </p>
                     </div>
@@ -114,7 +116,7 @@
                     vs kemarin
                 </p>
             </div>
-
+            
             <!-- Laba Bulan Ini -->
             <div class="dashboard-card bg-white p-6 rounded-lg shadow">
                 <div class="flex items-center justify-between">
@@ -134,7 +136,7 @@
                     </span>
                 </p>
             </div>
-
+            
             <!-- Total Transaksi -->
             <div class="dashboard-card bg-white p-6 rounded-lg shadow">
                 <div class="flex items-center justify-between">
@@ -173,55 +175,55 @@
                 </p>
             </div>
         </div>
-
+        
         <!-- Tabs Navigation -->
         <div class="border-b border-gray-200 mb-6">
             <nav class="flex space-x-8">
                 <button onclick="showTab('summary')" id="tab-summary" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-active">
-                    <i class="fas fa-chart-pie mr-2"></i>Ringkasan
+                class="py-3 px-1 border-b-2 font-medium text-sm tab-active">
+                <i class="fas fa-chart-pie mr-2"></i>Ringkasan
+            </button>
+            <button onclick="showTab('omset')" id="tab-omset" 
+            class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
+            <i class="fas fa-chart-bar mr-2"></i>Omset
+        </button>
+        <button onclick="showTab('laba')" id="tab-laba" 
+        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
+        <i class="fas fa-balance-scale mr-2"></i>Laba Rugi
+    </button>
+    <button onclick="showTab('laporan')" id="tab-laporan" 
+    class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
+    <i class="fas fa-file-alt mr-2"></i>Laporan
+</button>
+</nav>
+</div>
+
+<!-- Tab Content: Summary -->
+<div id="content-summary" class="tab-content">
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Omset Chart -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Omset 7 Hari Terakhir</h3>
+                <div class="flex space-x-2">
+                    <button onclick="changeChartType('omsetChart', 'line')" 
+                    class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-chart-line"></i>
                 </button>
-                <button onclick="showTab('omset')" id="tab-omset" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                    <i class="fas fa-chart-bar mr-2"></i>Omset
-                </button>
-                <button onclick="showTab('laba')" id="tab-laba" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                    <i class="fas fa-balance-scale mr-2"></i>Laba Rugi
-                </button>
-                <button onclick="showTab('laporan')" id="tab-laporan" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                    <i class="fas fa-file-alt mr-2"></i>Laporan
-                </button>
-            </nav>
+                <button onclick="changeChartType('omsetChart', 'bar')" 
+                class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-chart-bar"></i>
+            </button>
         </div>
+    </div>
+    <div class="h-64">
+        <canvas id="omsetChart"></canvas>
+    </div>
+</div>
 
-        <!-- Tab Content: Summary -->
-        <div id="content-summary" class="tab-content">
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Omset Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Omset 7 Hari Terakhir</h3>
-                        <div class="flex space-x-2">
-                            <button onclick="changeChartType('omsetChart', 'line')" 
-                                    class="text-blue-500 hover:text-blue-700">
-                                <i class="fas fa-chart-line"></i>
-                            </button>
-                            <button onclick="changeChartType('omsetChart', 'bar')" 
-                                    class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-chart-bar"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="h-64">
-                        <canvas id="omsetChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Laba vs Pengeluaran Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
+<!-- Laba vs Pengeluaran Chart -->
+<div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-800">Laba vs Pengeluaran</h3>
                         <span class="text-sm text-gray-500">
@@ -233,7 +235,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Produk Terlaris -->
             <div class="bg-white p-6 rounded-lg shadow mb-8">
                 <div class="flex justify-between items-center mb-6">
@@ -284,28 +286,28 @@
                                             </span>
                                         </td>
                                     </tr>
-                                <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                        <i class="fas fa-chart-bar text-3xl mb-2 text-gray-400"></i>
-                                        <p>Belum ada data penjualan produk</p>
-                                    </td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- HAPUS Quick Actions Section -->
-        </div>
-
-        <!-- Tab Content: Omset -->
-        <div id="content-omset" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-lg shadow mb-8">
-                <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Omset</h3>
-                
+                                    <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                                <i class="fas fa-chart-bar text-3xl mb-2 text-gray-400"></i>
+                                                <p>Belum ada data penjualan produk</p>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- HAPUS Quick Actions Section -->
+                    </div>
+                    
+                    <!-- Tab Content: Omset -->
+                    <div id="content-omset" class="tab-content hidden">
+                        <div class="bg-white p-6 rounded-lg shadow mb-8">
+                            <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Omset</h3>
+                            
                 <!-- Informasi -->
                 <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div class="flex">
@@ -320,7 +322,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Tab Content: Laba Rugi -->
         <div id="content-laba" class="tab-content hidden">
             <div class="bg-white p-6 rounded-lg shadow mb-8">
@@ -340,7 +342,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Tab Content: Laporan -->
         <div id="content-laporan" class="tab-content hidden">
             <div class="bg-white rounded-lg shadow mb-8">
@@ -350,7 +352,7 @@
                         <h3 class="text-lg font-bold text-gray-800">Daftar Laporan Keuangan</h3>
                     </div>
                 </div>
-
+                
                 <!-- Laporan Table -->
                 <div class="overflow-x-auto scrollbar-thin">
                     <table class="min-w-full">
@@ -402,115 +404,116 @@
                                             <div class="flex items-center">
                                                 <div class="w-20 bg-gray-200 rounded-full h-2">
                                                     <div class="h-2 rounded-full <%= item.margin_percent >= 0 ? 'bg-green-500' : 'bg-red-500' %>" 
-                                                         style="width: <%= Math.min(Math.abs(item.margin_percent), 100) %>%"></div>
+                                                        style="width: <%= Math.min(Math.abs(item.margin_percent), 100) %>%"></div>
+                                                    </div>
+                                                    <span class="text-xs <%= item.margin_percent >= 0 ? 'text-green-600' : 'text-red-600' %> ml-2">
+                                                        <%= item.margin_percent.toFixed(1) %>%
+                                                    </span>
                                                 </div>
-                                                <span class="text-xs <%= item.margin_percent >= 0 ? 'text-green-600' : 'text-red-600' %> ml-2">
-                                                    <%= item.margin_percent.toFixed(1) %>%
-                                                </span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                        <i class="fas fa-file-alt text-4xl mb-3 text-gray-400"></i>
-                                        <p class="mb-4">Belum ada laporan yang digenerate</p>
-                                    </td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                                    <i class="fas fa-file-alt text-4xl mb-3 text-gray-400"></i>
+                                                    <p class="mb-4">Belum ada laporan yang digenerate</p>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Summary Stats -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Omset</h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Omset</span>
+                                        <span class="font-medium">Rp <%= data.total_omset ? data.total_omset.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Omset Tertinggi</span>
+                                        <span class="font-medium">Rp <%= data.max_omset ? data.max_omset.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Omset Terendah</span>
+                                        <span class="font-medium">Rp <%= data.min_omset ? data.min_omset.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Rata-rata Harian</span>
+                                        <span class="font-medium">Rp <%= data.avg_omset ? data.avg_omset.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Laba</h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Laba</span>
+                                        <span class="font-medium">Rp <%= data.total_laba ? data.total_laba.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Laba Tertinggi</span>
+                                        <span class="font-medium">Rp <%= data.max_laba ? data.max_laba.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Laba Terendah</span>
+                                        <span class="font-medium">Rp <%= data.min_laba ? data.min_laba.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Rata-rata Margin</span>
+                                        <span class="font-medium"><%= data.avg_margin ? data.avg_margin.toFixed(2) : '0' %>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <h4 class="text-lg font-bold text-gray-800 mb-4">Statistik Transaksi</h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Transaksi</span>
+                                        <span class="font-medium"><%= data.total_transaksi || 0 %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Transaksi/Hari</span>
+                                        <span class="font-medium"><%= data.transaksi_per_hari ? data.transaksi_per_hari.toFixed(1) : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Rata Transaksi</span>
+                                        <span class="font-medium">Rp <%= data.avg_transaksi ? data.avg_transaksi.toLocaleString('id-ID') : '0' %></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Produk Terjual</span>
+                                        <span class="font-medium"><%= data.total_produk_terjual || 0 %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
                 </div>
-            </div>
-        </div>
-
-        <!-- Summary Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Omset</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Omset</span>
-                        <span class="font-medium">Rp <%= data.total_omset ? data.total_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Omset Tertinggi</span>
-                        <span class="font-medium">Rp <%= data.max_omset ? data.max_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Omset Terendah</span>
-                        <span class="font-medium">Rp <%= data.min_omset ? data.min_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Rata-rata Harian</span>
-                        <span class="font-medium">Rp <%= data.avg_omset ? data.avg_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Laba</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Laba</span>
-                        <span class="font-medium">Rp <%= data.total_laba ? data.total_laba.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Laba Tertinggi</span>
-                        <span class="font-medium">Rp <%= data.max_laba ? data.max_laba.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Laba Terendah</span>
-                        <span class="font-medium">Rp <%= data.min_laba ? data.min_laba.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Rata-rata Margin</span>
-                        <span class="font-medium"><%= data.avg_margin ? data.avg_margin.toFixed(2) : '0' %>%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h4 class="text-lg font-bold text-gray-800 mb-4">Statistik Transaksi</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Transaksi</span>
-                        <span class="font-medium"><%= data.total_transaksi || 0 %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Transaksi/Hari</span>
-                        <span class="font-medium"><%= data.transaksi_per_hari ? data.transaksi_per_hari.toFixed(1) : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Rata Transaksi</span>
-                        <span class="font-medium">Rp <%= data.avg_transaksi ? data.avg_transaksi.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Produk Terjual</span>
-                        <span class="font-medium"><%= data.total_produk_terjual || 0 %></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load charts
-            initCharts();
-        });
-
-        // Tab Management - FIXED VERSION
-        function showTab(tabName) {
-            console.log('Switching to tab:', tabName); // Debug log
-            
-            // Hide all tab content
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.add('hidden');
-            });
-            
+                    
+                    <script>
+                        // Initialize when page loads
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Load charts
+                            initCharts();
+                        });
+                        
+                        // Tab Management - FIXED VERSION
+                        function showTab(tabName) {
+                            console.log('Switching to tab:', tabName); // Debug log
+                            
+                            // Hide all tab content
+                            document.querySelectorAll('.tab-content').forEach(el => {
+                                el.classList.add('hidden');
+                            });
+                            
             // Remove active class from all tabs
             document.querySelectorAll('[id^="tab-"]').forEach(el => {
                 el.classList.remove('tab-active');

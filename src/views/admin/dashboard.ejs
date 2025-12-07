@@ -17,10 +17,6 @@
             overflow-x: hidden;
         }
         
-        .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
         
         .main-content {
             flex: 1;
@@ -114,164 +110,165 @@
     </style>
 </head>
 <body>
+        <div class="flex pt-16 min-h-screen">
+    <!-- sidebar -->
     <%- include('./partialsAdmin/sidebar') %>
 
-    <!-- Main Content -->
-    <main class="main-content bg-gray-300 h-screen >
-        <h1 class="text-3xl font-bold mb-8 text-gray-800"></h1>
-        <h1 class="text-3xl font-bold mb-8 text-gray-800">Dashboard Admin</h1>
-        
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Total Pesanan</p>
-                        <p class="text-2xl font-bold text-blue-600"><%= totalOrders || 0 %></p>
-                    </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <i class="fas fa-shopping-cart text-blue-600 text-2xl"></i>
-                    </div>
+ <!-- Main Content -->
+<main class="main-content bg-gray-300 flex-1 w-full lg:w-auto p-4 lg:p-8 overflow-y-auto">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">Dashboard Admin</h1>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500">Total Pesanan</p>
+                    <p class="text-2xl font-bold text-blue-600"><%= totalOrders || 0 %></p>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">+<%= todayOrders || 0 %> pesanan hari ini</p>
-            </div>
-
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Total Produk</p>
-                        <p class="text-2xl font-bold text-purple-600"><%= totalProducts || 0 %></p>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <i class="fas fa-utensils text-purple-600 text-2xl"></i>
-                    </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-shopping-cart text-blue-600 text-2xl"></i>
                 </div>
-                <p class="text-sm text-gray-500 mt-2"><%= activeProducts || 0 %> produk aktif</p>
             </div>
-
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Total Pengguna</p>
-                        <p class="text-2xl font-bold text-red-600"><%= totalUsers || 0 %></p>
-                    </div>
-                    <div class="bg-red-100 p-3 rounded-full">
-                        <i class="fas fa-users text-red-600 text-2xl"></i>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-500 mt-2">+<%= newUsers || 0 %> user baru</p>
-            </div>
+            <p class="text-sm text-gray-500 mt-2">+<%= todayOrders || 0 %> pesanan hari ini</p>
         </div>
 
-        <!-- Recent Orders -->
-        <div class="bg-white rounded-lg shadow p-6 mb-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Pesanan Terbaru</h2>
-                <a href="/admin/orders" class="text-red-500 hover:text-red-600 font-semibold">
-                    Lihat Semua →
-                </a>
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500">Total Produk</p>
+                    <p class="text-2xl font-bold text-purple-600"><%= totalProducts || 0 %></p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <i class="fas fa-utensils text-purple-600 text-2xl"></i>
+                </div>
             </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <% if (recentOrders && recentOrders.length > 0) { %>
-                            <% recentOrders.forEach(function(order) { %>
-                                <tr id="order-<%= order.id %>">
-                                    <td class="px-6 py-4 whitespace-nowrap">#ORD-<%= order.id.toString().padStart(3, '0') %></td>
-                                    <td class="px-6 py-4 whitespace-nowrap"><%= order.customer_name %></td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp <%= order.total.toLocaleString('id-ID') %></td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="status-badge px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800"><%= order.status %></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <%= new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <button class="text-blue-500 hover:text-blue-700 mr-3" title="Lihat Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="text-green-500 hover:text-green-700 mr-2" title="Approve Pesanan" onclick="approveOrder('<%= order.id %>')">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="text-red-500 hover:text-red-700" title="Cancel Pesanan" onclick="openCancelModal('<%= order.id %>', '<%= order.customer_name %>', <%= order.total %>)">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                    Tidak ada pesanan pending
+            <p class="text-sm text-gray-500 mt-2"><%= activeProducts || 0 %> produk aktif</p>
+        </div>
+
+        <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500">Total Pengguna</p>
+                    <p class="text-2xl font-bold text-red-600"><%= totalUsers || 0 %></p>
+                </div>
+                <div class="bg-red-100 p-3 rounded-full">
+                    <i class="fas fa-users text-red-600 text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">+<%= newUsers || 0 %> user baru</p>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Pesanan Terbaru</h2>
+            <a href="/admin/orders" class="text-red-500 hover:text-red-600 font-semibold">
+                Lihat Semua →
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <% if (recentOrders && recentOrders.length > 0) { %>
+                        <% recentOrders.forEach(function(order) { %>
+                            <tr id="order-<%= order.id %>">
+                                <td class="px-6 py-4 whitespace-nowrap">#ORD-<%= order.id.toString().padStart(3, '0') %></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><%= order.customer_name %></td>
+                                <td class="px-6 py-4 whitespace-nowrap">Rp <%= order.total.toLocaleString('id-ID') %></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="status-badge px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800"><%= order.status %></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <%= new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-3" title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-green-500 hover:text-green-700 mr-2" title="Approve Pesanan" onclick="approveOrder('<%= order.id %>')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700" title="Cancel Pesanan" onclick="openCancelModal('<%= order.id %>', '<%= order.customer_name %>', <%= order.total %>)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </td>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-bold mb-4 text-gray-800">Tambah Produk Baru</h3>
-                <p class="text-gray-600 mb-4">Tambahkan menu makanan atau minuman baru ke katalog.</p>
-                <a href="/admin/products" class="inline-block bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300">
-                    <i class="fas fa-plus mr-2"></i>Tambah Produk
-                </a>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h3 class="text-lg font-bold mb-4 text-gray-800">Kelola Pesanan</h3>
-                <p class="text-gray-600 mb-4">Approve atau cancel pesanan yang masuk dari customer.</p>
-                <div class="space-y-4">
-                    <% if (recentOrders && recentOrders.length > 0) { %>
-                        <% recentOrders.slice(0, 2).forEach(function(order) { %>
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium">#ORD-<%= order.id.toString().padStart(3, '0') %> - <%= order.customer_name %></p>
-                                    <p class="text-sm text-gray-500">Rp <%= order.total.toLocaleString('id-ID') %> • <%= new Date(order.created_at).toLocaleDateString('id-ID') %></p>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="approveOrder('<%= order.id %>')">
-                                        <i class="fas fa-check mr-1"></i>Approve
-                                    </button>
-                                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="openCancelModal('<%= order.id %>', '<%= order.customer_name %>', <%= order.total %>)">
-                                        <i class="fas fa-times mr-1"></i>Cancel
-                                    </button>
-                                </div>
-                            </div>
                         <% }); %>
                     <% } else { %>
-                        <p class="text-gray-500 text-center">Tidak ada pesanan pending</p>
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                Tidak ada pesanan pending
+                            </td>
+                        </tr>
                     <% } %>
-                </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-bold mb-4 text-gray-800">Tambah Produk Baru</h3>
+            <p class="text-gray-600 mb-4">Tambahkan menu makanan atau minuman baru ke katalog.</p>
+            <a href="/admin/products" class="inline-block bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300">
+                <i class="fas fa-plus mr-2"></i>Tambah Produk
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-bold mb-4 text-gray-800">Kelola Pesanan</h3>
+            <p class="text-gray-600 mb-4">Approve atau cancel pesanan yang masuk dari customer.</p>
+            <div class="space-y-4">
+                <% if (recentOrders && recentOrders.length > 0) { %>
+                    <% recentOrders.slice(0, 2).forEach(function(order) { %>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">#ORD-<%= order.id.toString().padStart(3, '0') %> - <%= order.customer_name %></p>
+                                <p class="text-sm text-gray-500">Rp <%= order.total.toLocaleString('id-ID') %> • <%= new Date(order.created_at).toLocaleDateString('id-ID') %></p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="approveOrder('<%= order.id %>')">
+                                    <i class="fas fa-check mr-1"></i>Approve
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition duration-300 text-sm" onclick="openCancelModal('<%= order.id %>', '<%= order.customer_name %>', <%= order.total %>)">
+                                    <i class="fas fa-times mr-1"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-gray-500 text-center">Tidak ada pesanan pending</p>
+                <% } %>
             </div>
         </div>
-        
-        <!-- Cancel Order Modal -->
-        <div id="cancelModal" class="modal-overlay">
-            <div class="modal-container">
-                <div class="modal-header">
-                    <div class="flex items-center">
-                        <div class="bg-red-100 p-2 rounded-lg mr-3">
-                            <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800">Cancel Pesanan</h3>
-                            <p class="text-sm text-gray-500">Konfirmasi pembatalan pesanan</p>
-                        </div>
+    </div>
+
+    <!-- Cancel Order Modal -->
+    <div id="cancelModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="flex items-center">
+                    <div class="bg-red-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Cancel Pesanan</h3>
+                        <p class="text-sm text-gray-500">Konfirmasi pembatalan pesanan</p>
+                    </div>
                 </div>
                 <button onclick="closeCancelModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
@@ -347,6 +344,8 @@
         </div>
     </div>
 </main>
+
+        </div>
     
     <script>
         let currentOrderId = null;
