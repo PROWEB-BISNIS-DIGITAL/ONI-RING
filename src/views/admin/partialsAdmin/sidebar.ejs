@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="/node_modules/animate.css/animate.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/heroicons@2.0.18"></script>
+
 </head>
 
 <body>
@@ -31,15 +34,23 @@
     </nav>
     <div class="flex">
         <!-- Sidebar -->
-        <div class="sidebar bg-gray-900 text-white w-64">
+        <div class="sidebar bg-gray-900 text-white w-80">
             <div class="p-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-400">NAVIGASI</h3>
+                <h3 class="text-lg font-semibold mb-4 text-gray-400">MENU</h3>
                 <ul class="space-y-2">
                     <li>
                         <a href="/admin/dashboard"
                             class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Dashboard') ? 'active-menu' : '' %>">
                             <i class="fas fa-tachometer-alt mr-3 w-6"></i>
                             Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/managementU"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Dashboard') ? 'active-menu' : '' %>">
+                            <i class="fas fa-money-bill-wave mr-3 w-6"></i>
+
+                            Laporan Keuangan
                         </a>
                     </li>
                     <li>

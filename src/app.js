@@ -46,6 +46,7 @@ app.use(userToLocals);
 
 // Set view engine
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 // Import routes
@@ -63,12 +64,16 @@ const adminRouter = require('./routes/admin');
 const orderRouter = require('./routes/orders');
 const apiRouter = require('./routes/api'); // TAMBAHKAN INI
 
+
+
 // Use routes
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/orders', orderRouter);
 app.use('/api', apiRouter); // TAMBAHKAN INI
+app.use(userToLocals);
+
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);

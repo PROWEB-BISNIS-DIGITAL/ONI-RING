@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .status-badge {
@@ -117,7 +116,7 @@
 <body class="bg-gray-100">
     <%- include('./partialsAdmin/sidebar') %>
 
-    <main class="main-content" style="flex: 1; padding: 2rem;">
+    <main class="main-content bg-gray-300 h-screen" style="flex: 1; padding: 2rem;">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -228,7 +227,7 @@
                         <% if (orders && orders.length > 0) { %>
                             <% orders.forEach(order => { %>
                                 <tr class="hover:bg-gray-50 order-row" data-status="<%= order.status %>" data-order='<%= JSON.stringify(order) %>'>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 whitespace-nowrap">    
                                         <div class="text-sm font-medium">#ORD-<%= order.id.toString().padStart(3, '0') %></div>
                                     </td>
                                     <td class="px-6 py-4">
