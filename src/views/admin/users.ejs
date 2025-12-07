@@ -1,939 +1,937 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        
-        .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            background-color: #f9fafb;
-        }
-        
-        .dashboard-card {
-            transition: all 0.3s ease;
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .status-active {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        
-        .status-inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        
-        .modal-container {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-        
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-        }
-        
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            padding: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        /* Notification Popup Styles */
-        .notification-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            min-width: 300px;
-            max-width: 400px;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
-            opacity: 1;
-        }
-        
-        .notification-success {
-            background-color: #10b981;
-            color: white;
-            border-left: 4px solid #059669;
-        }
-        
-        .notification-error {
-            background-color: #ef4444;
-            color: white;
-            border-left: 4px solid #dc2626;
-        }
-        
-        .notification-info {
-            background-color: #3b82f6;
-            color: white;
-            border-left: 4px solid #1d4ed8;
-        }
-        
-        .notification-warning {
-            background-color: #f59e0b;
-            color: white;
-            border-left: 4px solid #d97706;
-        }
-        
-        .notification-icon {
-            font-size: 20px;
-            margin-right: 12px;
-        }
-        
-        .notification-content {
-            flex: 1;
-        }
-        
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 16px;
-        }
-        
-        .notification-message {
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-        
-        /* User Detail Popup */
-        .user-detail-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-        }
-        
-        .user-detail-popup.show {
-            display: flex;
-        }
-        
-        .user-detail-content {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: popupAppear 0.3s ease;
-        }
-        
-        @keyframes popupAppear {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .user-detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .user-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: #6b7280;
-            margin: 0 auto 20px;
-        }
-        
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        
-        .detail-label {
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .detail-value {
-            color: #6b7280;
-            text-align: right;
-        }
-        
-        /* Status Confirmation Modal */
-        .status-confirmation-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1002;
-        }
-        
-        .status-confirmation-popup.show {
-            display: flex;
-        }
-        
-        .status-confirmation-content {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 400px;
-            width: 90%;
-            animation: popupAppear 0.3s ease;
-        }
-        
-        .status-action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-        
-        .status-toggle-btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .status-toggle-btn.active {
-            background-color: #10b981;
-            color: white;
-        }
-        
-        .status-toggle-btn.inactive {
-            background-color: #ef4444;
-            color: white;
-        }
-        
-        .status-toggle-btn:hover {
-            opacity: 0.9;
-        }
-    </style>
-</head>
-<body class="bg-gray-100">
-    <%- include('./partialsAdmin/sidebar') %>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Data Pengguna</h1>
-                <p class="text-gray-600 mt-1">Kelola data pengguna Cemal-Cemil</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Cari pengguna..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-64">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Total Pengguna</p>
-                        <p class="text-2xl font-bold text-red-600"><%= users.length %></p>
-                    </div>
-                    <div class="bg-red-100 p-3 rounded-full">
-                        <i class="fas fa-users text-red-600 text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">User Aktif</p>
-                        <p class="text-2xl font-bold text-green-600"><%= users.filter(u => u.isActive).length %></p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <i class="fas fa-user-check text-green-600 text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Admin</p>
-                        <p class="text-2xl font-bold text-blue-600"><%= users.filter(u => u.role === 'admin').length %></p>
-                    </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <i class="fas fa-user-shield text-blue-600 text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Customer</p>
-                        <p class="text-2xl font-bold text-purple-600"><%= users.filter(u => u.role === 'user').length %></p>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <i class="fas fa-user text-purple-600 text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-gray-800">Daftar Pengguna</h2>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Daftar</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
-                        <% if (users && users.length > 0) { %>
-                            <% users.forEach(function(user) { %>
-                                <tr class="hover:bg-gray-50 user-row" data-user-id="<%= user.id %>">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #USR-<%= user.id.toString().padStart(3, '0') %>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                                                    <i class="fas fa-user text-red-600"></i>
-                                                </div>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900"><%= user.name %></div>
-                                                <div class="text-sm text-gray-500">@<%= user.name.toLowerCase().replace(/\s+/g, '') %></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <%= user.email %>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <%= user.phone || '-' %>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs rounded-full <%= user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
-                                            <%= user.role === 'admin' ? 'Admin' : 'Customer' %>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs rounded-full <%= user.isActive ? 'status-active' : 'status-inactive' %>">
-                                            <%= user.isActive ? 'Aktif' : 'Nonaktif' %>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <%= new Date(user.created_at).toLocaleDateString('id-ID', { 
-                                            day: 'numeric', 
-                                            month: 'short', 
-                                            year: 'numeric' 
-                                        }) %>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button onclick="viewUser('<%= user.id %>')" class="text-blue-500 hover:text-blue-700 mr-3" title="Lihat Detail">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button onclick="deleteUser('<%= user.id %>', '<%= user.name %>')" class="text-red-500 hover:text-red-700" title="Hapus User">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="8" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                    <i class="fas fa-users text-4xl text-gray-300 mb-2"></i>
-                                    <p class="text-lg">Belum ada data pengguna</p>
-                                    <p class="text-sm mt-1">Mulai dengan menambahkan pengguna baru</p>
-                                </td>
-                            </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-bold mb-4 text-gray-800">Statistik User</h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">Customer</span>
-                            <span class="text-sm font-medium text-gray-700"><%= users.filter(u => u.role === 'user').length %> user</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-red-500 h-2 rounded-full" style="width: <%= users.length > 0 ? (users.filter(u => u.role === 'user').length / users.length * 100) : 0 %>%"></div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">Admin</span>
-                            <span class="text-sm font-medium text-gray-700"><%= users.filter(u => u.role === 'admin').length %> user</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: <%= users.length > 0 ? (users.filter(u => u.role === 'admin').length / users.length * 100) : 0 %>%"></div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">User Aktif</span>
-                            <span class="text-sm font-medium text-gray-700"><%= users.filter(u => u.isActive).length %> user</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: <%= users.length > 0 ? (users.filter(u => u.isActive).length / users.length * 100) : 0 %>%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="flex items-center">
-                    <div class="bg-red-100 p-2 rounded-lg mr-3">
-                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Hapus User</h3>
-                        <p class="text-sm text-gray-500">Konfirmasi penghapusan pengguna</p>
-                    </div>
-                </div>
-                <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex">
-                        <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
-                        <div>
-                            <p class="font-medium text-red-700">Peringatan!</p>
-                            <p class="text-sm text-red-600 mt-1">
-                                Data user yang dihapus tidak dapat dikembalikan. 
-                                Semua data terkait user ini akan hilang.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title><%= title %></title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <script src="https://cdn.tailwindcss.com"></script>
+            <style>
                 
-                <div class="text-center">
-                    <div class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-user-slash text-red-500 text-2xl"></i>
-                    </div>
-                    <p class="text-lg font-medium text-gray-800">Apakah Anda yakin ingin menghapus user?</p>
-                    <p id="userToDelete" class="text-gray-600 mt-2"></p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button onclick="closeDeleteModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 font-medium">
-                    Batal
-                </button>
-                <button id="confirmDeleteBtn" class="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 font-medium flex items-center">
-                    <i class="fas fa-trash mr-2"></i>
-                    Hapus User
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Detail Popup -->
-    <div id="userDetailPopup" class="user-detail-popup">
-        <div class="user-detail-content">
-            <div class="user-detail-header">
-                <h3 class="text-xl font-bold text-gray-800">Detail Pengguna</h3>
-                <button onclick="closeUserDetail()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            </div>
-            
-            <div class="user-avatar">
-                <i class="fas fa-user"></i>
-            </div>
-            
-            <div id="userDetailContent">
-                <!-- User details will be loaded here -->
-            </div>
-            
-            <!-- TAMBAHKAN TOMBOL TOGGLE STATUS DI SINI -->
-            <div class="status-action-buttons mt-6">
-                <button id="toggleStatusBtn" class="status-toggle-btn" onclick="showStatusConfirmation()">
-                    <i class="fas fa-exchange-alt"></i>
-                    Ubah Status
-                </button>
-            </div>
-            
-            <div class="mt-6 text-center">
-                <button onclick="closeUserDetail()" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-300 font-medium">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Status Confirmation Modal -->
-    <div id="statusConfirmationPopup" class="status-confirmation-popup">
-        <div class="status-confirmation-content">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
-                    <i class="fas fa-exchange-alt text-yellow-600 text-xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">Ubah Status User</h3>
-                <p id="statusConfirmationMessage" class="text-gray-600 mb-4">
-                    Apakah Anda yakin ingin mengubah status user?
-                </p>
-                
-                <div class="flex justify-center space-x-3 mb-6">
-                    <button id="setActiveBtn" class="status-toggle-btn active">
-                        <i class="fas fa-check-circle"></i>
-                        Aktifkan
-                    </button>
-                    <button id="setInactiveBtn" class="status-toggle-btn inactive">
-                        <i class="fas fa-times-circle"></i>
-                        Nonaktifkan
-                    </button>
-                </div>
-                
-                <div class="flex justify-center space-x-3 pt-4 border-t">
-                    <button onclick="closeStatusConfirmation()" 
-                            class="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
-                        Batal
-                    </button>
-                    <button id="confirmStatusChangeBtn" 
-                            class="px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium">
-                        Konfirmasi
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let userToDeleteId = null;
-        let currentUserDetail = null;
-        let selectedNewStatus = null;
-        
-        function viewUser(userId) {
-            fetch(`/admin/users/${userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        currentUserDetail = data.user;
-                        showUserDetail(data.user);
-                    } else {
-                        showNotification(data.message, 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showNotification('Terjadi kesalahan', 'error');
-                });
-        }
-        
-        function showUserDetail(user) {
-            const detailHtml = `
-                <div class="space-y-4">
-                    <div class="detail-item">
-                        <span class="detail-label">Nama Lengkap:</span>
-                        <span class="detail-value">${user.name}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Email:</span>
-                        <span class="detail-value">${user.email}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Telepon:</span>
-                        <span class="detail-value">${user.phone || '-'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Role:</span>
-                        <span class="detail-value">
-                            <span class="px-2 py-1 text-xs rounded-full ${user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
-                                ${user.role === 'admin' ? 'Admin' : 'Customer'}
-                            </span>
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Status Saat Ini:</span>
-                        <span class="detail-value">
-                            <span class="px-2 py-1 text-xs rounded-full ${user.isActive ? 'status-active' : 'status-inactive'}">
-                                ${user.isActive ? 'Aktif' : 'Nonaktif'}
-                            </span>
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">ID Pengguna:</span>
-                        <span class="detail-value">#USR-${user.id.toString().padStart(3, '0')}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Terdaftar:</span>
-                        <span class="detail-value">${new Date(user.created_at).toLocaleDateString('id-ID', { 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</span>
-                    </div>
-                    ${user.updated_at ? `
-                    <div class="detail-item">
-                        <span class="detail-label">Terakhir Update:</span>
-                        <span class="detail-value">${new Date(user.updated_at).toLocaleDateString('id-ID', { 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</span>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-            
-            document.getElementById('userDetailContent').innerHTML = detailHtml;
-            document.getElementById('userDetailPopup').classList.add('show');
-        }
-        
-        function closeUserDetail() {
-            document.getElementById('userDetailPopup').classList.remove('show');
-            currentUserDetail = null;
-        }
-        
-        function showStatusConfirmation() {
-            if (!currentUserDetail) return;
-            
-            document.getElementById('statusConfirmationMessage').textContent = 
-                `Ubah status user "${currentUserDetail.name}"?`;
-            
-            // Reset button states
-            document.getElementById('setActiveBtn').classList.remove('active');
-            document.getElementById('setInactiveBtn').classList.remove('inactive');
-            document.getElementById('confirmStatusChangeBtn').disabled = true;
-            selectedNewStatus = null;
-            
-            document.getElementById('statusConfirmationPopup').classList.add('show');
-        }
-        
-        function closeStatusConfirmation() {
-            document.getElementById('statusConfirmationPopup').classList.remove('show');
-            selectedNewStatus = null;
-        }
-        
-        // Setup status buttons
-        document.getElementById('setActiveBtn').addEventListener('click', function() {
-            selectedNewStatus = 'active';
-            document.getElementById('setActiveBtn').classList.add('active');
-            document.getElementById('setInactiveBtn').classList.remove('inactive');
-            document.getElementById('confirmStatusChangeBtn').disabled = false;
-        });
-        
-        document.getElementById('setInactiveBtn').addEventListener('click', function() {
-            selectedNewStatus = 'inactive';
-            document.getElementById('setInactiveBtn').classList.add('inactive');
-            document.getElementById('setActiveBtn').classList.remove('active');
-            document.getElementById('confirmStatusChangeBtn').disabled = false;
-        });
-        
-        // Confirm status change
-        document.getElementById('confirmStatusChangeBtn').addEventListener('click', function() {
-            if (!currentUserDetail || !selectedNewStatus) return;
-            
-            const confirmBtn = this;
-            const originalText = confirmBtn.innerHTML;
-            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
-            confirmBtn.disabled = true;
-            
-            fetch(`/admin/users/${currentUserDetail.id}/toggle-status`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    closeStatusConfirmation();
-                    
-                    // Update current user detail
-                    currentUserDetail.isActive = selectedNewStatus === 'active';
-                    
-                    // Update table row
-                    const userRow = document.querySelector(`tr[data-user-id="${currentUserDetail.id}"]`);
-                    if (userRow) {
-                        const statusBadge = userRow.querySelector('.px-2.py-1.text-xs.rounded-full');
-                        if (statusBadge) {
-                            statusBadge.className = `px-2 py-1 text-xs rounded-full ${selectedNewStatus === 'active' ? 'status-active' : 'status-inactive'}`;
-                            statusBadge.textContent = selectedNewStatus === 'active' ? 'Aktif' : 'Nonaktif';
-                        }
-                    }
-                    
-                    // Refresh user detail view
-                    showUserDetail(currentUserDetail);
-                    
-                    // Update stats cards
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    showNotification(data.message, 'error');
-                    confirmBtn.innerHTML = originalText;
-                    confirmBtn.disabled = false;
+                .main-wrapper {
+                    display: flex;
+                    min-height: 100vh;
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                showNotification('Terjadi kesalahan saat mengubah status', 'error');
-                confirmBtn.innerHTML = originalText;
-                confirmBtn.disabled = false;
-            });
-        });
-        
-        function deleteUser(userId, userName) {
-            userToDeleteId = userId;
-            document.getElementById('userToDelete').textContent = `User: ${userName} (ID: ${userId})`;
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
-        
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-            userToDeleteId = null;
-        }
-        
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (userToDeleteId) {
-                const confirmBtn = this;
-                const originalText = confirmBtn.innerHTML;
-                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menghapus...';
-                confirmBtn.disabled = true;
+            
+                .main-content {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 2rem;
+                    background-color: #f9fafb;
+                }
                 
-                fetch(`/admin/users/${userToDeleteId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification(data.message, 'success');
-                        closeDeleteModal();
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showNotification(data.message, 'error');
+                .dashboard-card {
+                    transition: all 0.3s ease;
+                }
+                
+                .dashboard-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                }
+                
+                .status-active {
+                    background-color: #d1fae5;
+                    color: #065f46;
+                }
+                
+                .status-inactive {
+                    background-color: #fee2e2;
+                    color: #991b1b;
+                }
+                
+                .modal-overlay {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    z-index: 1000;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1rem;
+                }
+                
+                .modal-container {
+                    background-color: white;
+                    border-radius: 0.75rem;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                    max-width: 500px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    animation: modalSlideIn 0.3s ease-out;
+                }
+                
+                @keyframes modalSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .modal-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1.5rem;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .modal-body {
+                    padding: 1.5rem;
+                }
+                
+                .modal-footer {
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 0.75rem;
+                    padding: 1.5rem;
+                    border-top: 1px solid #e5e7eb;
+                }
+                
+                /* Notification Popup Styles */
+                .notification-popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    min-width: 300px;
+                    max-width: 400px;
+                    padding: 16px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    display: flex;
+                    align-items: center;
+                    animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
+                    opacity: 1;
+                }
+                
+                .notification-success {
+                    background-color: #10b981;
+                    color: white;
+                    border-left: 4px solid #059669;
+                }
+                
+                .notification-error {
+                    background-color: #ef4444;
+                    color: white;
+                    border-left: 4px solid #dc2626;
+                }
+                
+                .notification-info {
+                    background-color: #3b82f6;
+                    color: white;
+                    border-left: 4px solid #1d4ed8;
+                }
+                
+                .notification-warning {
+                    background-color: #f59e0b;
+                    color: white;
+                    border-left: 4px solid #d97706;
+                }
+                
+                .notification-icon {
+                    font-size: 20px;
+                    margin-right: 12px;
+                }
+                
+                .notification-content {
+                    flex: 1;
+                }
+                
+                .notification-title {
+                    font-weight: 600;
+                    margin-bottom: 4px;
+                    font-size: 16px;
+                }
+                
+                .notification-message {
+                    font-size: 14px;
+                    line-height: 1.4;
+                }
+                
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes fadeOut {
+                    from {
+                        opacity: 1;
+                    }
+                    to {
+                        opacity: 0;
+                    }
+                }
+                
+                /* User Detail Popup */
+                .user-detail-popup {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1001;
+                }
+                
+                .user-detail-popup.show {
+                    display: flex;
+                }
+                
+                .user-detail-content {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 24px;
+                    max-width: 500px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    animation: popupAppear 0.3s ease;
+                }
+                
+                @keyframes popupAppear {
+                    from {
+                        transform: scale(0.9);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+                
+                .user-detail-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 16px;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .user-avatar {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    background-color: #f3f4f6;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 32px;
+                    color: #6b7280;
+                    margin: 0 auto 20px;
+                }
+                
+                .detail-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 12px 0;
+                    border-bottom: 1px solid #f3f4f6;
+                }
+                
+                .detail-label {
+                    font-weight: 600;
+                    color: #374151;
+                }
+                
+                .detail-value {
+                    color: #6b7280;
+                    text-align: right;
+                }
+                
+                /* Status Confirmation Modal */
+                .status-confirmation-popup {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1002;
+                }
+                
+                .status-confirmation-popup.show {
+                    display: flex;
+                }
+                
+                .status-confirmation-content {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 24px;
+                    max-width: 400px;
+                    width: 90%;
+                    animation: popupAppear 0.3s ease;
+                }
+                
+                .status-action-buttons {
+                    display: flex;
+                    gap: 10px;
+                    margin-top: 20px;
+                    justify-content: center;
+                }
+                
+                .status-toggle-btn {
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                
+                .status-toggle-btn.active {
+                    background-color: #10b981;
+                    color: white;
+                }
+                
+                .status-toggle-btn.inactive {
+                    background-color: #ef4444;
+                    color: white;
+                }
+                
+                .status-toggle-btn:hover {
+                    opacity: 0.9;
+                }
+            </style>
+        </head>
+        <body class="bg-gray-100">
+                        <div class="flex pt-16 min-h-screen">
+                            <%- include('./partialsAdmin/sidebar') %>
+                            
+                            
+                            <!-- Main Content -->
+                            <main class="main-content bg-gray-300">
+                                <!-- Header -->
+                                <div class="flex justify-between items-center mb-8">
+                                    <div>
+                                        <h1 class="text-3xl font-bold text-gray-800">Data Pengguna</h1>
+                                        <p class="text-gray-600 mt-1">Kelola data pengguna Cemal-Cemil</p>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="relative">
+                                            <input type="text" id="searchInput" placeholder="Cari pengguna..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-64">
+                                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Total Pengguna</p>
+                                <p class="text-2xl font-bold text-red-600"><%= users.length %></p>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <i class="fas fa-users text-red-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">User Aktif</p>
+                                <p class="text-2xl font-bold text-green-600"><%= users.filter(u => u.isActive).length %></p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-user-check text-green-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Admin</p>
+                                <p class="text-2xl font-bold text-blue-600"><%= users.filter(u => u.role === 'admin').length %></p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-user-shield text-blue-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Customer</p>
+                                <p class="text-2xl font-bold text-purple-600"><%= users.filter(u => u.role === 'user').length %></p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-user text-purple-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-800">Daftar Pengguna</h2>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Daftar</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                                <% if (users && users.length > 0) { %>
+                                    <% users.forEach(function(user) { %>
+                                        <tr class="hover:bg-gray-50 user-row" data-user-id="<%= user.id %>">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                #USR-<%= user.id.toString().padStart(3, '0') %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                                                            <i class="fas fa-user text-red-600"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900"><%= user.name %></div>
+                                                        <div class="text-sm text-gray-500">@<%= user.name.toLowerCase().replace(/\s+/g, '') %></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <%= user.email %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <%= user.phone || '-' %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 text-xs rounded-full <%= user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
+                                                    <%= user.role === 'admin' ? 'Admin' : 'Customer' %>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 text-xs rounded-full <%= user.isActive ? 'status-active' : 'status-inactive' %>">
+                                                    <%= user.isActive ? 'Aktif' : 'Nonaktif' %>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <%= new Date(user.created_at).toLocaleDateString('id-ID', { 
+                                                    day: 'numeric', 
+                                                    month: 'short', 
+                                                    year: 'numeric' 
+                                                }) %>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <button onclick="viewUser('<%= user.id %>')" class="text-blue-500 hover:text-blue-700 mr-3" title="Lihat Detail">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button onclick="deleteUser('<%= user.id %>', '<%= user.name %>')" class="text-red-500 hover:text-red-700" title="Hapus User">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                                            <i class="fas fa-users text-4xl text-gray-300 mb-2"></i>
+                                            <p class="text-lg">Belum ada data pengguna</p>
+                                            <p class="text-sm mt-1">Mulai dengan menambahkan pengguna baru</p>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">Statistik User</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Customer</span>
+                                    <span class="text-sm font-medium text-gray-700"><%= users.filter(u => u.role === 'user').length %> user</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: <%= users.length > 0 ? (users.filter(u => u.role === 'user').length / users.length * 100) : 0 %>%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Admin</span>
+                                    <span class="text-sm font-medium text-gray-700"><%= users.filter(u => u.role === 'admin').length %> user</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: <%= users.length > 0 ? (users.filter(u => u.role === 'admin').length / users.length * 100) : 0 %>%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">User Aktif</span>
+                                    <span class="text-sm font-medium text-gray-700"><%= users.filter(u => u.isActive).length %> user</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: <%= users.length > 0 ? (users.filter(u => u.isActive).length / users.length * 100) : 0 %>%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Delete Confirmation Modal -->
+            <div id="deleteModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="flex items-center">
+                            <div class="bg-red-100 p-2 rounded-lg mr-3">
+                                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">Hapus User</h3>
+                                <p class="text-sm text-gray-500">Konfirmasi penghapusan pengguna</p>
+                            </div>
+                        </div>
+                        <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="flex">
+                                <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-red-700">Peringatan!</p>
+                                    <p class="text-sm text-red-600 mt-1">
+                                        Data user yang dihapus tidak dapat dikembalikan. 
+                                        Semua data terkait user ini akan hilang.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-user-slash text-red-500 text-2xl"></i>
+                            </div>
+                            <p class="text-lg font-medium text-gray-800">Apakah Anda yakin ingin menghapus user?</p>
+                            <p id="userToDelete" class="text-gray-600 mt-2"></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="closeDeleteModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300 font-medium">
+                            Batal
+                        </button>
+                        <button id="confirmDeleteBtn" class="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 font-medium flex items-center">
+                            <i class="fas fa-trash mr-2"></i>
+                            Hapus User
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+            <!-- User Detail Popup -->
+            <div id="userDetailPopup" class="user-detail-popup">
+                <div class="user-detail-content">
+                    <div class="user-detail-header">
+                        <h3 class="text-xl font-bold text-gray-800">Detail Pengguna</h3>
+                        <button onclick="closeUserDetail()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    </div>
+                    
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    
+                    <div id="userDetailContent">
+                        <!-- User details will be loaded here -->
+                    </div>
+                    
+                    <!-- TAMBAHKAN TOMBOL TOGGLE STATUS DI SINI -->
+                    <div class="status-action-buttons mt-6">
+                        <button id="toggleStatusBtn" class="status-toggle-btn" onclick="showStatusConfirmation()">
+                            <i class="fas fa-exchange-alt"></i>
+                            Ubah Status
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <button onclick="closeUserDetail()" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-300 font-medium">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Confirmation Modal -->
+            <div id="statusConfirmationPopup" class="status-confirmation-popup">
+                <div class="status-confirmation-content">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                            <i class="fas fa-exchange-alt text-yellow-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Ubah Status User</h3>
+                        <p id="statusConfirmationMessage" class="text-gray-600 mb-4">
+                            Apakah Anda yakin ingin mengubah status user?
+                        </p>
+                        
+                        <div class="flex justify-center space-x-3 mb-6">
+                            <button id="setActiveBtn" class="status-toggle-btn active">
+                                <i class="fas fa-check-circle"></i>
+                                Aktifkan
+                            </button>
+                            <button id="setInactiveBtn" class="status-toggle-btn inactive">
+                                <i class="fas fa-times-circle"></i>
+                                Nonaktifkan
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-center space-x-3 pt-4 border-t">
+                            <button onclick="closeStatusConfirmation()" 
+                                    class="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
+                                Batal
+                            </button>
+                            <button id="confirmStatusChangeBtn" 
+                                    class="px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium">
+                                Konfirmasi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let userToDeleteId = null;
+                let currentUserDetail = null;
+                let selectedNewStatus = null;
+                
+                function viewUser(userId) {
+                    fetch(`/admin/users/${userId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                currentUserDetail = data.user;
+                                showUserDetail(data.user);
+                            } else {
+                                showNotification(data.message, 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showNotification('Terjadi kesalahan', 'error');
+                        });
+                }
+                
+                function showUserDetail(user) {
+                    const detailHtml = `
+                        <div class="space-y-4">
+                            <div class="detail-item">
+                                <span class="detail-label">Nama Lengkap:</span>
+                                <span class="detail-value">${user.name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email:</span>
+                                <span class="detail-value">${user.email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Telepon:</span>
+                                <span class="detail-value">${user.phone || '-'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Role:</span>
+                                <span class="detail-value">
+                                    <span class="px-2 py-1 text-xs rounded-full ${user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+                                        ${user.role === 'admin' ? 'Admin' : 'Customer'}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Status Saat Ini:</span>
+                                <span class="detail-value">
+                                    <span class="px-2 py-1 text-xs rounded-full ${user.isActive ? 'status-active' : 'status-inactive'}">
+                                        ${user.isActive ? 'Aktif' : 'Nonaktif'}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ID Pengguna:</span>
+                                <span class="detail-value">#USR-${user.id.toString().padStart(3, '0')}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Terdaftar:</span>
+                                <span class="detail-value">${new Date(user.created_at).toLocaleDateString('id-ID', { 
+                                    day: 'numeric', 
+                                    month: 'long', 
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</span>
+                            </div>
+                            ${user.updated_at ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Terakhir Update:</span>
+                                <span class="detail-value">${new Date(user.updated_at).toLocaleDateString('id-ID', { 
+                                    day: 'numeric', 
+                                    month: 'long', 
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    document.getElementById('userDetailContent').innerHTML = detailHtml;
+                    document.getElementById('userDetailPopup').classList.add('show');
+                }
+                
+                function closeUserDetail() {
+                    document.getElementById('userDetailPopup').classList.remove('show');
+                    currentUserDetail = null;
+                }
+                
+                function showStatusConfirmation() {
+                    if (!currentUserDetail) return;
+                    
+                    document.getElementById('statusConfirmationMessage').textContent = 
+                        `Ubah status user "${currentUserDetail.name}"?`;
+                    
+                    // Reset button states
+                    document.getElementById('setActiveBtn').classList.remove('active');
+                    document.getElementById('setInactiveBtn').classList.remove('inactive');
+                    document.getElementById('confirmStatusChangeBtn').disabled = true;
+                    selectedNewStatus = null;
+                    
+                    document.getElementById('statusConfirmationPopup').classList.add('show');
+                }
+                
+                function closeStatusConfirmation() {
+                    document.getElementById('statusConfirmationPopup').classList.remove('show');
+                    selectedNewStatus = null;
+                }
+                
+                // Setup status buttons
+                document.getElementById('setActiveBtn').addEventListener('click', function() {
+                    selectedNewStatus = 'active';
+                    document.getElementById('setActiveBtn').classList.add('active');
+                    document.getElementById('setInactiveBtn').classList.remove('inactive');
+                    document.getElementById('confirmStatusChangeBtn').disabled = false;
+                });
+                
+                document.getElementById('setInactiveBtn').addEventListener('click', function() {
+                    selectedNewStatus = 'inactive';
+                    document.getElementById('setInactiveBtn').classList.add('inactive');
+                    document.getElementById('setActiveBtn').classList.remove('active');
+                    document.getElementById('confirmStatusChangeBtn').disabled = false;
+                });
+                
+                // Confirm status change
+                document.getElementById('confirmStatusChangeBtn').addEventListener('click', function() {
+                    if (!currentUserDetail || !selectedNewStatus) return;
+                    
+                    const confirmBtn = this;
+                    const originalText = confirmBtn.innerHTML;
+                    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+                    confirmBtn.disabled = true;
+                    
+                    fetch(`/admin/users/${currentUserDetail.id}/toggle-status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showNotification(data.message, 'success');
+                            closeStatusConfirmation();
+                            
+                            // Update current user detail
+                            currentUserDetail.isActive = selectedNewStatus === 'active';
+                            
+                            // Update table row
+                            const userRow = document.querySelector(`tr[data-user-id="${currentUserDetail.id}"]`);
+                            if (userRow) {
+                                const statusBadge = userRow.querySelector('.px-2.py-1.text-xs.rounded-full');
+                                if (statusBadge) {
+                                    statusBadge.className = `px-2 py-1 text-xs rounded-full ${selectedNewStatus === 'active' ? 'status-active' : 'status-inactive'}`;
+                                    statusBadge.textContent = selectedNewStatus === 'active' ? 'Aktif' : 'Nonaktif';
+                                }
+                            }
+                            
+                            // Refresh user detail view
+                            showUserDetail(currentUserDetail);
+                            
+                            // Update stats cards
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            showNotification(data.message, 'error');
+                            confirmBtn.innerHTML = originalText;
+                            confirmBtn.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showNotification('Terjadi kesalahan saat mengubah status', 'error');
                         confirmBtn.innerHTML = originalText;
                         confirmBtn.disabled = false;
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showNotification('Terjadi kesalahan saat menghapus user', 'error');
-                    confirmBtn.innerHTML = originalText;
-                    confirmBtn.disabled = false;
+                    });
                 });
-            }
-        });
-        
-        function showNotification(message, type = 'success') {
-            const container = document.createElement('div');
-            const icon = type === 'success' ? '✅' : 
-                        type === 'error' ? '❌' : 
-                        type === 'warning' ? '⚠️' : 'ℹ️';
-            const title = type === 'success' ? 'Berhasil!' : 
-                         type === 'error' ? 'Error!' : 
-                         type === 'warning' ? 'Peringatan!' : 'Info';
-            
-            container.className = `notification-popup notification-${type}`;
-            container.innerHTML = `
-                <div class="notification-icon">${icon}</div>
-                <div class="notification-content">
-                    <div class="notification-title">${title}</div>
-                    <div class="notification-message">${message}</div>
-                </div>
-            `;
+                
+                function deleteUser(userId, userName) {
+                    userToDeleteId = userId;
+                    document.getElementById('userToDelete').textContent = `User: ${userName} (ID: ${userId})`;
+                    document.getElementById('deleteModal').style.display = 'flex';
+                }
+                
+                function closeDeleteModal() {
+                    document.getElementById('deleteModal').style.display = 'none';
+                    userToDeleteId = null;
+                }
+                
+                document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                    if (userToDeleteId) {
+                        const confirmBtn = this;
+                        const originalText = confirmBtn.innerHTML;
+                        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menghapus...';
+                        confirmBtn.disabled = true;
+                        
+                        fetch(`/admin/users/${userToDeleteId}`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                showNotification(data.message, 'success');
+                                closeDeleteModal();
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                showNotification(data.message, 'error');
+                                confirmBtn.innerHTML = originalText;
+                                confirmBtn.disabled = false;
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showNotification('Terjadi kesalahan saat menghapus user', 'error');
+                            confirmBtn.innerHTML = originalText;
+                            confirmBtn.disabled = false;
+                        });
+                    }
+                });
+                
+                function showNotification(message, type = 'success') {
+                    const container = document.createElement('div');
+                    const icon = type === 'success' ? '✅' : 
+                                type === 'error' ? '❌' : 
+                                type === 'warning' ? '⚠️' : 'ℹ️';
+                    const title = type === 'success' ? 'Berhasil!' : 
+                                type === 'error' ? 'Error!' : 
+                                type === 'warning' ? 'Peringatan!' : 'Info';
+                    
+                    container.className = `notification-popup notification-${type}`;
+                    container.innerHTML = `
+                        <div class="notification-icon">${icon}</div>
+                        <div class="notification-content">
+                            <div class="notification-title">${title}</div>
+                            <div class="notification-message">${message}</div>
+                        </div>
+                    `;
 
-            document.body.appendChild(container);
+                    document.body.appendChild(container);
 
-            // Remove notification after animation
-            setTimeout(() => {
-                if (container.parentNode) {
-                    container.parentNode.removeChild(container);
+                    // Remove notification after animation
+                    setTimeout(() => {
+                        if (container.parentNode) {
+                            container.parentNode.removeChild(container);
+                        }
+                    }, 3000);
                 }
-            }, 3000);
-        }
-        
-        // Event listeners untuk close modals
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDeleteModal();
-            }
-        });
-        
-        document.getElementById('userDetailPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeUserDetail();
-            }
-        });
-        
-        document.getElementById('statusConfirmationPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeStatusConfirmation();
-            }
-        });
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (document.getElementById('deleteModal').style.display === 'flex') {
-                    closeDeleteModal();
-                }
-                if (document.getElementById('userDetailPopup').classList.contains('show')) {
-                    closeUserDetail();
-                }
-                if (document.getElementById('statusConfirmationPopup').classList.contains('show')) {
-                    closeStatusConfirmation();
-                }
-            }
-        });
-        
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('.user-row');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+                
+                // Event listeners untuk close modals
+                document.getElementById('deleteModal').addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeDeleteModal();
+                    }
+                });
+                
+                document.getElementById('userDetailPopup').addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeUserDetail();
+                    }
+                });
+                
+                document.getElementById('statusConfirmationPopup').addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeStatusConfirmation();
+                    }
+                });
+                
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        if (document.getElementById('deleteModal').style.display === 'flex') {
+                            closeDeleteModal();
+                        }
+                        if (document.getElementById('userDetailPopup').classList.contains('show')) {
+                            closeUserDetail();
+                        }
+                        if (document.getElementById('statusConfirmationPopup').classList.contains('show')) {
+                            closeStatusConfirmation();
+                        }
+                    }
+                });
+                
+                // Search functionality
+                document.getElementById('searchInput').addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('.user-row');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+        </body>
+        </html>

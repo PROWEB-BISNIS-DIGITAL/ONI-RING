@@ -4,9 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cemal-Cemil</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="/node_modules/animate.css/animate.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    
+
 
     <script>
         tailwind.config = {
@@ -448,12 +452,116 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto text-center">
-            <p class="text-lg">&copy; 2024 Cemal-Cemil. Semua hak dilindungi.</p>
-            <p class="mt-2 text-gray-400">Dibuat dengan ❤️ untuk pecinta kuliner</p>
+<footer class="bg-gray-900 text-white pt-12 pb-6">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            <!-- Logo & Deskripsi -->
+            <div class="col-span-1 lg:col-span-2">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="font-bold text-gray-900 text-xl">CC</span>
+                    </div>
+                    <h2 class="text-2xl font-bold">Cemal<span class="text-yellow-500">-</span>Cemil</h2>
+                </div>
+                <p class="text-gray-300 mb-6">
+                    Menyajikan makanan berkualitas dengan cita rasa autentik sejak 2024. 
+                    Setiap hidangan dibuat dengan bahan pilihan dan penuh kasih sayang.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Link Cepat -->
+            <div>
+                <h3 class="text-xl font-bold mb-6 text-yellow-500">Menu</h3>
+                <ul class="space-y-3">
+                    <li><a href="#" class="text-gray-300 hover:text-yellow-500 transition">Home</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-yellow-500 transition">About</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-yellow-500 transition">Product</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-yellow-500 transition">Testimoni</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-yellow-500 transition">Contatc</a></li>
+                </ul>
+            </div>
+
+            <!-- Kontak & Jam Operasional -->
+            <div>
+                <h3 class="text-xl font-bold mb-6 text-yellow-500">Hubungi Kami</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <i class="fas fa-map-marker-alt text-yellow-500 mt-1 mr-3"></i>
+                        <span class="text-gray-300">Jl. Rasa Enak No. 123, Kota Kuliner</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-phone text-yellow-500 mr-3"></i>
+                        <span class="text-gray-300">(021) 555-0123</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-envelope text-yellow-500 mr-3"></i>
+                        <span class="text-gray-300">hello@cemalcemil.com</span>
+                    </li>
+                    <li class="flex items-start mt-4">
+                        <i class="fas fa-clock text-yellow-500 mt-1 mr-3"></i>
+                        <div>
+                            <p class="text-gray-300 font-medium">Jam Operasional:</p>
+                            <p class="text-gray-400 text-sm">Senin - Minggu: 08:00 - 22:00 WIB</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </footer>
+        <!-- Copyright & Payment Methods -->
+        <div class="mt-12 pt-8 border-t border-gray-800">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-400">&copy; 2024 <span class="text-yellow-500 font-bold">Cemal-Cemil</span>. Semua hak dilindungi.</p>
+                    <p class="text-gray-500 text-sm mt-1">Dibuat dengan ❤️ untuk pecinta kuliner</p>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white p-2 rounded">
+                        <span class="text-gray-800 font-bold">BCA</span>
+                    </div>
+                    <div class="bg-white p-2 rounded">
+                        <span class="text-blue-600 font-bold">BRI</span>
+                    </div>
+                    <div class="bg-white p-2 rounded">
+                        <span class="text-green-600 font-bold">OVO</span>
+                    </div>
+                    <div class="bg-white p-2 rounded">
+                        <span class="text-blue-500 font-bold">GOPAY</span>
+                    </div>  
+                </div>
+            </div>
+            
+            <!-- Additional Links -->
+            <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-6 text-sm text-gray-400">
+                <a href="#" class="hover:text-yellow-500 transition">Syarat & Ketentuan</a>
+                <span>•</span>
+                <a href="#" class="hover:text-yellow-500 transition">Kebijakan Privasi</a>
+                <span>•</span>
+                <a href="#" class="hover:text-yellow-500 transition">FAQ</a>
+                <span>•</span>
+                <a href="#" class="hover:text-yellow-500 transition">Tentang Kami</a>
+                <span>•</span>
+                <a href="#" class="hover:text-yellow-500 transition">Karir</a>
+            </div>
+        </div>
+    </div>
+</footer>
 
 <script>
     // Data produk akan diambil dari database
@@ -485,59 +593,135 @@
     }
 
     // Display products
-    function displayProducts(filteredProducts = null) {
-        const productList = document.getElementById('product-list');
-        const noResults = document.getElementById('no-results');
-        const productsToShow = filteredProducts || products;
+ // Display products
+function displayProducts(filteredProducts = null) {
+    const productList = document.getElementById('product-list');
+    const noResults = document.getElementById('no-results');
+    const productsToShow = filteredProducts || products;
+    
+    // Clear existing products
+    productList.innerHTML = '';
+    
+    if (productsToShow.length === 0) {
+        noResults.classList.remove('hidden');
+        return;
+    }
+    
+    noResults.classList.add('hidden');
+    
+    productsToShow.forEach(product => {
+        // Skip inactive products
+        if (product.status !== 'active') return;
         
-        // Clear existing products
-        productList.innerHTML = '';
+        // Cek status login dari EJS variable
+        const isLoggedIn = <%= user ? 'true' : 'false' %>;
         
-        if (productsToShow.length === 0) {
-            noResults.classList.remove('hidden');
-            return;
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card bg-white rounded-lg shadow-lg overflow-hidden';
+        
+        // Tentukan tombol berdasarkan status login
+        let buttonHTML = '';
+        let buttonClass = '';
+        let buttonText = '';
+        let buttonIcon = '';
+        let buttonAction = '';
+        
+        if (isLoggedIn) {
+            // TOMBOL UNTUK USER YANG SUDAH LOGIN
+            buttonClass = 'w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 font-semibold flex items-center justify-center';
+            buttonText = 'Tambah ke Keranjang';
+            buttonIcon = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>`;
+            buttonAction = `onclick="addToCart(${product.id})"`;
+        } else {
+            // TOMBOL UNTUK GUEST (bisa melihat tapi tidak bisa tambah ke cart)
+            buttonClass = 'w-full bg-orange-300 text-gray-700 py-3 px-4 rounded-lg font-semibold flex items-center justify-center cursor-not-allowed opacity-80';
+            buttonText = 'Tambahkan ke keranjang';
+            buttonAction = `onclick="showLoginAlert()"`;
         }
         
-        noResults.classList.add('hidden');
+        buttonHTML = `
+            <button ${buttonAction} class="${buttonClass}">
+
+                ${buttonText}
+            </button>
+        `;
         
-        productsToShow.forEach(product => {
-            // Skip inactive products
-            if (product.status !== 'active') return;
-            
-            const productCard = document.createElement('div');
-            productCard.className = 'product-card bg-white rounded-lg shadow-lg overflow-hidden';
-            productCard.innerHTML = `
-                <div class="relative overflow-hidden">
-                    <img src="${product.image || 'https://via.placeholder.com/400x300?text=No+Image'}" 
-                         alt="${product.name}" 
-                         class="w-full h-48 object-cover transform hover:scale-110 transition duration-500"
-                         onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
-                    <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full font-bold">
-                        ${formatCurrency(product.price)}
-                    </div>
-                    ${product.category ? `
-                        <div class="absolute top-2 left-2 bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
-                            ${product.category}
-                        </div>
-                    ` : ''}
+        productCard.innerHTML = `
+            <div class="relative overflow-hidden">
+                <img src="${product.image || '/images/no-image.jpg'}" 
+                     alt="${product.name}" 
+                     class="w-full h-48 object-cover transform hover:scale-110 transition duration-500"
+                     onerror="this.src='/images/no-image.jpg'">
+                <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full font-bold">
+                    ${formatCurrency(product.price)}
                 </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">${product.name}</h3>
-                    <p class="text-gray-600 mb-4 line-clamp-2">${product.description || 'Produk berkualitas dari Cemal-Cemil'}</p>
-                    <button 
-                        onclick="addToCart(${product.id})"
-                        class="w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 font-semibold flex items-center justify-center"
-                    >
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Tambah ke Keranjang
+                ${product.category ? `
+                    <div class="absolute top-2 left-2 bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
+                        ${product.category}
+                    </div>
+                ` : ''}
+            </div>
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-2 text-gray-800">${product.name}</h3>
+                <p class="text-gray-600 mb-4 line-clamp-2">${product.description || 'Produk berkualitas dari Cemal-Cemil'}</p>
+                ${buttonHTML}
+            </div>
+        `;
+        productList.appendChild(productCard);
+    });
+}
+function showLoginAlert() {
+    // Buat modal alert
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate__animated animate__fadeIn';
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full animate__animated animate__zoomIn">
+            <div class="p-6 text-center">
+                <div class="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Login Diperlukan</h3>
+                <p class="text-gray-600 mb-6">Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang.</p>
+                <div class="flex flex-col space-y-3">
+                    <a href="/auth/login" class="w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 font-semibold">
+                        Login Sekarang
+                    </a>
+                    <a href="/auth/register" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold">
+                        Daftar Akun Baru
+                    </a>
+                    <button id="close-login-alert" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-lg transition duration-300 font-semibold">
+                        Nanti Saja
                     </button>
                 </div>
-            `;
-            productList.appendChild(productCard);
+            </div>
+        </div>
+    `;  
+    
+    document.body.appendChild(modal);
+    
+    // Event listener untuk tombol close
+    setTimeout(() => {
+        document.getElementById('close-login-alert').addEventListener('click', () => {
+            modal.classList.remove('animate__fadeIn');
+            modal.classList.add('animate__fadeOut');
+            setTimeout(() => modal.remove(), 300);
         });
-    }
+        
+        // Close modal ketika klik di luar
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('animate__fadeIn');
+                modal.classList.add('animate__fadeOut');
+                setTimeout(() => modal.remove(), 300);
+            }
+        });
+    }, 100);
+}
 
     // Search functionality
     document.getElementById('product-search').addEventListener('input', function(e) {

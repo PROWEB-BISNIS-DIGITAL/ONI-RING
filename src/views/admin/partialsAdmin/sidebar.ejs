@@ -1,64 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Admin Panel - Responsive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-open {
+            transform: translateX(0);
+        }
+        .sidebar-closed {
+            transform: translateX(-100%);
+        }
+        .overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+    </style>
 </head>
-
-<body>
+<body class="bg-gray-100">
     <!-- Admin Navigation -->
-    <nav class="bg-gray-800 text-white py-4">
+    <nav class="bg-gray-800 text-white py-4 fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto flex justify-between items-center px-4">
             <div class="flex items-center space-x-4">
-                <a href="/admin/dashboard" class="text-2xl font-bold text-red-500">Admin Panel</a>
-                <span class="text-gray-400">|</span>
-                <span class="text-gray-300">Cemal-Cemil</span>
+                <!-- Hamburger Menu Button (Mobile Only) -->
+                <button id="menuToggle" class="lg:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                
+                <a href="/admin/dashboard" class="text-xl lg:text-2xl font-bold text-red-500">Admin Panel</a>
+                <span class="text-gray-400 hidden sm:inline">|</span>
+                <span class="text-gray-300 hidden sm:inline">Cemal-Cemil</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-300">
+            <div class="flex items-center space-x-2 lg:space-x-4">
+                <span class="text-gray-300 hidden md:inline text-sm lg:text-base">
                     <i class="fas fa-user-circle mr-2"></i>
-                    <%= user.name %>
+                    Admin User
                 </span>
-                <a href="/auth/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition duration-300">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                <a href="/auth/logout" class="bg-red-500 hover:bg-red-600 px-3 py-2 lg:px-4 lg:py-2 rounded-lg transition duration-300 text-sm lg:text-base">
+                    <i class="fas fa-sign-out-alt mr-1 lg:mr-2"></i>
+                    <span class="hidden sm:inline">Logout</span>
                 </a>
             </div>
         </div>
     </nav>
+
+    <!-- Overlay (Mobile Only) -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+
     <div class="flex">
         <!-- Sidebar -->
-        <div class="sidebar bg-gray-900 text-white w-64">
+        <div id="sidebar" class="sidebar bg-gray-900 text-white w-80 fixed lg:static h-full lg:h-auto z-40 sidebar-closed lg:sidebar-open overflow-y-auto">
             <div class="p-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-400">NAVIGASI</h3>
+                <!-- Close Button (Mobile Only) -->
+                <div class="flex justify-between items-center mb-6 lg:hidden">
+                    <h2 class="text-xl font-bold text-red-500">Menu</h2>
+                    <button id="closeMenu" class="text-white focus:outline-none">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-4 text-gray-400">MENU</h3>
                 <ul class="space-y-2">
                     <li>
                         <a href="/admin/dashboard"
-                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Dashboard') ? 'active-menu' : '' %>">
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 active-menu">
                             <i class="fas fa-tachometer-alt mr-3 w-6"></i>
                             Dashboard
                         </a>
                     </li>
                     <li>
+                        <a href="/admin/managementU"
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300">
+                            <i class="fas fa-money-bill-wave mr-3 w-6"></i>
+                            Laporan Keuangan
+                        </a>
+                    </li>
+                    <li>
                         <a href="/admin/products"
-                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Produk') ? 'active-menu' : '' %>">
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300">
                             <i class="fas fa-utensils mr-3 w-6"></i>
                             Produk
                         </a>
                     </li>
                     <li>
                         <a href="/admin/orders"
-                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Pesanan') ? 'active-menu' : '' %>">
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300">
                             <i class="fas fa-shopping-cart mr-3 w-6"></i>
                             Pesanan
                         </a>
                     </li>
                     <li>
                         <a href="/admin/users"
-                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300 <%= title.includes('Pengguna') ? 'active-menu' : '' %>">
+                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300">
                             <i class="fas fa-users mr-3 w-6"></i>
                             Pengguna
                         </a>
@@ -77,6 +119,42 @@
                 </ul>
             </div>
         </div>
-</body>
 
+        <!-- Main Content Area -->
+
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const closeMenu = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function openSidebar() {
+            sidebar.classList.remove('sidebar-closed');
+            sidebar.classList.add('sidebar-open');
+            overlay.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('sidebar-open');
+            sidebar.classList.add('sidebar-closed');
+            overlay.classList.add('hidden');
+        }
+
+        menuToggle.addEventListener('click', openSidebar);
+        closeMenu.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar when clicking a link on mobile
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+</body>
 </html>

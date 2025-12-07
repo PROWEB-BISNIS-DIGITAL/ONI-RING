@@ -22,4 +22,20 @@ router.get('/profile', isAuthenticated, (req, res) => {
     });
 });
 
+router.get('/check-customer', (req, res) => {
+    if (!req.session.user) {
+        return res.json({
+            isCustomer: false,
+            message: 'Belum login'
+        });
+    }
+    
+    res.json({
+        isCustomer: req.session.user.role === 'user',
+        user: req.session.user
+    });
+});
+
+
+
 module.exports = router;
