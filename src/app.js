@@ -24,6 +24,7 @@ const sessionStore = new MySQLStore({
 
 // Middleware
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads'))); // TAMBAHKAN INI
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -55,6 +56,7 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const debugRoutes = require('./routes/debug');
 const ordersPublicRoutes = require('./routes/orders');
+
 // Di app.js atau index.js, tambahkan:
 
 // Routes

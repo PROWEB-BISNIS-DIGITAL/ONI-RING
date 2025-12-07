@@ -47,6 +47,8 @@
             border: 1px solid #d1d5db;
             font-size: 0.875rem;
             background: white;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
         .status-select:focus {
@@ -54,7 +56,7 @@
             border-color: #ef4444;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
-
+        
         /* Modal Styles */
         .modal {
             display: none;
@@ -143,23 +145,21 @@
     <div class="flex pt-16 min-h-screen">
         <%- include('./partialsAdmin/sidebar') %>
 
+    <main class="main-content h-full" style="flex: 1; padding: 2rem;">
 
-
-            <main class="main-content bg-gray-300 h-screen" style="flex: 1; padding: 2rem;">
-                <!-- Header -->
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-800">Data Pesanan</h1>
-                        <p class="text-gray-600 mt-1">Kelola semua pesanan Cemal-Cemil</p>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <input type="text" id="searchInput" placeholder="Cari pesanan..."
-                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 w-64">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        </div>
-                    </div>
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Data Pesanan</h1>
+                <p class="text-gray-600 mt-1">Kelola semua pesanan Cemal-Cemil</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Cari pesanan..." 
+                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 w-64">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
+            </div>
+        </div>
 
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -237,227 +237,197 @@
                     </div>
                 </div>
 
-                <!-- Orders Table -->
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="px-6 py-4 border-b flex justify-between items-center">
-                        <h2 class="text-xl font-bold">Daftar Pesanan</h2>
-                        <span class="text-sm text-gray-500">Total: <%= orders.length %> pesanan</span>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi
-                                    </th>
+        <!-- Orders Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold">Daftar Pesanan</h2>
+                <span class="text-sm text-gray-500">Total: <%= orders.length %> pesanan</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach(order => { %>
+                                <tr class="hover:bg-gray-50 order-row" data-status="<%= order.status %>" data-order='<%= JSON.stringify(order) %>'>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium">#ORD-<%= order.id.toString().padStart(3, '0') %></div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-medium"><%= order.customer_name %></div>
+                                        <div class="text-sm text-gray-500"><%= order.customer_phone %></div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm"><%= order.items ? order.items.length : 0 %> items</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium">Rp <%= order.total.toLocaleString('id-ID') %></div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                            <%= order.payment_method %>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <select class="status-select" onchange="updateStatus('<%= order.id %>', this.value)">
+                                            <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                            <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                                            <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Diproses</option>
+                                            <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Selesai</option>
+                                            <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Dibatalkan</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <%= new Date(order.created_at).toLocaleDateString('id-ID', { 
+                                            day: 'numeric', 
+                                            month: 'short', 
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <button onclick="viewDetail('<%= order.id %>')" 
+                                            class="text-blue-500 hover:text-blue-700 mr-3" title="Detail">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <% if (orders && orders.length> 0) { %>
-                                    <% orders.forEach(order=> { %>
-                                        <tr class="hover:bg-gray-50 order-row" data-status="<%= order.status %>"
-                                            data-order='<%= JSON.stringify(order) %>'>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium">#ORD-<%=
-                                                        order.id.toString().padStart(3, '0' ) %>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm font-medium">
-                                                    <%= order.customer_name %>
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    <%= order.customer_phone %>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm">
-                                                    <%= order.items ? order.items.length : 0 %> items
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium">Rp <%=
-                                                        order.total.toLocaleString('id-ID') %>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                                    <%= order.payment_method %>
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <select class="status-select"
-                                                    onchange="updateStatus('<%= order.id %>', this.value)">
-                                                    <option value="pending" <%=order.status==='pending' ? 'selected'
-                                                        : '' %>>Pending</option>
-                                                    <option value="confirmed" <%=order.status==='confirmed' ? 'selected'
-                                                        : '' %>>Confirmed</option>
-                                                    <option value="processing" <%=order.status==='processing'
-                                                        ? 'selected' : '' %>>Diproses</option>
-                                                    <option value="completed" <%=order.status==='completed' ? 'selected'
-                                                        : '' %>>Selesai</option>
-                                                    <option value="cancelled" <%=order.status==='cancelled' ? 'selected'
-                                                        : '' %>>Dibatalkan</option>
-                                                </select>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <%= new Date(order.created_at).toLocaleDateString('id-ID', {
-                                                    day: 'numeric' , month: 'short' , hour: '2-digit' ,
-                                                    minute: '2-digit' }) %>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <button onclick="viewDetail('<%= order.id %>')"
-                                                    class="text-blue-500 hover:text-blue-700 mr-3" title="Detail">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                                                        <i class="fas fa-inbox text-4xl mb-2"></i>
-                                                        <p>Belum ada pesanan</p>
-                                                    </td>
-                                                </tr>
-                                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-inbox text-4xl mb-2"></i>
+                                    <p>Belum ada pesanan</p>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-            <!-- Modal Popup -->
-            <div id="orderDetailModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header bg-orange-400">
-                        <h2 class="text-xl font-bold text-gray-800  ">Detail Pesanan</h2>
-                        <button class="close-modal" onclick="closeModal()">&times;</button>
+    <!-- Modal Popup -->
+    <div id="orderDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header bg-orange-400">
+                <h2 class="text-xl font-bold text-gray-800  ">Detail Pesanan</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body bg-gray-100">
+                <!-- Content will be dynamically loaded here -->
+                <div id="modalContent" class="space-y-6">
+                    <!-- Loading state -->
+                    <div id="modalLoading" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-3xl text-blue-500 mb-4"></i>
+                        <p class="text-gray-600">Memuat detail pesanan...</p>
                     </div>
-                    <div class="modal-body bg-gray-100">
-                        <!-- Content will be dynamically loaded here -->
-                        <div id="modalContent" class="space-y-6">
-                            <!-- Loading state -->
-                            <div id="modalLoading" class="text-center py-8">
-                                <i class="fas fa-spinner fa-spin text-3xl text-blue-500 mb-4"></i>
-                                <p class="text-gray-600">Memuat detail pesanan...</p>
+                    
+                    <!-- Actual content (hidden by default) -->
+                    <div id="modalData" class="hidden">
+                        <!-- Order Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Pesanan</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">ID Pesanan:</span>
+                                        <span class="font-medium" id="modalOrderId"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Tanggal:</span>
+                                        <span class="font-medium" id="modalDate"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Status:</span>
+                                        <span class="font-medium">
+                                            <span id="modalStatus" class="status-badge-modal"></span>
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Metode Pembayaran:</span>
+                                        <span class="font-medium" id="modalPayment"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total:</span>
+                                        <span class="font-medium text-red-600" id="modalTotal"></span>
+                                    </div>
+                                </div>
                             </div>
-
-                            <!-- Actual content (hidden by default) -->
-                            <div id="modalData" class="hidden">
-                                <!-- Order Info -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Pesanan</h3>
-                                        <div class="space-y-3">
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">ID Pesanan:</span>
-                                                <span class="font-medium" id="modalOrderId"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Tanggal:</span>
-                                                <span class="font-medium" id="modalDate"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Status:</span>
-                                                <span class="font-medium">
-                                                    <span id="modalStatus" class="status-badge-modal"></span>
-                                                </span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Metode Pembayaran:</span>
-                                                <span class="font-medium" id="modalPayment"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Total:</span>
-                                                <span class="font-medium text-red-600" id="modalTotal"></span>
-                                            </div>
-                                        </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Customer</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Nama:</span>
+                                        <span class="font-medium" id="modalCustomerName"></span>
                                     </div>
-
-                                    <div>
-                                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Informasi Customer</h3>
-                                        <div class="space-y-3">
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Nama:</span>
-                                                <span class="font-medium" id="modalCustomerName"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Telepon:</span>
-                                                <span class="font-medium" id="modalCustomerPhone"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Email:</span>
-                                                <span class="font-medium" id="modalCustomerEmail"></span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600">Alamat:</span>
-                                                <span class="font-medium text-right" id="modalCustomerAddress"></span>
-                                            </div>
-                                        </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Telepon:</span>
+                                        <span class="font-medium" id="modalCustomerPhone"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Email:</span>
+                                        <span class="font-medium" id="modalCustomerEmail"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Alamat:</span>
+                                        <span class="font-medium text-right" id="modalCustomerAddress"></span>
                                     </div>
                                 </div>
-
-                                <!-- Order Items -->
-                                <div>
-                                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Item Pesanan</h3>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full bg-white border border-gray-200">
-                                            <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
-                                                        Produk</th>
-                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
-                                                        Harga</th>
-                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
-                                                        Qty</th>
-                                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">
-                                                        Subtotal</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="modalItems" class="divide-y divide-gray-200">
-
-                                            </tbody>
-                                            <tfoot>
-                                                <tr class="bg-gray-50">
-                                                    <td colspan="3"
-                                                        class="py-3 px-4 text-right font-medium text-gray-700">Total
-                                                    </td>
-                                                    <td class="py-3 px-4 font-bold text-red-600" id="modalItemsTotal">
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Order Notes -->
-                                <div id="modalNotesSection" class="hidden">
-                                    <h3 class="text-lg font-semibold mb-4 text-gray-700">Catatan Pesanan</h3>
-                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                        <p class="text-gray-700" id="modalNotes"></p>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 text-gray-700">Item Pesanan</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Produk</th>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Harga</th>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Qty</th>
+                                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalItems" class="divide-y divide-gray-200">
+                                            
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-gray-50">
+                                            <td colspan="3" class="py-3 px-4 text-right font-medium text-gray-700">Total</td>
+                                            <td class="py-3 px-4 font-bold text-red-600" id="modalItemsTotal"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Notes -->
+                        <div id="modalNotesSection" class="hidden">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-700">Catatan Pesanan</h3>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <p class="text-gray-700" id="modalNotes"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     </div>
-
 
     <script>
         // Filter functionality
@@ -491,14 +461,14 @@
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         });
-
+        
         // Update status
         async function updateStatus(orderId, newStatus) {
             if (!confirm(`Ubah status pesanan menjadi "${newStatus}"?`)) {
                 location.reload();
                 return;
             }
-
+            
             try {
                 const res = await fetch(`/admin/orders/${orderId}/status`, {
                     method: 'PUT',
@@ -509,19 +479,112 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    alert('✅ ' + data.message);
-                    location.reload();
+                    closeConfirmModal();
+                    
+                    // Get order data from row
+                    const orderRow = document.querySelector(`tr[data-order*='"id":"${orderId}"']`);
+                    if (orderRow) {
+                        const orderData = JSON.parse(orderRow.getAttribute('data-order'));
+                        showSuccessStatusUpdate(orderData, newStatus);
+                        
+                        // Update data-original-value on select
+                        if (selectElement) {
+                            selectElement.setAttribute('data-original-value', newStatus);
+                            selectElement.setAttribute('data-status', newStatus);
+                            // Update row status
+                            orderRow.setAttribute('data-status', newStatus);
+                        }
+                    }
+                    
                 } else {
-                    alert('❌ ' + data.message);
-                    location.reload();
+                    closeConfirmModal();
+                    showErrorStatusUpdate(data.message || 'Gagal mengupdate status');
+                    
+                    // Reset select to original value on error
+                    if (selectElement && pendingStatusUpdate.originalStatus) {
+                        selectElement.value = pendingStatusUpdate.originalStatus;
+                    }
                 }
             } catch (err) {
                 console.error(err);
-                alert('❌ Terjadi kesalahan');
-                location.reload();
+                closeConfirmModal();
+                showErrorStatusUpdate('Terjadi kesalahan jaringan');
+                
+                // Reset select to original value on error
+                if (selectElement && pendingStatusUpdate.originalStatus) {
+                    selectElement.value = pendingStatusUpdate.originalStatus;
+                }
             }
         }
-
+        
+        // Function to show success status update modal
+        function showSuccessStatusUpdate(order, newStatus) {
+            const modal = document.getElementById('updateStatusModal');
+            const successContent = document.getElementById('updateStatusContent');
+            const errorContent = document.getElementById('updateStatusError');
+            
+            // Reset display
+            successContent.classList.remove('hidden');
+            errorContent.classList.add('hidden');
+            
+            // Set green header for success
+            document.getElementById('updateStatusHeader').style.backgroundColor = '#10b981';
+            document.getElementById('updateStatusTitle').textContent = 'Berhasil Diperbarui';
+            
+            // Format status text
+            const statusText = {
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'processing': 'Diproses',
+                'completed': 'Selesai',
+                'cancelled': 'Dibatalkan'
+            }[newStatus] || newStatus;
+            
+            // Format date like "3 Des, 19.01"
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Fill data
+            document.getElementById('updateStatusValue').textContent = statusText;
+            document.getElementById('updateStatusDate').textContent = formattedDate;
+            document.getElementById('updateOrderId').textContent = `#ORD-${order.id.toString().padStart(3, '0')}`;
+            document.getElementById('updateCustomerName').textContent = order.customer_name;
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        // Function to show error status update modal
+        function showErrorStatusUpdate(message) {
+            const modal = document.getElementById('updateStatusModal');
+            const successContent = document.getElementById('updateStatusContent');
+            const errorContent = document.getElementById('updateStatusError');
+            
+            // Reset display
+            successContent.classList.add('hidden');
+            errorContent.classList.remove('hidden');
+            
+            // Set red header for error
+            document.getElementById('updateStatusHeader').style.backgroundColor = '#ef4444';
+            document.getElementById('updateStatusTitle').textContent = 'Gagal Diperbarui';
+            
+            // Fill error message
+            document.getElementById('errorMessage').textContent = message;
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        // Function to close update status modal
+        function closeUpdateStatusModal() {
+            document.getElementById('updateStatusModal').classList.remove('active');
+        }
+        
         // Modal functions
         function viewDetail(orderId) {
             const modal = document.getElementById('orderDetailModal');
@@ -573,13 +636,12 @@
             document.getElementById('modalDate').textContent = formattedDate;
             document.getElementById('modalPayment').textContent = order.payment_method || 'Tidak diketahui';
             document.getElementById('modalTotal').textContent = `Rp ${order.total.toLocaleString('id-ID')}`;
-
+            
             // Populate customer info
             document.getElementById('modalCustomerName').textContent = order.customer_name || '-';
             document.getElementById('modalCustomerPhone').textContent = order.customer_phone || '-';
-            document.getElementById('modalCustomerEmail').textContent = order.customer_email || '-';
             document.getElementById('modalCustomerAddress').textContent = order.customer_address || '-';
-
+            
             // Populate items
             const itemsContainer = document.getElementById('modalItems');
             itemsContainer.innerHTML = '';
@@ -593,8 +655,7 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="py-3 px-4">
-                            <div class="font-medium">${item.name || 'Produk'}</div>
-                            ${item.variant ? `<div class="text-sm text-gray-500">Varian: ${item.variant}</div>` : ''}
+                            <div class="font-medium">${item.product_name || 'Produk'}</div>
                         </td>
                         <td class="py-3 px-4">Rp ${item.price.toLocaleString('id-ID')}</td>
                         <td class="py-3 px-4">${item.quantity}</td>
@@ -613,15 +674,10 @@
             }
 
             document.getElementById('modalItemsTotal').textContent = `Rp ${itemsTotal.toLocaleString('id-ID')}`;
-
+            
             // Populate notes if exists
             const notesSection = document.getElementById('modalNotesSection');
-            if (order.notes) {
-                document.getElementById('modalNotes').textContent = order.notes;
-                notesSection.classList.remove('hidden');
-            } else {
-                notesSection.classList.add('hidden');
-            }
+            notesSection.classList.add('hidden');
         }
 
         async function fetchOrderDetail(orderId) {
@@ -670,7 +726,7 @@
         }
 
         // Close modal when clicking outside
-        document.getElementById('orderDetailModal').addEventListener('click', function (e) {
+        document.getElementById('orderDetailModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
             }
@@ -679,7 +735,9 @@
         // Close modal with Escape key
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
-                closeModal();
+                if (document.getElementById('orderDetailModal').classList.contains('active')) closeModal();
+                if (document.getElementById('confirmStatusModal').classList.contains('active')) closeConfirmModal();
+                if (document.getElementById('updateStatusModal').classList.contains('active')) closeUpdateStatusModal();
             }
         });
     </script>
