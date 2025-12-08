@@ -1,32 +1,42 @@
+// controllers/dashboardController.js
 const pool = require('../config/database');
 
 // Dashboard Admin
 exports.getDashboard = async (req, res) => {
     try {
-        // Ambil statistik dari database
-        const [orderStats] = await pool.query(`
+        // ===================== STATISTIK ORDERS =====================
+        const [orderStatsRows] = await pool.query(`
             SELECT 
-                COUNT(*) as total_orders,
-                COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as today_orders
+                COUNT(*) AS total_orders,
+                COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) AS today_orders
             FROM orders
         `);
 
-        const [productStats] = await pool.query(`
+        const orderStats = orderStatsRows[0] || { total_orders: 0, today_orders: 0 };
+
+        // ===================== STATISTIK PRODUK =====================
+        const [productStatsRows] = await pool.query(`
             SELECT 
-                COUNT(*) as total_products,
-                COUNT(CASE WHEN status = 'active' THEN 1 END) as active_products
+                COUNT(*) AS total_products,
+                COUNT(CASE WHEN status = 'active' THEN 1 END) AS active_products
             FROM products
         `);
 
-        const [userStats] = await pool.query(`
+        const productStats = productStatsRows[0] || { total_products: 0, active_products: 0 };
+
+        // ===================== STATISTIK USERS =====================
+        const [userStatsRows] = await pool.query(`
             SELECT 
-                COUNT(*) as total_users,
-                COUNT(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) THEN 1 END) as new_users
+                COUNT(*) AS total_users,
+                COUNT(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) THEN 1 END) AS new_users
             FROM users
             WHERE role = 'user'
         `);
 
-        // Ambil pesanan terbaru dengan status pending (untuk tabel)
+        const userStats = userStatsRows[0] || { total_users: 0, new_users: 0 };
+
+        // ===================== PESANAN TERBARU (UNTUK TABEL) =====================
+        // NOTE: HANYA STATUS 'pending' BIAR YANG SUDAH APPROVE/CANCEL GAK MUNCUL LAGI
         const [recentOrders] = await pool.query(`
             SELECT 
                 o.id,
@@ -34,22 +44,53 @@ exports.getDashboard = async (req, res) => {
                 o.customer_phone,
                 o.total,
                 o.status,
-                o.created_at
+                o.created_at,
+                DATE_FORMAT(o.created_at, '%e %b %Y') AS created_at_formatted
             FROM orders o
             WHERE o.status = 'pending'
             ORDER BY o.created_at DESC
             LIMIT 10
         `);
 
+        // ===================== PESANAN PENDING (QUICK ACTIONS) =====================
+        const [pendingOrders] = await pool.query(`
+            SELECT 
+                o.id,
+                o.customer_name,
+                o.customer_phone,
+                o.total,
+                o.status,
+                o.created_at,
+                DATE_FORMAT(o.created_at, '%e %b %Y') AS created_at_formatted
+            FROM orders o
+            WHERE o.status = 'pending'
+            ORDER BY o.created_at DESC
+            LIMIT 10
+        `);
+
+        // ===================== DATA UNTUK VIEW =====================
+        const stats = {
+            totalOrders: orderStats.total_orders || 0,
+            todayOrders: orderStats.today_orders || 0,
+            totalProducts: productStats.total_products || 0,
+            activeProducts: productStats.active_products || 0,
+            totalUsers: userStats.total_users || 0,
+            newUsers: userStats.new_users || 0
+        };
+
         res.render('admin/dashboard', {
             title: 'Dashboard Admin',
-            totalOrders: orderStats[0].total_orders,
-            todayOrders: orderStats[0].today_orders,
-            totalProducts: productStats[0].total_products,
-            activeProducts: productStats[0].active_products,
-            totalUsers: userStats[0].total_users,
-            newUsers: userStats[0].new_users,
-            recentOrders: recentOrders
+            stats,
+            recentOrders,
+            pendingOrders,
+
+            // Kalau masih ada EJS lama yang pakai variabel ini, aman
+            totalOrders: stats.totalOrders,
+            todayOrders: stats.todayOrders,
+            totalProducts: stats.totalProducts,
+            activeProducts: stats.activeProducts,
+            totalUsers: stats.totalUsers,
+            newUsers: stats.newUsers
         });
     } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -57,41 +98,5 @@ exports.getDashboard = async (req, res) => {
             message: 'Terjadi kesalahan saat memuat dashboard',
             error: error
         });
-    }
-};
-
-// Approve Order (dipanggil via AJAX)
-exports.approveOrder = async (req, res) => {
-    const { orderId } = req.params;
-    
-    try {
-        await pool.query(`
-            UPDATE orders 
-            SET status = 'confirmed', updated_at = NOW()
-            WHERE id = ?
-        `, [orderId]);
-
-        res.json({ success: true, message: 'Pesanan berhasil diapprove!' });
-    } catch (error) {
-        console.error('Error approving order:', error);
-        res.status(500).json({ success: false, message: 'Gagal approve pesanan' });
-    }
-};
-
-// Cancel Order (dipanggil via AJAX)
-exports.cancelOrder = async (req, res) => {
-    const { orderId } = req.params;
-    
-    try {
-        await pool.query(`
-            UPDATE orders 
-            SET status = 'cancelled', updated_at = NOW()
-            WHERE id = ?
-        `, [orderId]);
-
-        res.json({ success: true, message: 'Pesanan berhasil dibatalkan!' });
-    } catch (error) {
-        console.error('Error cancelling order:', error);
-        res.status(500).json({ success: false, message: 'Gagal cancel pesanan' });
     }
 };

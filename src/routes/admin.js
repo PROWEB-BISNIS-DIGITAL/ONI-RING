@@ -20,9 +20,10 @@ router.get('/dashboard', dashboardController.getDashboard);
 // ============ ORDERS ROUTES ============
 router.get('/orders', ordersController.getOrders);
 router.get('/orders/:orderId', ordersController.getOrderDetail);
-router.post('/orders/:orderId/approve', ordersController.approveOrder);
-router.post('/orders/:orderId/cancel', ordersController.cancelOrder);
-router.post('/orders/:orderId/complete', ordersController.completeOrder);
+// router.post('/orders/:orderId/approve', ordersController.approveOrder);
+// router.post('/orders/:orderId/cancel', ordersController.cancelOrder);
+// router.post('/orders/:orderId/complete', ordersController.completeOrder);
+router.put('/orders/:orderId/status', ordersController.updateOrderStatus);
 
 // ============ PRODUCTS ROUTES ============
 router.get('/products', productsController.getProducts);
@@ -38,7 +39,10 @@ router.get('/users/:userId', usersController.getUserById);
 router.post('/users', usersController.addUser);
 router.put('/users/:userId', usersController.updateUser);
 router.delete('/users/:userId', usersController.deleteUser);
-router.post('/users/:userId/toggle-role', usersController.toggleUserRole);  
+
+router.post('/users/:userId/toggle-role', usersController.toggleUserRole);
+router.post('/users/:userId/toggle-status', usersController.toggleUserStatus);
+
 
 
 // ============ MANAJEMEN KEUANGAN (MAIN PAGE) ============
