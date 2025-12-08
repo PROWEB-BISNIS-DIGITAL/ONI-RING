@@ -1,6 +1,7 @@
 const db = require('../config/database');
 
 // Halaman Orders
+// orderscontroller.js - fungsi getOrders
 exports.getOrders = async (req, res) => {
     try {
         const [orders] = await db.query(`
@@ -13,8 +14,10 @@ exports.getOrders = async (req, res) => {
                 o.total,
                 o.status,
                 o.created_at,
-                o.updated_at
+                o.updated_at,
+                u.email as customer_email  -- TAMBAH INI untuk detail customer
             FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id  -- JOIN dengan users
             ORDER BY o.created_at DESC
         `);
 
@@ -49,13 +52,15 @@ exports.getOrders = async (req, res) => {
         res.render('admin/orders', {
             title: 'Data Pesanan',
             orders: orders,
-            stats: stats[0]
+            stats: stats[0],
+            user: req.user || req.session.user  // TAMBAHKAN INI
         });
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).render('error', {
             message: 'Terjadi kesalahan saat memuat data pesanan',
-            error: error
+            error: error,
+            user: req.user || req.session.user  //  TAMBAHKAN INI
         });
     }
 };

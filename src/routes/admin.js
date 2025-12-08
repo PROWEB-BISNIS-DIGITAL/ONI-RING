@@ -20,9 +20,10 @@ router.get('/dashboard', dashboardController.getDashboard);
 // ============ ORDERS ROUTES ============
 router.get('/orders', ordersController.getOrders);
 router.get('/orders/:orderId', ordersController.getOrderDetail);
-router.post('/orders/:orderId/approve', ordersController.approveOrder);
-router.post('/orders/:orderId/cancel', ordersController.cancelOrder);
-router.post('/orders/:orderId/complete', ordersController.completeOrder);
+// router.post('/orders/:orderId/approve', ordersController.approveOrder);
+// router.post('/orders/:orderId/cancel', ordersController.cancelOrder);
+// router.post('/orders/:orderId/complete', ordersController.completeOrder);
+router.put('/orders/:orderId/status', ordersController.updateOrderStatus);
 
 // ============ PRODUCTS ROUTES ============
 router.get('/products', productsController.getProducts);
