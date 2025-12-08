@@ -1,3 +1,5 @@
+// routes/customer.js
+
 const express = require('express');
 const router = express.Router();
 const customerController = require('../controllers/customerController');
@@ -9,17 +11,24 @@ router.use((req, res, next) => {
     console.log('Session user:', req.session.user);
     next();
 });
+
 // Apply middleware untuk semua route customer
 router.use(isCustomer);
 
 // Dashboard Customer
 router.get('/dashboard', customerController.getDashboard);
+
+// Orders
 router.get('/order', customerController.getPageOrders);
-router.get('/akun', customerController.getPageAkun);
-
-
-// Order Routes
 router.get('/orders/:orderId', customerController.getOrderDetail);
 router.post('/orders/:orderId/cancel', customerController.cancelOrder);
+
+// Account Management
+router.get('/akun', customerController.getPageAkun);
+router.post('/akun/update-profile', customerController.updateProfile);
+router.post('/akun/update-password', customerController.updatePassword);
+
+// Backward compatibility untuk route lama
+router.post('/akun/password', customerController.updatePassword);
 
 module.exports = router;

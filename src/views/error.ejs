@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title><%= typeof title !== 'undefined' && title ? title : 'Terjadi Kesalahan' %></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hero-bg {
@@ -38,10 +38,22 @@
     <section class="hero-bg text-white py-32">
         <div class="container mx-auto text-center px-4">
             <div class="error-code font-bold mb-4">500</div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-6">Terjadi Kesalahan</h1>
+
+            <!-- pakai title kalau ada, kalau tidak fallback ke default -->
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                <%= typeof title !== 'undefined' && title ? title : 'Terjadi Kesalahan' %>
+            </h1>
+
             <div class="bg-red-900 bg-opacity-50 p-6 rounded-lg max-w-2xl mx-auto mb-8">
-                <p class="text-xl mb-4">Maaf, terjadi kesalahan pada server kami.</p>
-                <% if (error) { %>
+                <!-- pakai message kalau dikirim, kalau tidak pakai kalimat default -->
+                <p class="text-xl mb-4">
+                    <%= typeof message !== 'undefined' && message 
+                        ? message 
+                        : 'Maaf, terjadi kesalahan pada server kami.' %>
+                </p>
+
+                <!-- cek error dengan typeof dulu supaya gak "error is not defined" -->
+                <% if (typeof error !== 'undefined' && error) { %>
                     <p class="text-gray-300 italic">"<%= error %>"</p>
                 <% } %>
             </div>
