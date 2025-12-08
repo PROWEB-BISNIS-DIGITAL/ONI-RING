@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <%- include('./partialsCustomer/sidebar') %>
+
+    <!-- Form Update Profile -->
+<form id="profileForm" class="space-y-4">
+    <input type="hidden" name="_csrf" value="">
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+        <input type="text" name="name" value="<%= user.name %>" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input type="email" name="email" value="<%= user.email %>" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+        <input type="tel" name="phone" value="<%= user.phone %>" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    </div>
+    
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+        Simpan Perubahan
+    </button>
+</form>
+
+<!-- Form Update Password -->
+<form id="passwordForm" class="space-y-4">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password Saat Ini</label>
+        <input type="password" name="current_password" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+    </div>
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+        <input type="password" name="new_password" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+    </div>
+    
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+        <input type="password" name="confirm_password" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+    </div>
+    
+    <button type="submit" class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">
+        Ubah Password
+    </button>
+</form>
+
+<script>
+// Update Profile
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/customer/akun/update-profile', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: data.message,
+                timer: 2000
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message
+            });
+        }
+    });
+});
+
+// Update Password
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    Swal.fire({
+        title: 'Ubah Password?',
+        text: 'Anda yakin ingin mengubah password?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Ubah',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/customer/akun/update-password', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        timer: 2000
+                    }).then(() => {
+                        document.getElementById('passwordForm').reset();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message
+                    });
+                }
+            });
+        }
+    });
+});
+</script>
+</body>
+</html>

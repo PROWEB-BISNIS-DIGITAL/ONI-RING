@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+        <!-- TAMBAHKAN INI - PENTING! -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<style>
+    .sidebar {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-closed {
+        transform: translateX(-100%);
+    }
+
+    .overlay {
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    @media (min-width: 1024px) {
+        .sidebar {
+            transform: translateX(0) !important;
+            position: relative !important;
+        }
+    }
+
+    .order-card {
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+</style>
+
+<body>
+
+    <div class="flex pt-16 min-h-screen ">
+        <%- include('./partialsCustomer/sidebar') %>
+            <!-- Main Content -->
+        <main class="flex-1 w-full lg:w-auto p-4 lg:p-8 bg-gray-50 overflow-y-auto">
+
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    Selamat Datang, <%= user.name %>! 
+                </h1>
+                <p class="text-gray-600">Berikut adalah pesanan Anda</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600 text-sm">Total Pesanan</span>
+                        <i class="fas fa-shopping-bag text-blue-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800"><%= stats.total || 0 %></p>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600 text-sm">Selesai</span>
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800"><%= stats.completed || 0 %></p>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600 text-sm">Diproses</span>
+                        <i class="fas fa-clock text-yellow-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800"><%= stats.processing || 0 %></p>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600 text-sm">Dibatalkan</span>
+                        <i class="fas fa-times-circle text-red-500"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800"><%= stats.cancelled || 0 %></p>
+                </div>
+            </div>
+
+            <!-- Pesanan Terbaru -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-800">Pesanan Anda</h2>
+                        <a href="/customer/orders" class="text-red-500 hover:text-red-600 text-sm font-medium flex items-center">
+                            Lihat Semua
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <% if (orders && orders.length > 0) { %>
+                        <div class="space-y-4">
+                            <% orders.forEach(function(order) { 
+                                let statusColor = '';
+                                let statusBg = '';
+                                let statusText = '';
+                                let statusIcon = '';
+                                
+                                switch(order.status) {
+                                    case 'pending':
+                                        statusColor = 'text-yellow-800';
+                                        statusBg = 'bg-yellow-100';
+                                        statusText = 'Menunggu Konfirmasi';
+                                        statusIcon = 'fa-clock';
+                                        break;
+                                    case 'confirmed':
+                                        statusColor = 'text-blue-800';
+                                        statusBg = 'bg-blue-100';
+                                        statusText = 'Dikonfirmasi';
+                                        statusIcon = 'fa-check-circle';
+                                        break;
+                                    case 'processing':
+                                        statusColor = 'text-purple-800';
+                                        statusBg = 'bg-purple-100';
+                                        statusText = 'Sedang Diproses';
+                                        statusIcon = 'fa-cogs';
+                                        break;
+                                    case 'completed':
+                                        statusColor = 'text-green-800';
+                                        statusBg = 'bg-green-100';
+                                        statusText = 'Selesai';
+                                        statusIcon = 'fa-check-double';
+                                        break;
+                                    case 'cancelled':
+                                        statusColor = 'text-red-800';
+                                        statusBg = 'bg-red-100';
+                                        statusText = 'Dibatalkan';
+                                        statusIcon = 'fa-times-circle';
+                                        break;
+                                    default:
+                                        statusColor = 'text-gray-800';
+                                        statusBg = 'bg-gray-100';
+                                        statusText = order.status;
+                                        statusIcon = 'fa-circle';
+                                }
+                            %>
+                                <div class="order-card border border-gray-200 rounded-lg p-4 hover:border-red-300">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        <!-- Order Info -->
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                                <h3 class="font-bold text-gray-800 text-lg">
+                                                    #ORD-<%= order.id.toString().padStart(3, '0') %>
+                                                </h3>
+                                                <span class="status-badge <%= statusBg %> <%= statusColor %>">
+                                                    <i class="fas <%= statusIcon %> mr-1"></i>
+                                                    <%= statusText %>
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="flex items-center gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                                                <span>
+                                                    <i class="far fa-calendar mr-1"></i>
+                                                    <%= new Date(order.created_at).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric'
+                                                    }) %>
+                                                </span>
+                                                <span>
+                                                    <i class="far fa-clock mr-1"></i>
+                                                    <%= new Date(order.created_at).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    }) %>
+                                                </span>
+                                                <span>
+                                                    <i class="fas fa-shopping-bag mr-1"></i>
+                                                    <%= order.item_count || 0 %> item
+                                                </span>
+                                            </div>
+                                            
+                                            <p class="text-xl font-bold text-red-600">
+                                                Rp <%= order.total.toLocaleString('id-ID') %>
+                                            </p>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <!-- PERBAIKI URL DI SINI -->
+                                            <a href="/customer/orders/<%= order.id %>" 
+                                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-200 flex items-center">
+                                                <i class="fas fa-eye mr-2"></i>
+                                                Detail
+                                            </a>
+                                            
+                                            <% if (order.status === 'pending') { %>
+                                                <button onclick="cancelOrder('<%= order.id %>', '<%= order.total %>')"
+                                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-200 flex items-center">
+                                                    <i class="fas fa-times mr-2"></i>
+                                                    Batalkan
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <!-- Empty State -->
+                        <div class="text-center py-12">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                                <i class="fas fa-shopping-bag text-4xl text-gray-400"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Belum Ada Pesanan</h3>
+                            <p class="text-gray-600 mb-6">Anda belum melakukan pemesanan apapun</p>
+                            <a href="/" 
+                                class="inline-flex items-center px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-300 font-medium">
+                                <i class="fas fa-store mr-2"></i>
+                                Mulai Belanja
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/customer/orders" 
+                    class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-red-300 transition duration-200 flex items-center">
+                    <div class="bg-red-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-history text-red-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">Riwayat Pesanan</h4>
+                        <p class="text-sm text-gray-600">Lihat semua pesanan Anda</p>
+                    </div>
+                </a>
+
+                <a href="/customer/profile" 
+                    class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-blue-300 transition duration-200 flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-user-edit text-blue-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">Edit Profil</h4>
+                        <p class="text-sm text-gray-600">Ubah data pribadi Anda</p>
+                    </div>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Toggle user dropdown
+        document.getElementById('user-menu').addEventListener('click', function (e) {
+            e.stopPropagation();
+            document.getElementById('user-dropdown').classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!document.getElementById('user-menu').contains(e.target)) {
+                document.getElementById('user-dropdown').classList.add('hidden');
+            }
+        });
+
+        // Cancel Modal Functions
+        let currentOrderId = null;
+
+        function openCancelModal(orderId, orderNumber, total) {
+            currentOrderId = orderId;
+            document.getElementById('cancelOrderId').textContent = orderNumber;
+            document.getElementById('cancelTotal').textContent = 'Rp ' + total.toLocaleString('id-ID');
+            document.getElementById('cancelModal').style.display = 'flex';
+            document.getElementById('cancelReason').value = '';
+            document.getElementById('cancelNotes').value = '';
+            document.getElementById('reasonError').classList.add('hidden');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelModal').style.display = 'none';
+            currentOrderId = null;
+        }
+
+        function confirmCancel() {
+            const reason = document.getElementById('cancelReason').value;
+            const notes = document.getElementById('cancelNotes').value;
+
+            if (!reason) {
+                document.getElementById('reasonError').classList.remove('hidden');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Batalkan Pesanan?',
+                text: 'Apakah Anda yakin ingin membatalkan pesanan ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Batalkan',
+                cancelButtonText: 'Tidak'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/customer/orders/${currentOrderId}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            reason: reason,
+                            notes: notes
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    closeCancelModal();
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Terjadi kesalahan pada server'
+                            });
+                        });
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('cancelModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeCancelModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeCancelModal();
+            }
+        });
+
+        // Auto-hide alerts
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-auto-hide');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+
+</html>
