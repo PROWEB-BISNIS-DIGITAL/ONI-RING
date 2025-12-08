@@ -66,6 +66,10 @@ const adminRouter = require('./routes/admin');
 const orderRouter = require('./routes/orders');
 const apiRouter = require('./routes/api'); // TAMBAHKAN INI
 
+// Tambahkan setelah route admin
+const customerRoutes = require('./routes/customer');
+
+
 
 
 // Use routes
@@ -80,6 +84,19 @@ app.use(userToLocals);
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+
+
+// Sebelum route, tambahkan middleware untuk logging
+app.use((req, res, next) => {
+    console.log('Session Debug:', {
+        sessionID: req.sessionID,
+        user: req.session.user,
+        authenticated: req.isAuthenticated ? req.isAuthenticated() : false
+    });
+    next();
+});
+
+app.use('/customer', customerRoutes);
 
 // Mount debug routes only in non-production for quick checks
 if (process.env.NODE_ENV !== 'production') {

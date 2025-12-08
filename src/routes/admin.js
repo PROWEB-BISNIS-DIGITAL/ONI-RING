@@ -38,8 +38,8 @@ router.get('/users/:userId', usersController.getUserById);
 router.post('/users', usersController.addUser);
 router.put('/users/:userId', usersController.updateUser);
 router.delete('/users/:userId', usersController.deleteUser);
-router.post('/users/:userId/toggle-role', usersController.toggleUserRole);
-router.post('/users/:userId/toggle-status', usersController.toggleUserStatus);
+router.post('/users/:userId/toggle-role', usersController.toggleUserRole);  
+// router.post('/users/:userId/toggle-status', usersController.toggleUserStatus);  
 
 router.get('/managementU', isAdmin, async (req, res) => {
     try {

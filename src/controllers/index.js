@@ -16,6 +16,7 @@ class IndexController {
         res.render('home')
     }
 
+
     getLogin(req, res) {
         res.render('login')
     }

@@ -11,10 +11,8 @@ exports.getUsers = async (req, res) => {
                 email,
                 phone,
                 role,
-                status, 
                 created_at,
-                updated_at,
-                status = 'active' as isActive
+                updated_at
             FROM users
             ORDER BY created_at DESC
         `);
@@ -22,7 +20,7 @@ exports.getUsers = async (req, res) => {
         res.render('admin/users', {
             title: 'Data Pengguna',
             users: users,
-            user: req.user || req.session.user  // TAMBAHKAN INI
+            user: req.user || req.session.user
         });
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -47,7 +45,6 @@ exports.getUserById = async (req, res) => {
                 email,
                 phone,
                 role,
-                status,
                 created_at,
                 updated_at
             FROM users 
@@ -60,10 +57,7 @@ exports.getUserById = async (req, res) => {
 
         res.json({ 
             success: true, 
-            user: {
-                ...users[0],
-                isActive: users[0].status === 'active'  // TAMBAHKAN isActive DARI STATUS
-            }
+            user: users[0]
         });
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -73,7 +67,7 @@ exports.getUserById = async (req, res) => {
 
 // Add User (dipanggil via AJAX)
 exports.addUser = async (req, res) => {
-    const { name, email, password, phone, role, status = 'active' } = req.body;  // TAMBAHKAN STATUS
+    const { name, email, password, phone, role } = req.body;
     
     try {
         // Check if email already exists
@@ -92,9 +86,9 @@ exports.addUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const [result] = await pool.query(`
-            INSERT INTO users (name, email, password, phone, role, status, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
-        `, [name, email, hashedPassword, phone || null, role || 'user', status]);
+            INSERT INTO users (name, email, password, phone, role, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+        `, [name, email, hashedPassword, phone || null, role || 'user']);
 
         res.json({ 
             success: true, 
@@ -110,7 +104,7 @@ exports.addUser = async (req, res) => {
 // Update User (dipanggil via AJAX)
 exports.updateUser = async (req, res) => {
     const { userId } = req.params;
-    const { name, email, phone, role, password, status } = req.body;  // TAMBAHKAN STATUS
+    const { name, email, phone, role, password } = req.body;
     
     try {
         // Check if email is taken by another user
@@ -128,9 +122,9 @@ exports.updateUser = async (req, res) => {
         // Update query
         let query = `
             UPDATE users 
-            SET name = ?, email = ?, phone = ?, role = ?, status = ?, updated_at = NOW()
+            SET name = ?, email = ?, phone = ?, role = ?, updated_at = NOW()
         `;
-        let params = [name, email, phone, role, status || 'active'];
+        let params = [name, email, phone, role];
 
         // If password is provided, hash and update it
         if (password && password.trim() !== '') {
@@ -179,7 +173,7 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// Toggle User Role (dipanggil via AJAX - opsional)
+// Toggle User Role (dipanggil via AJAX)
 exports.toggleUserRole = async (req, res) => {
     const { userId } = req.params;
     
@@ -201,60 +195,16 @@ exports.toggleUserRole = async (req, res) => {
     }
 };
 
-// Toggle User Status - FUNCTION BARU
-exports.toggleUserStatus = async (req, res) => {
-    const { userId } = req.params;
-    
-    try {
-        // Toggle status: 'active' <-> 'inactive'
-        await pool.query(`
-            UPDATE users 
-            SET status = CASE 
-                WHEN status = 'active' THEN 'inactive' 
-                ELSE 'active' 
-            END,
-            updated_at = NOW()
-            WHERE id = ?
-        `, [userId]);
+// Hapus fungsi-fungsi yang menggunakan status karena tabel tidak ada kolom status:
+// exports.toggleUserStatus - DIHAPUS
+// exports.getUserStats - DIHAPUS (atau bisa dimodifikasi tanpa status)
 
-        // Ambil data user setelah update
-        const [users] = await pool.query(
-            'SELECT * FROM users WHERE id = ?',
-            [userId]
-        );
-
-        if (users.length === 0) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'User tidak ditemukan' 
-            });
-        }
-
-        const newStatus = users[0].status;
-        const statusText = newStatus === 'active' ? 'aktif' : 'nonaktif';
-
-        res.json({ 
-            success: true, 
-            message: `Status user berhasil diubah menjadi ${statusText}!`,
-            newStatus: newStatus
-        });
-    } catch (error) {
-        console.error('Error toggling user status:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Gagal mengubah status user' 
-        });
-    }
-};
-
-// Get User Stats - FUNCTION BARU (opsional)
+// Get User Stats - DIMODIFIKASI tanpa status
 exports.getUserStats = async (req, res) => {
     try {
         const [stats] = await pool.query(`
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_count,
-                SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_count,
                 SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admin_count,
                 SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as user_count
             FROM users
