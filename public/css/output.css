@@ -714,6 +714,11 @@ video {
   margin-bottom: 1rem;
 }
 
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
 .mb-1 {
   margin-bottom: 0.25rem;
 }
@@ -1900,6 +1905,7 @@ video {
   color: rgb(133 77 14 / var(--tw-text-opacity, 1));
 }
 
+
 .opacity-80 {
   opacity: 0.8;
 }
@@ -2352,9 +2358,6 @@ video {
     margin-bottom: 2rem;
   }
 
-  .lg\:ml-64 {
-    margin-left: 16rem;
-  }
 
   .lg\:ml-80 {
     margin-left: 20rem;
