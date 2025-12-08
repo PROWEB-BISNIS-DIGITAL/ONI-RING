@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Laporan Keuangan | Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Chart.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .sidebar {
@@ -24,33 +24,6 @@
         .active-menu {
             background-color: #374151;
             color: white;
-        }
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .modal-container {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            width: 100%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         .scrollbar-thin::-webkit-scrollbar {
             width: 6px;
@@ -75,459 +48,566 @@
             border-bottom: 2px solid transparent;
             color: #6b7280;
             font-weight: 500;
+            cursor: pointer;
+        }
+        .tab-inactive:hover {
+            color: #ef4444;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body class="bg-gray-100">
-            <div class="flex pt-16 min-h-screen">
+    <div class="flex pt-16 min-h-screen">
+        <%- include('./partialsAdmin/sidebar') %>
 
-                <%- include('./partialsAdmin/sidebar') %>
-
-
-    <!-- Main Content -->
-    <main class=" p-6 min-h-screen w-screen bg-gray-300">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Manajemen Laporan Keuangan</h1>
-                <p class="text-gray-600">Kelola omset, laba rugi, dan laporan keuangan harian</p>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Omset Hari Ini -->
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Omset Hari Ini</p>
-                        <p class="text-2xl font-bold text-green-600">
-                            Rp <%= data.omset_hari_ini ? data.omset_hari_ini.toLocaleString('id-ID') : '0' %>
-                        </p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <i class="fas fa-wallet text-green-600 text-2xl"></i>
-                    </div>
+        <!-- Main Content -->
+        <main class="p-6 min-h-screen w-screen bg-gray-300">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Manajemen Laporan Keuangan</h1>
+                    <p class="text-gray-600">Kelola omset, laba rugi, dan laporan keuangan harian</p>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">
-                    <span class="<%= data.trend_omset >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                        <i class="fas <%= data.trend_omset >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %> mr-1"></i>
-                        <%= Math.abs(data.trend_omset || 0) %>%
-                    </span>
-                    vs kemarin
-                </p>
             </div>
 
-            <!-- Laba Bulan Ini -->
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Laba Bulan Ini</p>
-                        <p class="text-2xl font-bold text-blue-600">
-                            Rp <%= data.laba_bulan_ini ? data.laba_bulan_ini.toLocaleString('id-ID') : '0' %>
-                        </p>
-                    </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-500 mt-2">
-                    Margin: <span class="font-medium <%= data.margin_bulan_ini >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                        <%= (data.margin_bulan_ini || 0).toFixed(2) %>%
-                    </span>
-                </p>
+            <!-- Tambahkan tombol Generate Laporan (sebelum Stats Cards) -->
+            <div class="mb-6 flex justify-end">
+                <button onclick="openGenerateModal()" 
+                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg shadow flex items-center gap-2 transition">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Generate Laporan Harian</span>
+                </button>
             </div>
 
-            <!-- Total Transaksi -->
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Total Transaksi</p>
-                        <p class="text-2xl font-bold text-purple-600">
-                            <%= data.total_transaksi_bulan_ini || 0 %>
-                        </p>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <i class="fas fa-shopping-cart text-purple-600 text-2xl"></i>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-500 mt-2">
-                    Rp <%= data.rata_transaksi_bulan_ini ? data.rata_transaksi_bulan_ini.toLocaleString('id-ID') : '0' %>/transaksi
-                </p>
-            </div>
-
-            <!-- Pengeluaran -->
-            <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500">Pengeluaran</p>
-                        <p class="text-2xl font-bold text-yellow-600">
-                            Rp <%= data.pengeluaran_bulan_ini ? data.pengeluaran_bulan_ini.toLocaleString('id-ID') : '0' %>
-                        </p>
-                    </div>
-                    <div class="bg-yellow-100 p-3 rounded-full">
-                        <i class="fas fa-money-bill-wave text-yellow-600 text-2xl"></i>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-500 mt-2">
-                    <span class="<%= data.persen_pengeluaran <= 30 ? 'text-green-600' : data.persen_pengeluaran <= 50 ? 'text-yellow-600' : 'text-red-600' %>">
-                        <%= (data.persen_pengeluaran || 0).toFixed(1) %>%
-                    </span> dari omset
-                </p>
-            </div>
-        </div>
-
-        <!-- Tabs Navigation -->
-        <div class="border-b border-gray-200 mb-6">
-            <nav class="flex space-x-8">
-                <button onclick="showTab('summary')" id="tab-summary" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-active">
-                    <i class="fas fa-chart-pie mr-2"></i>Ringkasan
-                </button>
-                <button onclick="showTab('omset')" id="tab-omset" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                    <i class="fas fa-chart-bar mr-2"></i>Omset
-                </button>
-                <button onclick="showTab('laba')" id="tab-laba" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                    <i class="fas fa-balance-scale mr-2"></i>Laba Rugi
-                </button>
-                <button onclick="showTab('laporan')" id="tab-laporan" 
-                        class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                    <i class="fas fa-file-alt mr-2"></i>Laporan
-                </button>
-            </nav>
-        </div>
-
-        <!-- Tab Content: Summary -->
-        <div id="content-summary" class="tab-content">
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Omset Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Omset 7 Hari Terakhir</h3>
-                        <div class="flex space-x-2">
-                            <button onclick="changeChartType('omsetChart', 'line')" 
-                                    class="text-blue-500 hover:text-blue-700">
-                                <i class="fas fa-chart-line"></i>
-                            </button>
-                            <button onclick="changeChartType('omsetChart', 'bar')" 
-                                    class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-chart-bar"></i>
-                            </button>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Omset Hari Ini -->
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Omset Hari Ini</p>
+                            <p class="text-2xl font-bold text-green-600">
+                                Rp <%= data.omset_hari_ini ? data.omset_hari_ini.toLocaleString('id-ID') : '0' %>
+                            </p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-wallet text-green-600 text-2xl"></i>
                         </div>
                     </div>
-                    <div class="h-64">
-                        <canvas id="omsetChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Laba vs Pengeluaran Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Laba vs Pengeluaran</h3>
-                        <span class="text-sm text-gray-500">
-                            <%= new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) %>
+                    <p class="text-sm text-gray-500 mt-2">
+                        <span class="<%= data.trend_omset >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                            <i class="fas <%= data.trend_omset >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %> mr-1"></i>
+                            <%= Math.abs(data.trend_omset || 0).toFixed(1) %>%
                         </span>
+                        vs kemarin
+                    </p>
+                </div>
+
+                <!-- Laba Bulan Ini -->
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Laba Bulan Ini</p>
+                            <p class="text-2xl font-bold text-blue-600">
+                                Rp <%= data.laba_bulan_ini ? data.laba_bulan_ini.toLocaleString('id-ID') : '0' %>
+                            </p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                        </div>
                     </div>
-                    <div class="h-64">
-                        <canvas id="labaChart"></canvas>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Margin: <span class="font-medium <%= data.margin_bulan_ini >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                            <%= (data.margin_bulan_ini || 0).toFixed(2) %>%
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Total Transaksi -->
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Total Transaksi</p>
+                            <p class="text-2xl font-bold text-purple-600">
+                                <%= data.total_transaksi_bulan_ini || 0 %>
+                            </p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-shopping-cart text-purple-600 text-2xl"></i>
+                        </div>
                     </div>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Rp <%= data.rata_transaksi_bulan_ini ? data.rata_transaksi_bulan_ini.toLocaleString('id-ID') : '0' %>/transaksi
+                    </p>
+                </div>
+
+                <!-- Pengeluaran -->
+                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500">Pengeluaran</p>
+                            <p class="text-2xl font-bold text-yellow-600">
+                                Rp <%= data.pengeluaran_bulan_ini ? data.pengeluaran_bulan_ini.toLocaleString('id-ID') : '0' %>
+                            </p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <i class="fas fa-money-bill-wave text-yellow-600 text-2xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">
+                        <span class="<%= data.persen_pengeluaran <= 30 ? 'text-green-600' : data.persen_pengeluaran <= 50 ? 'text-yellow-600' : 'text-red-600' %>">
+                            <%= (data.persen_pengeluaran || 0).toFixed(1) %>%
+                        </span> dari omset
+                    </p>
                 </div>
             </div>
 
-            <!-- Produk Terlaris -->
-            <div class="bg-white p-6 rounded-lg shadow mb-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">Produk Terlaris Bulan Ini</h3>
-                    <a href="/admin/products" class="text-red-500 hover:text-red-600 font-semibold text-sm">
-                        Lihat Semua Produk →
-                    </a>
+            <!-- Tabs Navigation -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="flex space-x-8">
+                    <button onclick="switchTab('summary')" id="tab-summary" 
+                            class="py-3 px-1 border-b-2 font-medium text-sm tab-active">
+                        <i class="fas fa-chart-pie mr-2"></i>Ringkasan
+                    </button>
+                    <button onclick="switchTab('omset')" id="tab-omset" 
+                            class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
+                        <i class="fas fa-chart-bar mr-2"></i>Omset
+                    </button>
+                    <button onclick="switchTab('laba')" id="tab-laba" 
+                            class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
+                        <i class="fas fa-balance-scale mr-2"></i>Laba Rugi
+                    </button>
+                    <button onclick="switchTab('laporan')" id="tab-laporan" 
+                            class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
+                        <i class="fas fa-file-alt mr-2"></i>Laporan
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content: Summary -->
+            <div id="content-summary" class="tab-content active">
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Omset Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Omset 7 Hari Terakhir</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="changeChartType('omsetChart', 'line')" 
+                                        class="text-blue-500 hover:text-blue-700 p-2">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                                <button onclick="changeChartType('omsetChart', 'bar')" 
+                                        class="text-gray-500 hover:text-gray-700 p-2">
+                                    <i class="fas fa-chart-bar"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="omsetChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Laba vs Pengeluaran Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Laba vs Pengeluaran</h3>
+                            <span class="text-sm text-gray-500">
+                                <%= new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) %>
+                            </span>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="labaChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produk</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terjual</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Omset</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laba</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Margin</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <% if (data.produk_terlaris && data.produk_terlaris.length > 0) { %>
-                                <% data.produk_terlaris.forEach((produk, index) => { %>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900"><%= produk.nama_barang %></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900"><%= produk.total_terjual %></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900 font-medium">
-                                                Rp <%= produk.total_omset ? produk.total_omset.toLocaleString('id-ID') : '0' %>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-sm font-medium <%= produk.total_laba >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                                                Rp <%= produk.total_laba ? produk.total_laba.toLocaleString('id-ID') : '0' %>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <% const marginProduk = produk.total_omset > 0 ? (produk.total_laba / produk.total_omset) * 100 : 0; %>
-                                            <span class="px-2 py-1 text-xs rounded-full <%= marginProduk >= 20 ? 'bg-green-100 text-green-800' : marginProduk >= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' %>">
-                                                <%= marginProduk.toFixed(1) %>%
-                                            </span>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            <% } else { %>
+
+                <!-- Produk Terlaris -->
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-gray-800">Produk Terlaris Bulan Ini</h3>
+                        <a href="/admin/products" class="text-red-500 hover:text-red-600 font-semibold text-sm">
+                            Lihat Semua Produk →
+                        </a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                        <i class="fas fa-chart-bar text-3xl mb-2 text-gray-400"></i>
-                                        <p>Belum ada data penjualan produk</p>
-                                    </td>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produk</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terjual</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Omset</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laba</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Margin</th>
                                 </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- HAPUS Quick Actions Section -->
-        </div>
-
-        <!-- Tab Content: Omset -->
-        <div id="content-omset" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-lg shadow mb-8">
-                <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Omset</h3>
-                
-                <!-- Informasi -->
-                <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div class="flex">
-                        <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
-                        <div>
-                            <p class="font-medium text-blue-700">Fitur dalam pengembangan</p>
-                            <p class="text-sm text-blue-600 mt-1">
-                                Fitur laporan omset detail sedang dalam tahap pengembangan. Untuk saat ini, data omset tersedia di tab Ringkasan.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab Content: Laba Rugi -->
-        <div id="content-laba" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-lg shadow mb-8">
-                <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Laba Rugi</h3>
-                
-                <!-- Informasi -->
-                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <div class="flex">
-                        <i class="fas fa-info-circle text-yellow-500 mt-0.5 mr-3"></i>
-                        <div>
-                            <p class="font-medium text-yellow-700">Fitur dalam pengembangan</p>
-                            <p class="text-sm text-yellow-600 mt-1">
-                                Fitur laporan laba rugi detail sedang dalam tahap pengembangan. Untuk saat ini, data laba tersedia di tab Ringkasan.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab Content: Laporan -->
-        <div id="content-laporan" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow mb-8">
-                <!-- Header -->
-                <div class="p-6 border-b">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-gray-800">Daftar Laporan Keuangan</h3>
-                    </div>
-                </div>
-
-                <!-- Laporan Table -->
-                <div class="overflow-x-auto scrollbar-thin">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaksi</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Omset</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modal</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laba</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Margin</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <% if (laporan && laporan.length > 0) { %>
-                                <% laporan.forEach((item, index) => { %>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                <%= new Date(item.tanggal).toLocaleDateString('id-ID', { 
-                                                    day: 'numeric',
-                                                    month: 'short',
-                                                    year: 'numeric'
-                                                }) %>
-                                            </div>
-                                            <div class="text-xs text-gray-500">
-                                                <%= new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'short' }) %>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900"><%= item.total_penjualan %></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                Rp <%= item.omset.toLocaleString('id-ID') %>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">
-                                                Rp <%= item.total_modal.toLocaleString('id-ID') %>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-sm font-medium <%= item.laba >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                                                Rp <%= item.laba.toLocaleString('id-ID') %>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="w-20 bg-gray-200 rounded-full h-2">
-                                                    <div class="h-2 rounded-full <%= item.margin_percent >= 0 ? 'bg-green-500' : 'bg-red-500' %>" 
-                                                         style="width: <%= Math.min(Math.abs(item.margin_percent), 100) %>%"></div>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <% if (data.produk_terlaris && data.produk_terlaris.length > 0) { %>
+                                    <% data.produk_terlaris.forEach((produk, index) => { %>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900"><%= produk.nama_barang %></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900"><%= produk.total_terjual %></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900 font-medium">
+                                                    Rp <%= produk.total_omset ? produk.total_omset.toLocaleString('id-ID') : '0' %>
                                                 </div>
-                                                <span class="text-xs <%= item.margin_percent >= 0 ? 'text-green-600' : 'text-red-600' %> ml-2">
-                                                    <%= item.margin_percent.toFixed(1) %>%
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm font-medium <%= produk.total_laba >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                                                    Rp <%= produk.total_laba ? produk.total_laba.toLocaleString('id-ID') : '0' %>
                                                 </span>
-                                            </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <% const marginProduk = produk.total_omset > 0 ? (produk.total_laba / produk.total_omset) * 100 : 0; %>
+                                                <span class="px-2 py-1 text-xs rounded-full <%= marginProduk >= 20 ? 'bg-green-100 text-green-800' : marginProduk >= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' %>">
+                                                    <%= marginProduk.toFixed(1) %>%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                            <i class="fas fa-chart-bar text-3xl mb-2 text-gray-400"></i>
+                                            <p>Belum ada data penjualan produk</p>
                                         </td>
                                     </tr>
-                                <% }); %>
-                            <% } else { %>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Omset</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Omset</span>
+                                <span class="font-medium">Rp <%= data.total_omset ? data.total_omset.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Omset Tertinggi</span>
+                                <span class="font-medium">Rp <%= data.max_omset ? data.max_omset.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Omset Terendah</span>
+                                <span class="font-medium">Rp <%= data.min_omset ? data.min_omset.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Rata-rata Harian</span>
+                                <span class="font-medium">Rp <%= data.avg_omset ? data.avg_omset.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Laba</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Laba</span>
+                                <span class="font-medium">Rp <%= data.total_laba ? data.total_laba.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Laba Tertinggi</span>
+                                <span class="font-medium">Rp <%= data.max_laba ? data.max_laba.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Laba Terendah</span>
+                                <span class="font-medium">Rp <%= data.min_laba ? data.min_laba.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Rata-rata Margin</span>
+                                <span class="font-medium"><%= data.avg_margin ? data.avg_margin.toFixed(2) : '0' %>%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">Statistik Transaksi</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Transaksi</span>
+                                <span class="font-medium"><%= data.total_transaksi || 0 %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Transaksi/Hari</span>
+                                <span class="font-medium"><%= data.transaksi_per_hari ? data.transaksi_per_hari.toFixed(1) : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Rata Transaksi</span>
+                                <span class="font-medium">Rp <%= data.avg_transaksi ? data.avg_transaksi.toLocaleString('id-ID') : '0' %></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Produk Terjual</span>
+                                <span class="font-medium"><%= data.total_produk_terjual || 0 %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Omset -->
+            <div id="content-omset" class="tab-content">
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Omset</h3>
+                    
+                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex">
+                            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-blue-700">Fitur dalam pengembangan</p>
+                                <p class="text-sm text-blue-600 mt-1">
+                                    Fitur laporan omset detail sedang dalam tahap pengembangan. Untuk saat ini, data omset tersedia di tab Ringkasan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Laba Rugi -->
+            <div id="content-laba" class="tab-content">
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Laba Rugi</h3>
+                    
+                    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex">
+                            <i class="fas fa-info-circle text-yellow-500 mt-0.5 mr-3"></i>
+                            <div>
+                                <p class="font-medium text-yellow-700">Fitur dalam pengembangan</p>
+                                <p class="text-sm text-yellow-600 mt-1">
+                                    Fitur laporan laba rugi detail sedang dalam tahap pengembangan. Untuk saat ini, data laba tersedia di tab Ringkasan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Laporan -->
+            <div id="content-laporan" class="tab-content">
+                <div class="bg-white rounded-lg shadow mb-8">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-gray-800">Daftar Laporan Keuangan</h3>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto scrollbar-thin">
+                        <table class="min-w-full">
+                            <!-- Update thead Table - tambah kolom header -->
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                        <i class="fas fa-file-alt text-4xl mb-3 text-gray-400"></i>
-                                        <p class="mb-4">Belum ada laporan yang digenerate</p>
-                                    </td>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Omset</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pengeluaran</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laba</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Margin</th>
                                 </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
+                            </thead>
+                            
+                            <!-- Update bagian Table Laporan - tambah kolom pengeluaran -->
+                            <tbody class="divide-y divide-gray-200">
+                                <% if (laporan && laporan.length > 0) { %>
+                                    <% laporan.forEach((item, index) => { %>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    <%= new Date(item.tanggal).toLocaleDateString('id-ID', { 
+                                                        day: 'numeric',
+                                                        month: 'short',
+                                                        year: 'numeric'
+                                                    }) %>
+                                                </div>
+                                                <div class="text-xs text-gray-500">
+                                                    <%= new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'short' }) %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900"><%= item.total_penjualan %></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    Rp <%= item.omset.toLocaleString('id-ID') %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-500">
+                                                    Rp <%= item.total_modal.toLocaleString('id-ID') %>
+                                                </div>
+                                            </td>
+                                            <!-- KOLOM BARU: Total Pengeluaran -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-orange-600">
+                                                    Rp <%= (item.total_pengeluaran || 0).toLocaleString('id-ID') %>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm font-medium <%= item.laba >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                                                    Rp <%= item.laba.toLocaleString('id-ID') %>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                        <div class="h-2 rounded-full <%= item.margin_percent >= 0 ? 'bg-green-500' : 'bg-red-500' %>" 
+                                                             style="width: <%= Math.min(Math.abs(item.margin_percent), 100) %>%"></div>
+                                                    </div>
+                                                    <span class="text-xs <%= item.margin_percent >= 0 ? 'text-green-600' : 'text-red-600' %> ml-2">
+                                                        <%= (Number(item.margin_percent) || 0).toFixed(1) %>%
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                            <i class="fas fa-file-alt text-4xl mb-3 text-gray-400"></i>
+                                            <p class="mb-4">Belum ada laporan yang digenerate</p>
+                                            <button onclick="openGenerateModal()" 
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
+                                                <i class="fas fa-plus"></i>
+                                                Generate Laporan Pertama
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </main>
+    </div>
+
+    <!-- Modal Generate Laporan (tambahkan sebelum script) -->
+    <div id="generateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Generate Laporan Harian</h3>
+                <button onclick="closeGenerateModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="generateForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
+                    <input type="date" id="tanggalLaporan" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Pengeluaran (Opsional)</label>
+                    <input type="number" id="totalPengeluaran" placeholder="0" min="0" step="1000"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Biaya operasional, gaji, dll. Kosongkan jika tidak ada.</p>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-700">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Sistem akan otomatis menghitung omset dan laba dari transaksi completed pada tanggal tersebut.
+                    </p>
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeGenerateModal()"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Generate
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <!-- Summary Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Omset</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Omset</span>
-                        <span class="font-medium">Rp <%= data.total_omset ? data.total_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Omset Tertinggi</span>
-                        <span class="font-medium">Rp <%= data.max_omset ? data.max_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Omset Terendah</span>
-                        <span class="font-medium">Rp <%= data.min_omset ? data.min_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Rata-rata Harian</span>
-                        <span class="font-medium">Rp <%= data.avg_omset ? data.avg_omset.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h4 class="text-lg font-bold text-gray-800 mb-4">Summary Laba</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Laba</span>
-                        <span class="font-medium">Rp <%= data.total_laba ? data.total_laba.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Laba Tertinggi</span>
-                        <span class="font-medium">Rp <%= data.max_laba ? data.max_laba.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Laba Terendah</span>
-                        <span class="font-medium">Rp <%= data.min_laba ? data.min_laba.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Rata-rata Margin</span>
-                        <span class="font-medium"><%= data.avg_margin ? data.avg_margin.toFixed(2) : '0' %>%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h4 class="text-lg font-bold text-gray-800 mb-4">Statistik Transaksi</h4>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Transaksi</span>
-                        <span class="font-medium"><%= data.total_transaksi || 0 %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Transaksi/Hari</span>
-                        <span class="font-medium"><%= data.transaksi_per_hari ? data.transaksi_per_hari.toFixed(1) : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Rata Transaksi</span>
-                        <span class="font-medium">Rp <%= data.avg_transaksi ? data.avg_transaksi.toLocaleString('id-ID') : '0' %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Produk Terjual</span>
-                        <span class="font-medium"><%= data.total_produk_terjual || 0 %></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-                </div>
+    </div>
 
     <script>
-        // Initialize when page loads
+        let omsetChart, labaChart;
+
+        // Initialize charts when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Load charts
             initCharts();
         });
 
-        // Tab Management - FIXED VERSION
-        function showTab(tabName) {
-            console.log('Switching to tab:', tabName); // Debug log
+        // Modal functions
+        function openGenerateModal() {
+            document.getElementById('generateModal').classList.remove('hidden');
+            document.getElementById('tanggalLaporan').valueAsDate = new Date();
+        }
+
+        function closeGenerateModal() {
+            document.getElementById('generateModal').classList.add('hidden');
+            document.getElementById('generateForm').reset();
+        }
+
+        // Generate laporan form submit
+        document.getElementById('generateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Hide all tab content
+            const tanggal = document.getElementById('tanggalLaporan').value;
+            const pengeluaran = document.getElementById('totalPengeluaran').value || 0;
+            
+            try {
+                const response = await fetch('/admin/keuangan/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tanggal: tanggal,
+                        total_pengeluaran: pengeluaran
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Laporan berhasil digenerate!');
+                    closeGenerateModal();
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan saat generate laporan');
+            }
+        });
+
+        // Tab switching function
+        function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.add('hidden');
+                el.classList.remove('active');
             });
             
-            // Remove active class from all tabs
             document.querySelectorAll('[id^="tab-"]').forEach(el => {
                 el.classList.remove('tab-active');
                 el.classList.add('tab-inactive');
             });
             
-            // Show selected tab content
             const contentElement = document.getElementById('content-' + tabName);
             if (contentElement) {
-                contentElement.classList.remove('hidden');
+                contentElement.classList.add('active');
             }
             
-            // Add active class to selected tab
             const activeTab = document.getElementById('tab-' + tabName);
             if (activeTab) {
                 activeTab.classList.remove('tab-inactive');
@@ -535,24 +615,21 @@
             }
         }
 
-        // Charts
-        let omsetChart, labaChart;
-
+        // Initialize charts - FIXED
         function initCharts() {
-            // Omset Chart
+            // Omset Chart - FIXED: data sudah object, bukan string
             const omsetCtx = document.getElementById('omsetChart').getContext('2d');
-            const omsetData = <%= JSON.stringify(data.chart_omset || []) %>;
+            const omsetData = <%- JSON.stringify(data.chart_omset || []) %>;
             
-            // Pastikan data chart ada
-            const labels = omsetData && omsetData.length > 0 
+            const labels = omsetData.length > 0 
                 ? omsetData.map(item => {
                     const date = new Date(item.tanggal);
                     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
                 })
                 : ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
             
-            const dataValues = omsetData && omsetData.length > 0
-                ? omsetData.map(item => item.omset || 0)
+            const dataValues = omsetData.length > 0
+                ? omsetData.map(item => parseFloat(item.omset) || 0)
                 : [0, 0, 0, 0, 0, 0, 0];
             
             omsetChart = new Chart(omsetCtx, {
@@ -566,7 +643,9 @@
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         tension: 0.4,
                         fill: true,
-                        borderWidth: 2
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }]
                 },
                 options: {
@@ -601,36 +680,31 @@
                 }
             });
 
-            // Laba vs Pengeluaran Chart
+            // Laba vs Pengeluaran Chart - FIXED: data real
             const labaCtx = document.getElementById('labaChart').getContext('2d');
-            const labaData = <%= JSON.stringify(data.chart_laba || {}) %>;
-            const pengeluaranData = <%= JSON.stringify(data.chart_pengeluaran || {}) %>;
+            const chartData = <%- JSON.stringify(data.chart_pengeluaran || {}) %>;
             
-            const labaKotor = labaData.total_laba_kotor || 0;
-            const totalPengeluaran = pengeluaranData.total_pengeluaran || 0;
-            const labaBersih = labaKotor - totalPengeluaran;
+            const modal = chartData.modal || 0;
+            const pengeluaran = chartData.pengeluaran || 0;
+            const labaBersih = chartData.laba_bersih || 0;
             
             labaChart = new Chart(labaCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Laba Kotor', 'Pengeluaran', 'Laba Bersih'],
+                    labels: ['Modal Produk', 'Pengeluaran Operasional', 'Laba Bersih'],
                     datasets: [{
-                        data: [
-                            labaKotor,
-                            totalPengeluaran,
-                            labaBersih
-                        ],
+                        data: [modal, pengeluaran, labaBersih],
                         backgroundColor: [
-                            'rgba(34, 197, 94, 0.7)',
                             'rgba(245, 158, 11, 0.7)',
-                            'rgba(59, 130, 246, 0.7)'
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(34, 197, 94, 0.7)'
                         ],
                         borderColor: [
-                            'rgb(34, 197, 94)',
                             'rgb(245, 158, 11)',
-                            'rgb(59, 130, 246)'
+                            'rgb(239, 68, 68)',
+                            'rgb(34, 197, 94)'
                         ],
-                        borderWidth: 1
+                        borderWidth: 2
                     }]
                 },
                 options: {
@@ -638,7 +712,11 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -652,34 +730,13 @@
             });
         }
 
+        // Change chart type
         function changeChartType(chartId, type) {
             if (chartId === 'omsetChart' && omsetChart) {
                 omsetChart.config.type = type;
                 omsetChart.update();
             }
         }
-
-        // Print function
-        function printReport() {
-            window.print();
-        }
-
-        // Fix tab switching issue by adding event listeners directly
-        document.getElementById('tab-omset').addEventListener('click', function() {
-            showTab('omset');
-        });
-        
-        document.getElementById('tab-laba').addEventListener('click', function() {
-            showTab('laba');
-        });
-        
-        document.getElementById('tab-laporan').addEventListener('click', function() {
-            showTab('laporan');
-        });
-        
-        document.getElementById('tab-summary').addEventListener('click', function() {
-            showTab('summary');
-        });
     </script>
 </body>
 </html>
