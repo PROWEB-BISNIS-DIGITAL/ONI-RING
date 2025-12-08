@@ -17,22 +17,29 @@ class AuthController {
             const { email, password } = req.body;
             
             // 1. Cari user di database
-            const [users] = await pool.query(
-                'SELECT * FROM users WHERE email = ? LIMIT 1',
-                [email]
-            );
+        const [users] = await pool.query(
+            'SELECT * FROM users WHERE email = ? LIMIT 1',
+            [email]
+        );
             
             // 2. Validasi user
-            if (users.length === 0) {
-                return res.render('login', {
-                    title: 'Login - Cemal-Cemil',
-                    error: 'Email atau password salah'
-                });
-            }
-            
+        if (users.length === 0) {
+            return res.render('login', {
+                title: 'Login - Cemal-Cemil',
+                error: 'Email atau password salah'
+            });
+        }
+        
             const user = users[0];
             
-            // 3. Verifikasi password (tanpa bcrypt untuk testing)
+
+            // 3. validasi status
+                if (user.status !== 'active') {
+                    return res.render('login', {
+                        title: 'Login - Cemal-Cemil',
+                        error: 'Akun Anda dinonaktifkan. Hubungi admin.'
+                    });
+                }
             // Di production, gunakan: await bcrypt.compare(password, user.password)
             if (password !== user.password) {
                 return res.render('login', {
@@ -61,13 +68,13 @@ class AuthController {
                 return res.redirect('/');
             });
             
-        } catch (error) {
-            console.error('Login error:', error);
-            res.render('login', {
-                title: 'Login - Cemal-Cemil',
-                error: 'Terjadi kesalahan saat login'
-            });
-        }
+            } catch (error) {
+                console.error('Login error:', error);
+                res.render('login', {
+                    title: 'Login - Cemal-Cemil',
+                    error: 'Terjadi kesalahan saat login'
+                });
+            }
     }
 
     // Tampilkan halaman register
