@@ -55,7 +55,7 @@ exports.getDashboard = async (req, res) => {
     } catch (error) {
         console.error('Error fetching customer dashboard:', error);
         res.status(500).render('error', {
-            title: 'Terjadi Kesalahan',  // TAMBAHKAN TITLE
+            title: 'Terjadi Kesalahan',
             message: 'Terjadi kesalahan saat memuat dashboard',
             error: error
         });
@@ -152,22 +152,20 @@ exports.getPageOrders = async (req, res) => {
     }
 };
 
-// Halaman Akun Customer
+// Halaman Akun Customer - DIPERBAIKI
 exports.getPageAkun = async (req, res) => {
     try {
         // Cek session user
         let userId;
-        let userData = {};
-        
         if (req.user && req.user.id) {
             userId = req.user.id;
-            userData = req.user;
         } else if (req.session.user && req.session.user.id) {
             userId = req.session.user.id;
-            userData = req.session.user;
         } else {
             return res.redirect('/login');
         }
+
+        console.log('Loading account page for user:', userId);
 
         // Ambil data lengkap user dari database
         const [users] = await pool.query(`
@@ -185,17 +183,24 @@ exports.getPageAkun = async (req, res) => {
 
         const user = users[0];
 
-        // Hitung statistik pesanan
+        // Hitung statistik pesanan - QUERY DIPERBAIKI (tanpa total_amount)
         const [orderStats] = await pool.query(`
             SELECT 
                 COUNT(*) as total_orders,
                 SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_orders,
                 SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing_orders,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_orders,
-                SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_orders,
-                COALESCE(SUM(total_amount), 0) as total_spent
+                SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_orders
             FROM orders 
             WHERE user_id = ?
+        `, [userId]);
+
+        // Hitung total spent dari order_items untuk order yang completed
+        const [spentStats] = await pool.query(`
+            SELECT COALESCE(SUM(oi.price * oi.quantity), 0) as total_spent
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.user_id = ? AND o.status = 'completed'
         `, [userId]);
 
         // Format tanggal bergabung
@@ -221,7 +226,7 @@ exports.getPageAkun = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                phone: user.phone || 'Belum diatur',
+                phone: user.phone || '',
                 role: user.role,
                 join_date: joinDate,
                 last_update: lastUpdate,
@@ -234,10 +239,8 @@ exports.getPageAkun = async (req, res) => {
                 processing: orderStats[0]?.processing_orders || 0,
                 pending: orderStats[0]?.pending_orders || 0,
                 cancelled: orderStats[0]?.cancelled_orders || 0,
-                totalSpent: orderStats[0]?.total_spent?.toLocaleString('id-ID') || '0'
+                totalSpent: (spentStats[0]?.total_spent || 0).toLocaleString('id-ID')
             },
-            success: req.flash('success'),
-            error: req.flash('error'),
             csrfToken: req.csrfToken ? req.csrfToken() : ''
         });
 
@@ -245,12 +248,88 @@ exports.getPageAkun = async (req, res) => {
         console.error('Error fetching account page:', error);
         res.status(500).render('error', {
             title: 'Terjadi Kesalahan',
-            message: 'Terjadi kesalahan saat memuat halaman akun'
+            message: 'Terjadi kesalahan saat memuat halaman akun',
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
     }
 };
 
-// Update Password Customer
+// Update Profile Customer - BARU
+exports.updateProfile = async (req, res) => {
+    try {
+        let userId;
+        if (req.user && req.user.id) {
+            userId = req.user.id;
+        } else if (req.session.user && req.session.user.id) {
+            userId = req.session.user.id;
+        } else {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Anda harus login terlebih dahulu' 
+            });
+        }
+
+        const { name, email, phone } = req.body;
+        
+        // Validasi input
+        const errors = [];
+        
+        if (!name || name.trim() === '') {
+            errors.push('Nama tidak boleh kosong');
+        }
+
+        if (!email || email.trim() === '') {
+            errors.push('Email tidak boleh kosong');
+        }
+
+        if (errors.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: errors.join(', ')
+            });
+        }
+
+        // Cek apakah email sudah digunakan user lain
+        const [existingUser] = await pool.query(`
+            SELECT id FROM users 
+            WHERE email = ? AND id != ?
+        `, [email, userId]);
+
+        if (existingUser.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email sudah digunakan oleh user lain'
+            });
+        }
+
+        // Update profile
+        await pool.query(`
+            UPDATE users 
+            SET name = ?, email = ?, phone = ?, updated_at = NOW()
+            WHERE id = ?
+        `, [name.trim(), email.trim(), phone ? phone.trim() : null, userId]);
+
+        // Update session
+        if (req.session.user) {
+            req.session.user.name = name.trim();
+            req.session.user.email = email.trim();
+        }
+
+        res.json({
+            success: true,
+            message: 'Profil berhasil diperbarui'
+        });
+
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Terjadi kesalahan saat memperbarui profil'
+        });
+    }
+};
+
+// Update Password Customer (tanpa bcrypt)
 exports.updatePassword = async (req, res) => {
     try {
         let userId;
@@ -310,12 +389,8 @@ exports.updatePassword = async (req, res) => {
 
         const user = users[0];
         
-        // Verifikasi password saat ini
-        // Pastikan untuk mengimpor bcrypt di atas file
-        const bcrypt = require('bcrypt');
-        const isPasswordValid = await bcrypt.compare(current_password, user.password);
-        
-        if (!isPasswordValid) {
+        // Verifikasi password saat ini (tanpa bcrypt, plain text)
+        if (current_password !== user.password) {
             return res.status(400).json({
                 success: false,
                 message: 'Password saat ini salah'
@@ -323,24 +398,19 @@ exports.updatePassword = async (req, res) => {
         }
 
         // Cek password baru tidak sama dengan password lama
-        const isSamePassword = await bcrypt.compare(new_password, user.password);
-        if (isSamePassword) {
+        if (new_password === user.password) {
             return res.status(400).json({
                 success: false,
                 message: 'Password baru tidak boleh sama dengan password lama'
             });
         }
 
-        // Hash password baru
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(new_password, saltRounds);
-
-        // Update password
+        // Update password langsung (tanpa hash)
         await pool.query(`
             UPDATE users 
             SET password = ?, updated_at = NOW()
             WHERE id = ?
-        `, [hashedPassword, userId]);
+        `, [new_password, userId]);
 
         res.json({
             success: true,
@@ -355,7 +425,6 @@ exports.updatePassword = async (req, res) => {
         });
     }
 };
-
 
 // Detail Pesanan
 exports.getOrderDetail = async (req, res) => {
@@ -380,7 +449,7 @@ exports.getOrderDetail = async (req, res) => {
 
         if (orders.length === 0) {
             return res.status(404).render('error', {
-                title: 'Pesanan Tidak Ditemukan',  // TAMBAHKAN TITLE
+                title: 'Pesanan Tidak Ditemukan',
                 message: 'Pesanan tidak ditemukan'
             });
         }
@@ -405,7 +474,7 @@ exports.getOrderDetail = async (req, res) => {
     } catch (error) {
         console.error('Error fetching order detail:', error);
         res.status(500).render('error', {
-            title: 'Terjadi Kesalahan',  // TAMBAHKAN TITLE
+            title: 'Terjadi Kesalahan',
             message: 'Terjadi kesalahan saat memuat detail pesanan',
             error: error
         });
