@@ -771,10 +771,6 @@ video {
   margin-left: 1rem;
 }
 
-.ml-80 {
-  margin-left: 20rem;
-}
-
 .mr-1 {
   margin-right: 0.25rem;
 }
@@ -2307,6 +2303,10 @@ video {
     justify-content: space-between;
   }
 
+  .md\:p-8 {
+    padding: 2rem;
+  }
+
   .md\:text-2xl {
     font-size: 1.5rem;
     line-height: 2rem;
@@ -2343,6 +2343,7 @@ video {
   .lg\:mb-8 {
     margin-bottom: 2rem;
   }
+
 
   .lg\:ml-80 {
     margin-left: 20rem;
