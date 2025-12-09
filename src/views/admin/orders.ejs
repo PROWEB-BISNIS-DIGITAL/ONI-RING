@@ -210,7 +210,14 @@
                             <div>
                                 <p class="text-gray-500">Total Revenue</p>
                                 <p class="text-2xl font-bold text-purple-600">
-                                    Rp <%= orders.reduce((sum, o)=> sum + o.total, 0).toLocaleString('id-ID') %>
+                                    <% 
+                                        let totalRevenue = orders.reduce((sum, order) => {
+                                            // Pastikan total adalah number
+                                            return sum + (Number(order.total) || 0);
+                                        }, 0);
+                                        %>
+
+                                        Rp <%= totalRevenue.toLocaleString('id-ID') %>
                                 </p>
                             </div>
                             <div class="bg-purple-100 p-3 rounded-full">

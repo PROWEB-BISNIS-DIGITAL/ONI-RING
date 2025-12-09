@@ -87,9 +87,20 @@ router.get('/managementU', async (req, res) => {
             [currentMonth, currentYear]
         );
         
+        const [modalHariIniResult] = await pool.execute(
+            `SELECT 
+                COALESCE(SUM(products.harga_beli * oi.quantity), 0) as modal_hari_ini,
+                COUNT(DISTINCT o.id) as transaksi_hari_ini
+             FROM orders o
+             JOIN order_items oi ON o.id = oi.order_id
+             JOIN products ON products.id = oi.product_id
+             WHERE DATE(o.created_at) = ? 
+             AND o.status = 'completed'`,
+            [today]
+        );
         // 4. MODAL BULAN INI
         const [modalBulanIniResult] = await pool.execute(
-            `SELECT COALESCE(SUM(p.price * oi.quantity), 0) as modal_bulan_ini
+            `SELECT COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal_bulan_ini
              FROM order_items oi
              JOIN orders o ON oi.order_id = o.id
              JOIN products p ON oi.product_id = p.id
@@ -190,9 +201,11 @@ router.get('/managementU', async (req, res) => {
         const omsetHariIni = parseFloat(omsetHariIniResult[0].omset_hari_ini) || 0;
         const omsetKemarin = parseFloat(omsetKemarinResult[0].omset_kemarin) || 0;
         const omsetBulanIni = parseFloat(omsetBulanIniResult[0].omset_bulan_ini) || 0;
+        const modalHariIni = parseFloat(modalHariIniResult[0].modal_hari_ini) || 0;
         const modalBulanIni = parseFloat(modalBulanIniResult[0].modal_bulan_ini) || 0;
         const pengeluaranBulanIni = parseFloat(pengeluaranBulanIniResult[0].pengeluaran_bulan_ini) || 0;
-        const labaBulanIni = omsetBulanIni - modalBulanIni - pengeluaranBulanIni;
+        // const labaBulanIni = omsetBulanIni - modalBulanIni - pengeluaranBulanIni;
+        const labaBulanIni = omsetHariIni - modalHariIni;
         const totalTransaksiBulan = totalTransaksiBulanResult[0].total_transaksi_bulan_ini || 0;
         
         // Hitung trend omset
