@@ -1,818 +1,825 @@
 const pool = require('../config/database');
 
-// ==================== CRUD LAPORAN KEUANGAN ====================
-
-// CREATE - Generate Laporan Harian
-const generateLaporanHarian = async (req, res) => {
+// ============ GENERATE LAPORAN HARIAN ============
+exports.generateLaporanHarian = async (req, res) => {
     try {
-        const { tanggal, total_pengeluaran } = req.body;
-        
-        if (!tanggal) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tanggal wajib diisi'
-            });
-        }
-
-        // Cek apakah laporan sudah ada
-        const cekQuery = 'SELECT id FROM laporan_keuangan WHERE tanggal = ?';
-        const [existing] = await pool.execute(cekQuery, [tanggal]);
-        
-        if (existing.length > 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Laporan untuk tanggal ini sudah ada'
-            });
-        }
-
-        // Hitung total penjualan dari orders
-        const ordersQuery = `
-            SELECT 
-                COUNT(*) as total_penjualan
-            FROM orders o
-            WHERE DATE(o.created_at) = ? 
-            AND o.status = 'completed'
-        `;
-
-        // FIXED: Hitung OMSET dari order_items (price × quantity)
-        const omsetQuery = `
-            SELECT 
-                COALESCE(SUM(oi.price * oi.quantity), 0) as omset
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            WHERE DATE(o.created_at) = ?
-            AND o.status = 'completed'
-        `;
-
-        // Hitung total modal dari products.price × quantity
-        const modalQuery = `
-            SELECT 
-                COALESCE(SUM(p.price * oi.quantity), 0) as total_modal
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            JOIN products p ON oi.product_id = p.id
-            WHERE DATE(o.created_at) = ?
-            AND o.status = 'completed'
-        `;
-
-        const [ordersData] = await pool.execute(ordersQuery, [tanggal]);
-        const [omsetData] = await pool.execute(omsetQuery, [tanggal]);
-        const [modalData] = await pool.execute(modalQuery, [tanggal]);
-
-        const omset = parseFloat(omsetData[0].omset) || 0;
-        const totalModal = parseFloat(modalData[0].total_modal) || 0;
-        const pengeluaran = parseFloat(total_pengeluaran) || 0;
-        const laba = omset - totalModal - pengeluaran;
-
-        // Simpan laporan keuangan
-        const insertQuery = `
-            INSERT INTO laporan_keuangan 
-            (tanggal, total_penjualan, omset, total_modal, total_pengeluaran, laba, keterangan) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        const keterangan = `Laporan harian ${tanggal}`;
-        
-        const [result] = await pool.execute(insertQuery, [
-            tanggal,
-            ordersData[0].total_penjualan || 0,
-            omset,
-            totalModal,
-            pengeluaran,
-            laba,
-            keterangan
-        ]);
-
-        res.json({
-            success: true,
-            message: 'Laporan harian berhasil digenerate',
-            data: {
-                id: result.insertId,
-                tanggal,
-                total_penjualan: ordersData[0].total_penjualan || 0,
-                omset,
-                total_modal: totalModal,
-                total_pengeluaran: pengeluaran,
-                laba,
-                margin: omset > 0 ? ((laba / omset) * 100).toFixed(2) : 0
-            }
+        res.status(400).json({
+            success: false,
+            message: 'Fitur laporan harian tidak digunakan lagi'
         });
-
     } catch (error) {
         console.error('Error generate laporan:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal generate laporan'
         });
     }
 };
 
-// READ - Get All Laporan dengan Pagination
-const getAllLaporan = async (req, res) => {
+// ============ GET ALL LAPORAN ============
+exports.getAllLaporan = async (req, res) => {
     try {
-        const { page = 1, limit = 10, sortBy = 'tanggal', sortOrder = 'DESC' } = req.query;
-        const offset = (page - 1) * limit;
-
-        const query = `
-            SELECT 
-                id, 
-                tanggal, 
-                total_penjualan, 
-                omset, 
-                total_modal,
-                total_pengeluaran, 
-                laba, 
-                keterangan,
-                created_at,
-                CASE 
-                    WHEN omset > 0 THEN ROUND((laba / omset) * 100, 2)
-                    ELSE 0
-                END as margin_percent
-            FROM laporan_keuangan 
-            ORDER BY ${sortBy} ${sortOrder}
-            LIMIT ? OFFSET ?
-        `;
-
-        const countQuery = 'SELECT COUNT(*) as total FROM laporan_keuangan';
-
-        const [laporan] = await pool.execute(query, [parseInt(limit), offset]);
-        const [countResult] = await pool.execute(countQuery);
-        const total = countResult[0].total;
-
-        // Hitung summary
-        const summaryQuery = `
-            SELECT 
-                SUM(total_penjualan) as total_transaksi,
-                SUM(omset) as total_omset,
-                SUM(total_modal) as total_modal_all,
-                SUM(total_pengeluaran) as total_pengeluaran_all,
-                SUM(laba) as total_laba,
-                CASE 
-                    WHEN SUM(omset) > 0 THEN AVG((laba / omset) * 100)
-                    ELSE 0
-                END as avg_margin
-            FROM laporan_keuangan
-        `;
-
-        const [summary] = await pool.execute(summaryQuery);
-
         res.json({
             success: true,
-            data: laporan,
-            pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit),
-                total,
-                pages: Math.ceil(total / limit)
-            },
-            summary: summary[0]
+            data: [],
+            message: 'Tabel laporan keuangan tidak digunakan lagi'
         });
-
     } catch (error) {
-        console.error('Error get all laporan:', error);
+        console.error('Error get laporan:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil data laporan'
         });
     }
 };
 
-// READ - Get Laporan by Range
-const getLaporanByRange = async (req, res) => {
+// ============ GET LAPORAN BY RANGE ============
+exports.getLaporanByRange = async (req, res) => {
     try {
-        const { start_date, end_date } = req.query;
-
-        if (!start_date || !end_date) {
-            return res.status(400).json({
-                success: false,
-                message: 'Start date dan end date wajib diisi'
-            });
-        }
-
-        // Query laporan dari tabel laporan_keuangan
-        const laporanQuery = `
-            SELECT 
-                tanggal,
-                total_penjualan,
-                omset,
-                total_modal,
-                total_pengeluaran,
-                laba,
-                CASE 
-                    WHEN omset > 0 THEN ROUND((laba / omset) * 100, 2)
-                    ELSE 0
-                END as margin_percent
-            FROM laporan_keuangan
-            WHERE tanggal BETWEEN ? AND ?
-            ORDER BY tanggal
-        `;
-
-        // Query untuk data orders detail
-        const ordersQuery = `
-            SELECT 
-                DATE(o.created_at) as tanggal,
-                COUNT(*) as jumlah_transaksi,
-                SUM(oi.price * oi.quantity) as omset,
-                AVG(oi.price * oi.quantity) as rata_transaksi
-            FROM orders o
-            JOIN order_items oi ON o.id = oi.order_id
-            WHERE DATE(o.created_at) BETWEEN ? AND ?
-            AND o.status = 'completed'
-            GROUP BY DATE(o.created_at)
-            ORDER BY DATE(o.created_at)
-        `;
-
-        const [laporanData] = await pool.execute(laporanQuery, [start_date, end_date]);
-        const [ordersData] = await pool.execute(ordersQuery, [start_date, end_date]);
-
-        // Hitung total summary
-        const totalSummary = {
-            total_penjualan: laporanData.reduce((sum, item) => sum + item.total_penjualan, 0),
-            total_omset: laporanData.reduce((sum, item) => sum + parseFloat(item.omset), 0),
-            total_modal: laporanData.reduce((sum, item) => sum + parseFloat(item.total_modal), 0),
-            total_pengeluaran: laporanData.reduce((sum, item) => sum + parseFloat(item.total_pengeluaran || 0), 0),
-            total_laba: laporanData.reduce((sum, item) => sum + parseFloat(item.laba), 0)
-        };
-
         res.json({
             success: true,
-            data: {
-                laporan_harian: laporanData,
-                detail_orders: ordersData,
-                summary: totalSummary
-            },
-            periode: {
-                start_date,
-                end_date,
-                jumlah_hari: laporanData.length
-            }
+            data: []
         });
-
     } catch (error) {
-        console.error('Error get laporan by range:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil data laporan'
         });
     }
 };
 
-// READ - Get Laporan by ID
-const getLaporanById = async (req, res) => {
+// ============ GET LAPORAN BY ID ============
+exports.getLaporanById = async (req, res) => {
     try {
-        const { id } = req.params;
+        res.status(404).json({
+            success: false,
+            message: 'Laporan tidak ditemukan'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data laporan'
+        });
+    }
+};
 
-        const query = `
-            SELECT 
-                lk.*,
-                CASE 
-                    WHEN omset > 0 THEN ROUND((laba / omset) * 100, 2)
-                    ELSE 0
-                END as margin_percent
-            FROM laporan_keuangan lk
-            WHERE lk.id = ?
-        `;
-
-        const [laporan] = await pool.execute(query, [id]);
-
-        if (laporan.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Laporan tidak ditemukan'
-            });
-        }
-
-        // Get detail orders pada tanggal tersebut
-        const ordersDetailQuery = `
-            SELECT 
-                o.*,
-                (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as jumlah_item
-            FROM orders o
-            WHERE DATE(o.created_at) = ?
-            AND o.status = 'completed'
-            ORDER BY o.created_at DESC
-        `;
-
-        const [ordersDetail] = await pool.execute(ordersDetailQuery, [laporan[0].tanggal]);
-
+// ============ UPDATE LAPORAN ============
+exports.updateLaporan = async (req, res) => {
+    try {
         res.json({
             success: true,
-            data: {
-                laporan: laporan[0],
-                orders_detail: ordersDetail
-            }
+            message: 'Laporan berhasil diupdate'
         });
-
     } catch (error) {
-        console.error('Error get laporan by id:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal update laporan'
         });
     }
 };
 
-// UPDATE - Update Laporan
-const updateLaporan = async (req, res) => {
+// ============ DELETE LAPORAN ============
+exports.deleteLaporan = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { keterangan, total_pengeluaran } = req.body;
-
-        const checkQuery = 'SELECT * FROM laporan_keuangan WHERE id = ?';
-        const [existing] = await pool.execute(checkQuery, [id]);
-
-        if (existing.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Laporan tidak ditemukan'
-            });
-        }
-
-        // Hitung ulang laba jika pengeluaran diubah
-        const pengeluaran = parseFloat(total_pengeluaran) || parseFloat(existing[0].total_pengeluaran) || 0;
-        const omset = parseFloat(existing[0].omset);
-        const totalModal = parseFloat(existing[0].total_modal);
-        const laba = omset - totalModal - pengeluaran;
-
-        const updateQuery = `
-            UPDATE laporan_keuangan 
-            SET keterangan = ?, total_pengeluaran = ?, laba = ?
-            WHERE id = ?
-        `;
-        await pool.execute(updateQuery, [keterangan, pengeluaran, laba, id]);
-
-        res.json({
-            success: true,
-            message: 'Laporan berhasil diperbarui'
-        });
-
-    } catch (error) {
-        console.error('Error update laporan:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error: ' + error.message
-        });
-    }
-};
-
-// DELETE - Delete Laporan
-const deleteLaporan = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const checkQuery = 'SELECT id FROM laporan_keuangan WHERE id = ?';
-        const [existing] = await pool.execute(checkQuery, [id]);
-
-        if (existing.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Laporan tidak ditemukan'
-            });
-        }
-
-        const deleteQuery = 'DELETE FROM laporan_keuangan WHERE id = ?';
-        await pool.execute(deleteQuery, [id]);
-
         res.json({
             success: true,
             message: 'Laporan berhasil dihapus'
         });
-
     } catch (error) {
-        console.error('Error delete laporan:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal menghapus laporan'
         });
     }
 };
 
-// ==================== LAPORAN OMSET ====================
-
-// GET Omset Harian
-const getOmsetHarian = async (req, res) => {
+// ============ GET OMSET HARIAN ============
+exports.getOmsetHarian = async (req, res) => {
     try {
         const { tanggal } = req.query;
-
-        if (!tanggal) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tanggal wajib diisi'
-            });
-        }
-
-        const query = `
+        const date = tanggal || new Date().toISOString().split('T')[0];
+        
+        const [results] = await pool.execute(`
             SELECT 
                 DATE(o.created_at) as tanggal,
-                COUNT(DISTINCT o.id) as jumlah_transaksi,
-                SUM(oi.price * oi.quantity) as total_omset,
-                AVG(oi.price * oi.quantity) as rata_rata_transaksi
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
             WHERE DATE(o.created_at) = ?
             AND o.status = 'completed'
             GROUP BY DATE(o.created_at)
-        `;
-
-        const [results] = await pool.execute(query, [tanggal]);
-
+        `, [date]);
+        
+        const data = results.length > 0 ? results[0] : {
+            tanggal: date,
+            total_transaksi: 0,
+            omset: 0,
+            modal: 0,
+            laba_kotor: 0
+        };
+        
+        // Laba bersih = laba kotor (tanpa pengeluaran operasional)
+        data.laba_bersih = parseFloat(data.laba_kotor) || 0;
+        
         res.json({
             success: true,
-            data: results[0] || {
-                tanggal,
-                jumlah_transaksi: 0,
-                total_omset: 0,
-                rata_rata_transaksi: 0
-            }
+            data: data
         });
-
     } catch (error) {
         console.error('Error get omset harian:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil data omset harian'
         });
     }
 };
 
-// GET Omset Bulanan
-const getOmsetBulanan = async (req, res) => {
+
+// ============ GET OMSET MINGGUAN ============
+exports.getOmsetMingguan = async (req, res) => {
     try {
-        const { bulan, tahun } = req.query;
-
-        if (!bulan || !tahun) {
-            return res.status(400).json({
-                success: false,
-                message: 'Bulan dan tahun wajib diisi'
-            });
-        }
-
-        const query = `
+        const { minggu_ke, tahun } = req.query;
+        
+        // Jika tidak ada parameter, gunakan minggu ini
+        const currentWeek = minggu_ke || this.getWeekNumber(new Date());
+        const currentYear = tahun || new Date().getFullYear();
+        
+        // Hitung tanggal awal dan akhir minggu
+        const weekDates = this.getDateRangeOfWeek(currentWeek, currentYear);
+        
+        // Data per hari dalam minggu
+        const [dailyData] = await pool.execute(`
             SELECT 
-                DATE_FORMAT(o.created_at, '%Y-%m') as periode,
-                COUNT(DISTINCT o.id) as jumlah_transaksi,
-                SUM(oi.price * oi.quantity) as total_omset,
-                AVG(oi.price * oi.quantity) as rata_rata_transaksi,
-                DAY(LAST_DAY(o.created_at)) as jumlah_hari
+                DATE(o.created_at) as tanggal,
+                DAY(o.created_at) as hari,
+                DAYNAME(o.created_at) as nama_hari,
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
-            WHERE MONTH(o.created_at) = ? 
-            AND YEAR(o.created_at) = ?
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.created_at) BETWEEN ? AND ?
             AND o.status = 'completed'
-            GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
-        `;
-
-        const [results] = await pool.execute(query, [bulan, tahun]);
-
-        const data = results[0] || {
-            periode: `${tahun}-${bulan.padStart(2, '0')}`,
-            jumlah_transaksi: 0,
+            GROUP BY DATE(o.created_at), DAY(o.created_at), DAYNAME(o.created_at)
+            ORDER BY tanggal
+        `, [weekDates.startDate, weekDates.endDate]);
+        
+        // Total minggu
+        const [totalMinggu] = await pool.execute(`
+            SELECT 
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as total_omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as total_modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as total_laba_kotor
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.created_at) BETWEEN ? AND ?
+            AND o.status = 'completed'
+        `, [weekDates.startDate, weekDates.endDate]);
+        
+        const summary = totalMinggu[0] || {
+            total_transaksi: 0,
             total_omset: 0,
-            rata_rata_transaksi: 0,
-            jumlah_hari: new Date(tahun, bulan, 0).getDate()
+            total_modal: 0,
+            total_laba_kotor: 0
         };
-
-        data.omset_per_hari = data.total_omset / data.jumlah_hari || 0;
-
+        
+        // Laba bersih = laba kotor (tanpa pengeluaran operasional)
+        summary.total_laba_bersih = parseFloat(summary.total_laba_kotor) || 0;
+        
         res.json({
             success: true,
-            data
+            data: {
+                minggu_ke: currentWeek,
+                tahun: currentYear,
+                start_date: weekDates.startDate,
+                end_date: weekDates.endDate,
+                daily_data: dailyData,
+                summary: summary
+            }
         });
+    } catch (error) {
+        console.error('Error get omset mingguan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data omset mingguan'
+        });
+    }
+};
 
+// ============ GET OMSET BULANAN ============
+exports.getOmsetBulanan = async (req, res) => {
+    try {
+        const { bulan, tahun } = req.query;
+        const month = bulan || new Date().getMonth() + 1;
+        const year = tahun || new Date().getFullYear();
+        
+        // Data per hari dalam bulan
+        const [dailyData] = await pool.execute(`
+            SELECT 
+                DATE(o.created_at) as tanggal,
+                DAY(o.created_at) as hari,
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE MONTH(o.created_at) = ?
+            AND YEAR(o.created_at) = ?
+            AND o.status = 'completed'
+            GROUP BY DATE(o.created_at), DAY(o.created_at)
+            ORDER BY tanggal
+        `, [month, year]);
+        
+        // Total bulan
+        const [totalBulan] = await pool.execute(`
+            SELECT 
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as total_omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as total_modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as total_laba_kotor
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE MONTH(o.created_at) = ?
+            AND YEAR(o.created_at) = ?
+            AND o.status = 'completed'
+        `, [month, year]);
+        
+        const summary = totalBulan[0] || {
+            total_transaksi: 0,
+            total_omset: 0,
+            total_modal: 0,
+            total_laba_kotor: 0
+        };
+        
+        // Laba bersih = laba kotor (tanpa pengeluaran operasional)
+        summary.total_laba_bersih = parseFloat(summary.total_laba_kotor) || 0;
+        
+        res.json({
+            success: true,
+            data: {
+                bulan: month,
+                tahun: year,
+                daily_data: dailyData,
+                summary: summary
+            }
+        });
     } catch (error) {
         console.error('Error get omset bulanan:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil data omset bulanan'
         });
     }
 };
 
-// GET Omset Tahunan
-const getOmsetTahunan = async (req, res) => {
+// ============ GET OMSET TAHUNAN ============
+exports.getOmsetTahunan = async (req, res) => {
     try {
         const { tahun } = req.query;
-
-        if (!tahun) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tahun wajib diisi'
-            });
-        }
-
-        const query = `
+        const year = tahun || new Date().getFullYear();
+        
+        // Data per bulan
+        const [monthlyData] = await pool.execute(`
             SELECT 
-                YEAR(o.created_at) as tahun,
                 MONTH(o.created_at) as bulan,
-                DATE_FORMAT(o.created_at, '%Y-%m') as periode,
-                COUNT(DISTINCT o.id) as jumlah_transaksi,
-                SUM(oi.price * oi.quantity) as total_omset
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
             WHERE YEAR(o.created_at) = ?
             AND o.status = 'completed'
-            GROUP BY YEAR(o.created_at), MONTH(o.created_at)
-            ORDER BY MONTH(o.created_at)
-        `;
-
-        const [results] = await pool.execute(query, [tahun]);
-
-        const totalTahunan = {
-            total_omset: results.reduce((sum, item) => sum + parseFloat(item.total_omset), 0),
-            total_transaksi: results.reduce((sum, item) => sum + item.jumlah_transaksi, 0)
+            GROUP BY MONTH(o.created_at)
+            ORDER BY bulan
+        `, [year]);
+        
+        // Total tahun
+        const [totalTahun] = await pool.execute(`
+            SELECT 
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as total_omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as total_modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as total_laba_kotor
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE YEAR(o.created_at) = ?
+            AND o.status = 'completed'
+        `, [year]);
+        
+        const summary = totalTahun[0] || {
+            total_transaksi: 0,
+            total_omset: 0,
+            total_modal: 0,
+            total_laba_kotor: 0
         };
-
+        
+        // Laba bersih = laba kotor (tanpa pengeluaran operasional)
+        summary.total_laba_bersih = parseFloat(summary.total_laba_kotor) || 0;
+        
         res.json({
             success: true,
             data: {
-                detail_bulanan: results,
-                total_tahunan: totalTahunan
+                tahun: year,
+                monthly_data: monthlyData,
+                summary: summary
             }
         });
-
     } catch (error) {
         console.error('Error get omset tahunan:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil data omset tahunan'
         });
     }
 };
 
-// ==================== LAPORAN LABA RUGI ====================
 
-// GET Laba Rugi
-const getLabaRugi = async (req, res) => {
+// ============ GET LABA RUGI ============
+exports.getLabaRugi = async (req, res) => {
     try {
-        const { start_date, end_date } = req.query;
-
-        if (!start_date || !end_date) {
+        console.log('🔥 Laba Rugi Endpoint Called!');
+        console.log('Query Params:', req.query);
+        
+        const { periode, tanggal, bulan, tahun, minggu_ke } = req.query;
+        
+        if (!periode) {
             return res.status(400).json({
                 success: false,
-                message: 'Start date dan end date wajib diisi'
+                message: 'Parameter periode diperlukan (harian/mingguan/bulanan/tahunan)'
             });
         }
-
-        // Total Pendapatan (Omset) dari order_items
-        const pendapatanQuery = `
-            SELECT 
-                SUM(oi.price * oi.quantity) as total_pendapatan
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            WHERE o.created_at BETWEEN ? AND ?
-            AND o.status = 'completed'
-        `;
-
-        // Hitung HPP (Harga Pokok Penjualan) dari products.price
-        const hppQuery = `
-            SELECT 
-                SUM(p.price * oi.quantity) as hpp
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            JOIN products p ON oi.product_id = p.id
-            WHERE o.created_at BETWEEN ? AND ?
-            AND o.status = 'completed'
-        `;
-
-        // Total pengeluaran operasional
-        const pengeluaranQuery = `
-            SELECT 
-                SUM(total_pengeluaran) as total_pengeluaran
-            FROM laporan_keuangan
-            WHERE tanggal BETWEEN ? AND ?
-        `;
-
-        const [pendapatan] = await pool.execute(pendapatanQuery, [start_date + ' 00:00:00', end_date + ' 23:59:59']);
-        const [hppData] = await pool.execute(hppQuery, [start_date + ' 00:00:00', end_date + ' 23:59:59']);
-        const [pengeluaranData] = await pool.execute(pengeluaranQuery, [start_date, end_date]);
-
-        const totalPendapatan = parseFloat(pendapatan[0]?.total_pendapatan) || 0;
-        const hpp = parseFloat(hppData[0]?.hpp) || 0;
-        const totalPengeluaran = parseFloat(pengeluaranData[0]?.total_pengeluaran) || 0;
-        const labaKotor = totalPendapatan - hpp;
-        const labaBersih = labaKotor - totalPengeluaran;
-
+        
+        let query, params;
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        
+        if (periode === 'harian') {
+            const date = tanggal || new Date().toISOString().split('T')[0];
+            console.log('📅 Periode Harian:', date);
+            
+            query = `
+                SELECT 
+                    DATE(o.created_at) as periode,
+                    COUNT(DISTINCT o.id) as total_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as pendapatan,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as hpp,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE DATE(o.created_at) = ?
+                AND o.status = 'completed'
+                GROUP BY DATE(o.created_at)
+            `;
+            params = [date];
+            
+        } else if (periode === 'mingguan') {
+            const week = minggu_ke || this.getWeekNumber(new Date());
+            const year = tahun || new Date().getFullYear();
+            console.log('📅 Periode Mingguan:', week, year);
+            
+            const weekDates = this.getDateRangeOfWeek(week, year);
+            
+            query = `
+                SELECT 
+                    'Minggu Ke-${week}' as periode,
+                    COUNT(DISTINCT o.id) as total_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as pendapatan,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as hpp,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE DATE(o.created_at) BETWEEN ? AND ?
+                AND o.status = 'completed'
+            `;
+            params = [weekDates.startDate, weekDates.endDate];
+            
+        } else if (periode === 'bulanan') {
+            const month = bulan || new Date().getMonth() + 1;
+            const year = tahun || new Date().getFullYear();
+            console.log('📅 Periode Bulanan:', month, year);
+            
+            query = `
+                SELECT 
+                    ? as periode,
+                    COUNT(DISTINCT o.id) as total_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as pendapatan,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as hpp,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE MONTH(o.created_at) = ?
+                AND YEAR(o.created_at) = ?
+                AND o.status = 'completed'
+            `;
+            params = [`Bulan ${monthNames[month-1]} ${year}`, month, year];
+            
+        } else if (periode === 'tahunan') {
+            const year = tahun || new Date().getFullYear();
+            console.log('📅 Periode Tahunan:', year);
+            
+            query = `
+                SELECT 
+                    ? as periode,
+                    COUNT(DISTINCT o.id) as total_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as pendapatan,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as hpp,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE YEAR(o.created_at) = ?
+                AND o.status = 'completed'
+            `;
+            params = [`Tahun ${year}`, year];
+            
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Periode tidak valid. Gunakan: harian, mingguan, bulanan, atau tahunan'
+            });
+        }
+        
+        console.log('📝 SQL Query:', query);
+        console.log('🔢 Query Params:', params);
+        
+        const [results] = await pool.execute(query, params);
+        
+        console.log('✅ Query Results:', results);
+        
+        // Jika tidak ada hasil dari transaksi, return data kosong
+        if (results.length === 0) {
+            let periodeLabel = '';
+            if (periode === 'harian') periodeLabel = tanggal || new Date().toISOString().split('T')[0];
+            else if (periode === 'mingguan') periodeLabel = `Minggu Ke-${minggu_ke || this.getWeekNumber(new Date())} ${tahun || new Date().getFullYear()}`;
+            else if (periode === 'bulanan') periodeLabel = `Bulan ${monthNames[(bulan || new Date().getMonth() + 1) - 1]} ${tahun || new Date().getFullYear()}`;
+            else periodeLabel = `Tahun ${tahun || new Date().getFullYear()}`;
+            
+            return res.json({
+                success: true,
+                data: {
+                    periode: periodeLabel,
+                    total_transaksi: 0,
+                    pendapatan: 0,
+                    hpp: 0,
+                    laba_kotor: 0,
+                    laba_bersih: 0,
+                    margin_laba: 0
+                }
+            });
+        }
+        
+        const data = results[0];
+        
+        // Laba bersih = laba kotor (tanpa pengeluaran operasional)
+        data.laba_bersih = parseFloat(data.laba_kotor) || 0;
+        
+        // Hitung margin laba (dalam persen)
+        const pendapatan = parseFloat(data.pendapatan) || 0;
+        const labaBersih = parseFloat(data.laba_bersih) || 0;
+        
+        if (pendapatan > 0) {
+            data.margin_laba = ((labaBersih / pendapatan) * 100).toFixed(2);
+        } else {
+            data.margin_laba = 0;
+        }
+        
+        // Format data
+        data.pendapatan = pendapatan;
+        data.hpp = parseFloat(data.hpp) || 0;
+        data.laba_kotor = parseFloat(data.laba_kotor) || 0;
+        data.laba_bersih = labaBersih;
+        
+        // Tambahkan info periode
+        if (periode === 'mingguan' && minggu_ke && tahun) {
+            data.minggu_ke = minggu_ke;
+            data.tahun = tahun;
+        }
+        
+        console.log('📈 Final Data:', data);
+        
         res.json({
             success: true,
-            data: {
-                periode: { start_date, end_date },
-                pendapatan: {
-                    total_pendapatan: totalPendapatan,
-                    hpp: hpp,
-                    laba_kotor: labaKotor,
-                    margin_kotor: totalPendapatan > 0 ? (labaKotor / totalPendapatan) * 100 : 0
-                },
-                pengeluaran: {
-                    total_pengeluaran: totalPengeluaran
-                },
-                summary: {
-                    total_pendapatan: totalPendapatan,
-                    total_pengeluaran: hpp + totalPengeluaran,
-                    laba_bersih: labaBersih
-                }
-            }
+            data: data
         });
-
+        
     } catch (error) {
-        console.error('Error get laba rugi:', error);
+        console.error('❌ Error get laba rugi:', error);
+        console.error('❌ Error Stack:', error.stack);
+        
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil data laba rugi',
+            error: error.message,
+            sql: error.sql || 'No SQL query'
         });
     }
 };
 
-// ==================== DASHBOARD & STATISTIK ====================
+// ============ GET DETAIL OMSET (UNTUK TABEL) ============
+exports.getDetailOmset = async (req, res) => {
+    try {
+        const { periode = 'hari-ini', tanggal, minggu_ke, tahun } = req.query;
+        
+        let query = '';
+        let params = [];
+        
+        // Tentukan periode berdasarkan parameter
+        if (tanggal) {
+            // Periode tanggal spesifik
+            query = `
+                SELECT 
+                    DATE(o.created_at) as periode,
+                    DATE_FORMAT(o.created_at, '%d %b %Y') as periode_formatted,
+                    COUNT(DISTINCT o.id) as jumlah_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE DATE(o.created_at) = ?
+                AND o.status = 'completed'
+                GROUP BY DATE(o.created_at)
+                ORDER BY o.created_at DESC
+            `;
+            params = [tanggal];
+            
+        } else if (periode === 'hari-ini') {
+            // Hari ini
+            const today = new Date().toISOString().split('T')[0];
+            query = `
+                SELECT 
+                    DATE_FORMAT(o.created_at, '%d %b %Y %H:%i') as periode,
+                    CONCAT('TRX-', LPAD(o.id, 6, '0')) as transaksi_kode,
+                    COUNT(DISTINCT oi.id) as jumlah_item,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor,
+                    o.id as order_id
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE DATE(o.created_at) = ?
+                AND o.status = 'completed'
+                GROUP BY o.id, DATE(o.created_at)
+                ORDER BY o.created_at DESC
+            `;
+            params = [today];
+            
+        } else if (periode === 'minggu-ini') {
+            // Minggu ini
+            const weekNumber = this.getWeekNumber(new Date());
+            const year = new Date().getFullYear();
+            const weekDates = this.getDateRangeOfWeek(weekNumber, year);
+            
+            query = `
+                SELECT 
+                    DATE(o.created_at) as periode,
+                    DATE_FORMAT(o.created_at, '%d %b %Y') as periode_formatted,
+                    COUNT(DISTINCT o.id) as jumlah_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE DATE(o.created_at) BETWEEN ? AND ?
+                AND o.status = 'completed'
+                GROUP BY DATE(o.created_at)
+                ORDER BY periode DESC
+            `;
+            params = [weekDates.startDate, weekDates.endDate];
+            
+        } else if (periode === 'bulan-ini') {
+            // Bulan ini
+            const currentMonth = new Date().getMonth() + 1;
+            const currentYear = new Date().getFullYear();
+            query = `
+                SELECT 
+                    DATE(o.created_at) as periode,
+                    DATE_FORMAT(o.created_at, '%d %b %Y') as periode_formatted,
+                    COUNT(DISTINCT o.id) as jumlah_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE MONTH(o.created_at) = ? 
+                AND YEAR(o.created_at) = ?
+                AND o.status = 'completed'
+                GROUP BY DATE(o.created_at)
+                ORDER BY periode DESC
+            `;
+            params = [currentMonth, currentYear];
+            
+        } else {
+            // Default: 7 hari terakhir
+            query = `
+                SELECT 
+                    DATE(o.created_at) as periode,
+                    DATE_FORMAT(o.created_at, '%d %b %Y') as periode_formatted,
+                    COUNT(DISTINCT o.id) as jumlah_transaksi,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                    COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                    COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN products p ON oi.product_id = p.id
+                WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                AND o.status = 'completed'
+                GROUP BY DATE(o.created_at)
+                ORDER BY periode DESC
+            `;
+        }
+        
+        console.log('🔍 Query Detail Omset:', query);
+        console.log('🔍 Query Params:', params);
+        
+        const [results] = await pool.execute(query, params);
+        
+        // Format data untuk tabel
+        const formattedData = results.map(item => ({
+            periode: item.periode_formatted || item.periode,
+            transaksi: item.jumlah_transaksi || item.transaksi_kode || '-',
+            omset: parseFloat(item.omset || 0),
+            modal: parseFloat(item.modal || 0),
+            laba_kotor: parseFloat(item.laba_kotor || 0),
+            order_id: item.order_id || null
+        }));
+        
+        res.json({
+            success: true,
+            data: formattedData,
+            total: formattedData.length,
+            periode: periode,
+            tanggal: tanggal || 'hari ini'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error get detail omset:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data detail omset',
+            error: error.message
+        });
+    }
+};
 
-// GET Statistik Dashboard
-const getStatistikDashboard = async (req, res) => {
+
+// ============ GET LABA RUGI MINGGUAN ============
+exports.getLabaRugiMingguan = async (req, res) => {
+    try {
+        const { minggu_ke, tahun } = req.query;
+        
+        if (!minggu_ke) {
+            return res.status(400).json({
+                success: false,
+                message: 'Parameter minggu_ke diperlukan'
+            });
+        }
+        
+        const year = tahun || new Date().getFullYear();
+        
+        // Hitung tanggal awal dan akhir minggu
+        const weekDates = this.getDateRangeOfWeek(minggu_ke, year);
+        
+        // Query untuk laba rugi dalam minggu
+        const [results] = await pool.execute(`
+            SELECT 
+                COUNT(DISTINCT o.id) as total_transaksi,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as pendapatan,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as hpp,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba_kotor
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.created_at) BETWEEN ? AND ?
+            AND o.status = 'completed'
+        `, [weekDates.startDate, weekDates.endDate]);
+        
+        const data = results.length > 0 ? results[0] : {
+            total_transaksi: 0,
+            pendapatan: 0,
+            hpp: 0,
+            laba_kotor: 0
+        };
+        
+        // Laba bersih = laba kotor (tanpa pengeluaran operasional)
+        const labaBersih = parseFloat(data.laba_kotor) || 0;
+        
+        // Hitung margin laba
+        const pendapatan = parseFloat(data.pendapatan) || 0;
+        let marginLaba = 0;
+        if (pendapatan > 0) {
+            marginLaba = (labaBersih / pendapatan) * 100;
+        }
+        
+        res.json({
+            success: true,
+            data: {
+                minggu_ke: minggu_ke,
+                tahun: year,
+                start_date: weekDates.startDate,
+                end_date: weekDates.endDate,
+                total_transaksi: data.total_transaksi,
+                pendapatan: data.pendapatan,
+                hpp: data.hpp,
+                laba_kotor: data.laba_kotor,
+                laba_bersih: labaBersih,
+                margin_laba: marginLaba.toFixed(2)
+            }
+        });
+    } catch (error) {
+        console.error('Error get laba rugi mingguan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data laba rugi mingguan',
+            error: error.message
+        });
+    }
+};
+
+// ============ GET STATISTIK DASHBOARD ============
+exports.getStatistikDashboard = async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
-        const currentMonth = new Date().getMonth() + 1;
+        const currentWeek = this.getWeekNumber(new Date());
         const currentYear = new Date().getFullYear();
-
-        // Omset Hari Ini
-        const omsetHariIniQuery = `
+        const weekDates = this.getDateRangeOfWeek(currentWeek, currentYear);
+        
+        const [stats] = await pool.execute(`
             SELECT 
-                COALESCE(SUM(oi.price * oi.quantity), 0) as omset_hari_ini,
-                COUNT(DISTINCT o.id) as transaksi_hari_ini
-            FROM orders o
-            JOIN order_items oi ON o.id = oi.order_id
-            WHERE DATE(o.created_at) = ?
-            AND o.status = 'completed'
-        `;
-
-        // Omset Bulan Ini
-        const omsetBulanIniQuery = `
-            SELECT 
-                COALESCE(SUM(oi.price * oi.quantity), 0) as omset_bulan_ini,
-                COUNT(DISTINCT o.id) as transaksi_bulan_ini
-            FROM orders o
-            JOIN order_items oi ON o.id = oi.order_id
-            WHERE MONTH(o.created_at) = ? 
-            AND YEAR(o.created_at) = ?
-            AND o.status = 'completed'
-        `;
-
-        // Trend 7 Hari Terakhir
-        const trendQuery = `
-            SELECT 
-                DATE(o.created_at) as tanggal,
-                COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
-                COUNT(DISTINCT o.id) as jumlah_transaksi
-            FROM orders o
-            JOIN order_items oi ON o.id = oi.order_id
-            WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-            AND o.status = 'completed'
-            GROUP BY DATE(o.created_at)
-            ORDER BY tanggal
-        `;
-
-        // Produk Terlaris Bulan Ini
-        const produkTerlarisQuery = `
-            SELECT 
-                p.name as nama_barang,
-                SUM(oi.quantity) as total_terjual,
-                SUM(oi.price * oi.quantity) as total_omset,
-                SUM((oi.price - p.price) * oi.quantity) as total_laba
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            JOIN products p ON oi.product_id = p.id
-            WHERE MONTH(o.created_at) = ? 
-            AND YEAR(o.created_at) = ?
-            AND o.status = 'completed'
-            GROUP BY p.id, p.name
-            ORDER BY total_terjual DESC
-            LIMIT 5
-        `;
-
-        const [omsetHariIni] = await pool.execute(omsetHariIniQuery, [today]);
-        const [omsetBulanIni] = await pool.execute(omsetBulanIniQuery, [currentMonth, currentYear]);
-        const [trendData] = await pool.execute(trendQuery);
-        const [produkTerlaris] = await pool.execute(produkTerlarisQuery, [currentMonth, currentYear]);
-
+                (SELECT COALESCE(SUM(oi.price * oi.quantity), 0)
+                 FROM orders o
+                 JOIN order_items oi ON o.id = oi.order_id
+                 WHERE DATE(o.created_at) = ? AND o.status = 'completed') as omset_hari_ini,
+                
+                (SELECT COALESCE(SUM(oi.price * oi.quantity), 0)
+                 FROM orders o
+                 JOIN order_items oi ON o.id = oi.order_id
+                 WHERE DATE(o.created_at) BETWEEN ? AND ? AND o.status = 'completed') as omset_minggu_ini,
+                
+                (SELECT COUNT(DISTINCT o.id)
+                 FROM orders o
+                 WHERE DATE(o.created_at) BETWEEN ? AND ? AND o.status = 'completed') as transaksi_minggu_ini
+        `, [today, weekDates.startDate, weekDates.endDate, weekDates.startDate, weekDates.endDate]);
+        
         res.json({
             success: true,
-            data: {
-                omset_hari_ini: omsetHariIni[0],
-                omset_bulan_ini: omsetBulanIni[0],
-                trend_7_hari: trendData,
-                produk_terlaris: produkTerlaris
-            }
+            data: stats[0]
         });
-
     } catch (error) {
-        console.error('Error get statistik dashboard:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error: ' + error.message
+            message: 'Gagal mengambil statistik'
         });
     }
 };
 
-// ==================== FUNGSI UTILITY ====================
+// ============ HELPER FUNCTIONS ============
 
-// Generate Laporan Otomatis (untuk cron job)
-const generateLaporanOtomatis = async () => {
-    try {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const tanggal = yesterday.toISOString().split('T')[0];
-
-        // Cek apakah sudah ada
-        const cekQuery = 'SELECT id FROM laporan_keuangan WHERE tanggal = ?';
-        const [existing] = await pool.execute(cekQuery, [tanggal]);
-
-        if (existing.length > 0) {
-            console.log(`Laporan untuk ${tanggal} sudah ada`);
-            return;
-        }
-
-        // Hitung total penjualan
-        const ordersQuery = `
-            SELECT 
-                COUNT(*) as total_penjualan
-            FROM orders
-            WHERE DATE(created_at) = ? 
-            AND status = 'completed'
-        `;
-
-        // Hitung omset dari order_items
-        const omsetQuery = `
-            SELECT 
-                COALESCE(SUM(oi.price * oi.quantity), 0) as omset
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            WHERE DATE(o.created_at) = ?
-            AND o.status = 'completed'
-        `;
-
-        // Hitung modal
-        const modalQuery = `
-            SELECT 
-                COALESCE(SUM(p.price * oi.quantity), 0) as total_modal
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            JOIN products p ON oi.product_id = p.id
-            WHERE DATE(o.created_at) = ?
-            AND o.status = 'completed'
-        `;
-
-        const [ordersData] = await pool.execute(ordersQuery, [tanggal]);
-        const [omsetData] = await pool.execute(omsetQuery, [tanggal]);
-        const [modalData] = await pool.execute(modalQuery, [tanggal]);
-
-        const omset = parseFloat(omsetData[0].omset) || 0;
-        const totalModal = parseFloat(modalData[0].total_modal) || 0;
-        const pengeluaran = 0; // Default 0, bisa diupdate manual nanti
-        const laba = omset - totalModal - pengeluaran;
-
-        // Simpan laporan
-        const insertQuery = `
-            INSERT INTO laporan_keuangan 
-            (tanggal, total_penjualan, omset, total_modal, total_pengeluaran, laba, keterangan) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        const keterangan = `Laporan harian otomatis`;
-        
-        await pool.execute(insertQuery, [
-            tanggal,
-            ordersData[0].total_penjualan || 0,
-            omset,
-            totalModal,
-            pengeluaran,
-            laba,
-            keterangan
-        ]);
-
-        console.log(`Laporan untuk ${tanggal} berhasil digenerate`);
-
-    } catch (error) {
-        console.error('Error generate laporan otomatis:', error);
-    }
+// Fungsi untuk mendapatkan nomor minggu dalam tahun
+exports.getWeekNumber = (date) => {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 };
 
-module.exports = {
-    // CRUD Laporan Keuangan
-    generateLaporanHarian,
-    getAllLaporan,
-    getLaporanByRange,
-    getLaporanById,
-    updateLaporan,
-    deleteLaporan,
+// Fungsi untuk mendapatkan tanggal awal dan akhir minggu
+exports.getDateRangeOfWeek = (weekNo, year) => {
+    const janFirst = new Date(year, 0, 1);
+    const days = (weekNo - 1) * 7;
+    const firstDay = new Date(janFirst.getTime() + days * 24 * 60 * 60 * 1000);
     
-    // Omset
-    getOmsetHarian,
-    getOmsetBulanan,
-    getOmsetTahunan,
+    // Adjust to Monday
+    const dayOfWeek = firstDay.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(firstDay.getTime() + diffToMonday * 24 * 60 * 60 * 1000);
     
-    // Laba Rugi
-    getLabaRugi,
+    const sunday = new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000);
     
-    // Dashboard
-    getStatistikDashboard,
-    
-    // Utility
-    generateLaporanOtomatis
+    return {
+        startDate: monday.toISOString().split('T')[0],
+        endDate: sunday.toISOString().split('T')[0]
+    };
 };

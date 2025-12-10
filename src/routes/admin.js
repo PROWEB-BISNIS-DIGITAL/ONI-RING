@@ -6,7 +6,7 @@ const dashboardController = require('../controllers/dashboardController');
 const ordersController = require('../controllers/ordersController');
 const productsController = require('../controllers/productsController');
 const usersController = require('../controllers/usersController');
-const keuanganController = require('../controllers/keuanganController')
+const keuanganController = require('../controllers/keuanganController');
 
 // Middleware untuk check admin
 const { isAdmin } = require('../middleware/authMiddleware');
@@ -36,11 +36,8 @@ router.get('/users/:userId', usersController.getUserById);
 router.post('/users', usersController.addUser);
 router.put('/users/:userId', usersController.updateUser);
 router.delete('/users/:userId', usersController.deleteUser);
-
 router.post('/users/:userId/toggle-role', usersController.toggleUserRole);
 router.post('/users/:userId/toggle-status', usersController.toggleUserStatus);
-
-
 
 // ============ MANAJEMEN KEUANGAN (MAIN PAGE) ============
 router.get('/managementU', async (req, res) => {
@@ -49,8 +46,10 @@ router.get('/managementU', async (req, res) => {
         const today = new Date().toISOString().split('T')[0];
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
+        const currentWeek = keuanganController.getWeekNumber(new Date());
+        const weekDates = keuanganController.getDateRangeOfWeek(currentWeek, currentYear);
         
-        // 1. OMSET HARI INI - FIXED: pakai order_items
+        // 1. OMSET HARI INI
         const [omsetHariIniResult] = await pool.execute(
             `SELECT 
                 COALESCE(SUM(oi.price * oi.quantity), 0) as omset_hari_ini,
@@ -76,7 +75,19 @@ router.get('/managementU', async (req, res) => {
             [yesterdayStr]
         );
         
-        // 3. OMSET BULAN INI - FIXED
+        // 3. OMSET MINGGU INI
+        const [omsetMingguIniResult] = await pool.execute(
+            `SELECT 
+                COALESCE(SUM(oi.price * oi.quantity), 0) as omset_minggu_ini,
+                COUNT(DISTINCT o.id) as transaksi_minggu_ini
+             FROM orders o
+             JOIN order_items oi ON o.id = oi.order_id
+             WHERE DATE(o.created_at) BETWEEN ? AND ?
+             AND o.status = 'completed'`,
+            [weekDates.startDate, weekDates.endDate]
+        );
+        
+        // 4. OMSET BULAN INI
         const [omsetBulanIniResult] = await pool.execute(
             `SELECT COALESCE(SUM(oi.price * oi.quantity), 0) as omset_bulan_ini 
              FROM orders o
@@ -87,6 +98,7 @@ router.get('/managementU', async (req, res) => {
             [currentMonth, currentYear]
         );
         
+        // 5. MODAL HARI INI
         const [modalHariIniResult] = await pool.execute(
             `SELECT 
                 COALESCE(SUM(products.harga_beli * oi.quantity), 0) as modal_hari_ini,
@@ -98,7 +110,19 @@ router.get('/managementU', async (req, res) => {
              AND o.status = 'completed'`,
             [today]
         );
-        // 4. MODAL BULAN INI
+        
+        // 6. MODAL MINGGU INI
+        const [modalMingguIniResult] = await pool.execute(
+            `SELECT COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal_minggu_ini
+             FROM order_items oi
+             JOIN orders o ON oi.order_id = o.id
+             JOIN products p ON oi.product_id = p.id
+             WHERE DATE(o.created_at) BETWEEN ? AND ?
+             AND o.status = 'completed'`,
+            [weekDates.startDate, weekDates.endDate]
+        );
+        
+        // 7. MODAL BULAN INI
         const [modalBulanIniResult] = await pool.execute(
             `SELECT COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal_bulan_ini
              FROM order_items oi
@@ -110,16 +134,16 @@ router.get('/managementU', async (req, res) => {
             [currentMonth, currentYear]
         );
         
-        // 4.5 PENGELUARAN BULAN INI - NEW
-        const [pengeluaranBulanIniResult] = await pool.execute(
-            `SELECT COALESCE(SUM(total_pengeluaran), 0) as pengeluaran_bulan_ini
-             FROM laporan_keuangan
-             WHERE MONTH(tanggal) = ?
-             AND YEAR(tanggal) = ?`,
-            [currentMonth, currentYear]
+        // 8. TOTAL TRANSAKSI MINGGU INI
+        const [totalTransaksiMingguResult] = await pool.execute(
+            `SELECT COUNT(DISTINCT o.id) as total_transaksi_minggu_ini 
+             FROM orders o
+             WHERE DATE(o.created_at) BETWEEN ? AND ?
+             AND o.status = 'completed'`,
+            [weekDates.startDate, weekDates.endDate]
         );
         
-        // 5. TOTAL TRANSAKSI BULAN INI
+        // 9. TOTAL TRANSAKSI BULAN INI
         const [totalTransaksiBulanResult] = await pool.execute(
             `SELECT COUNT(DISTINCT o.id) as total_transaksi_bulan_ini 
              FROM orders o
@@ -129,26 +153,25 @@ router.get('/managementU', async (req, res) => {
             [currentMonth, currentYear]
         );
         
-        // 6. PRODUK TERLARIS - SUDAH BENAR
+        // 10. PRODUK TERLARIS MINGGU INI
         const [produkTerlarisResult] = await pool.execute(
             `SELECT 
                 p.name as nama_barang,
                 SUM(oi.quantity) as total_terjual,
                 SUM(oi.price * oi.quantity) as total_omset,
-                SUM((oi.price - p.price) * oi.quantity) as total_laba
+                SUM((oi.price - p.harga_beli) * oi.quantity) as total_laba
              FROM order_items oi
              JOIN orders o ON oi.order_id = o.id
              JOIN products p ON oi.product_id = p.id
-             WHERE MONTH(o.created_at) = ?
-             AND YEAR(o.created_at) = ?
+             WHERE DATE(o.created_at) BETWEEN ? AND ?
              AND o.status = 'completed'
              GROUP BY p.id, p.name
              ORDER BY total_terjual DESC
              LIMIT 5`,
-            [currentMonth, currentYear]
+            [weekDates.startDate, weekDates.endDate]
         );
         
-        // 7. DATA CHART 7 HARI - FIXED
+        // 11. DATA CHART 7 HARI
         const [trend7HariResult] = await pool.execute(
             `SELECT 
                 DATE(o.created_at) as tanggal,
@@ -162,56 +185,49 @@ router.get('/managementU', async (req, res) => {
              ORDER BY tanggal`
         );
         
-        // 8. DATA LAPORAN KEUANGAN
-        let laporanResult = [];
-        try {
-            const [results] = await pool.execute(`
-                SELECT 
-                    id,
-                    tanggal,
-                    total_penjualan,
-                    CAST(omset AS DECIMAL(15,2)) as omset,
-                    CAST(total_modal AS DECIMAL(15,2)) as total_modal,
-                    CAST(total_pengeluaran AS DECIMAL(15,2)) as total_pengeluaran,
-                    CAST(laba AS DECIMAL(15,2)) as laba,
-                    keterangan,
-                    created_at
-                FROM laporan_keuangan 
-                ORDER BY tanggal DESC 
-                LIMIT 30
-            `);
-            
-            laporanResult = results.map(item => {
-                const omset = parseFloat(item.omset) || 0;
-                const laba = parseFloat(item.laba) || 0;
-                const margin = omset > 0 ? (laba / omset) * 100 : 0;
-                
-                return {
-                    ...item,
-                    margin_percent: Math.round(margin * 100) / 100
-                };
-            });
-            
-        } catch (error) {
-            console.error('❌ Error loading laporan:', error.message);
-            laporanResult = [];
-        }
+        // 12. DATA MINGGUAN UNTUK CHART
+        const [trendMingguanResult] = await pool.execute(
+            `SELECT 
+                DATE(o.created_at) as tanggal,
+                DAYNAME(o.created_at) as hari,
+                COALESCE(SUM(oi.price * oi.quantity), 0) as omset,
+                COALESCE(SUM(p.harga_beli * oi.quantity), 0) as modal,
+                COALESCE(SUM((oi.price - p.harga_beli) * oi.quantity), 0) as laba
+             FROM orders o
+             JOIN order_items oi ON o.id = oi.order_id
+             JOIN products p ON oi.product_id = p.id
+             WHERE DATE(o.created_at) BETWEEN ? AND ?
+             AND o.status = 'completed'
+             GROUP BY DATE(o.created_at), DAYNAME(o.created_at)
+             ORDER BY tanggal`,
+            [weekDates.startDate, weekDates.endDate]
+        );
         
         // HITUNG DATA
         const omsetHariIni = parseFloat(omsetHariIniResult[0].omset_hari_ini) || 0;
         const omsetKemarin = parseFloat(omsetKemarinResult[0].omset_kemarin) || 0;
+        const omsetMingguIni = parseFloat(omsetMingguIniResult[0].omset_minggu_ini) || 0;
         const omsetBulanIni = parseFloat(omsetBulanIniResult[0].omset_bulan_ini) || 0;
         const modalHariIni = parseFloat(modalHariIniResult[0].modal_hari_ini) || 0;
+        const modalMingguIni = parseFloat(modalMingguIniResult[0].modal_minggu_ini) || 0;
         const modalBulanIni = parseFloat(modalBulanIniResult[0].modal_bulan_ini) || 0;
-        const pengeluaranBulanIni = parseFloat(pengeluaranBulanIniResult[0].pengeluaran_bulan_ini) || 0;
-        // const labaBulanIni = omsetBulanIni - modalBulanIni - pengeluaranBulanIni;
-        const labaBulanIni = omsetHariIni - modalHariIni;
+        const labaHariIni = omsetHariIni - modalHariIni;
+        const labaMingguIni = omsetMingguIni - modalMingguIni;
+        const labaBulanIni = omsetBulanIni - modalBulanIni;
+        const totalTransaksiMinggu = totalTransaksiMingguResult[0].total_transaksi_minggu_ini || 0;
         const totalTransaksiBulan = totalTransaksiBulanResult[0].total_transaksi_bulan_ini || 0;
         
         // Hitung trend omset
         const trendOmset = omsetKemarin > 0 
             ? parseFloat(((omsetHariIni - omsetKemarin) / omsetKemarin * 100).toFixed(2))
             : 0;
+        
+        // Hitung margin minggu ini
+        let marginMingguIni = 0;
+        if (omsetMingguIni > 0) {
+            marginMingguIni = (labaMingguIni / omsetMingguIni) * 100;
+            marginMingguIni = Math.round(marginMingguIni * 100) / 100;
+        }
         
         // Hitung margin bulan ini
         let marginBulanIni = 0;
@@ -220,40 +236,42 @@ router.get('/managementU', async (req, res) => {
             marginBulanIni = Math.round(marginBulanIni * 100) / 100;
         }
         
-        // Hitung rata-rata transaksi
-        const rataTransaksi = totalTransaksiBulan > 0
-            ? Math.round(omsetBulanIni / totalTransaksiBulan)
+        // Hitung rata-rata transaksi minggu ini
+        const rataTransaksiMinggu = totalTransaksiMinggu > 0
+            ? Math.round(omsetMingguIni / totalTransaksiMinggu)
             : 0;
         
-        // Total produk terjual
+        // Total produk terjual minggu ini
         const totalProdukTerjual = produkTerlarisResult.reduce((sum, item) => 
             sum + (item.total_terjual || 0), 0);
         
-        // Data untuk view - FIXED: hapus JSON.stringify
+        // Data untuk view
         const data = {
             // Statistik Cards
             omset_hari_ini: omsetHariIni,
             trend_omset: trendOmset,
+            omset_minggu_ini: omsetMingguIni,
+            laba_minggu_ini: labaMingguIni,
+            margin_minggu_ini: marginMingguIni,
             laba_bulan_ini: labaBulanIni,
             margin_bulan_ini: marginBulanIni,
+            total_transaksi_minggu_ini: totalTransaksiMinggu,
             total_transaksi_bulan_ini: totalTransaksiBulan,
-            rata_transaksi_bulan_ini: rataTransaksi,
-            pengeluaran_bulan_ini: pengeluaranBulanIni,
-            persen_pengeluaran: omsetBulanIni > 0 ? (pengeluaranBulanIni / omsetBulanIni) * 100 : 0,
+            rata_transaksi_minggu_ini: rataTransaksiMinggu,
             
-            // Data untuk Charts - FIXED: kirim as object, bukan string
+            // Data untuk Charts
             chart_omset: trend7HariResult.map(item => ({
                 tanggal: item.tanggal,
                 omset: parseFloat(item.omset) || 0
             })),
-            chart_laba: {
-                total_laba_kotor: labaBulanIni + pengeluaranBulanIni // Laba sebelum pengeluaran
-            },
-            chart_pengeluaran: {
-                modal: modalBulanIni,
-                pengeluaran: pengeluaranBulanIni,
-                laba_bersih: labaBulanIni
-            },
+            
+            // Data chart mingguan (7 hari terakhir untuk omset)
+            chart_mingguan: trendMingguanResult.map(item => ({
+                tanggal: item.tanggal,
+                hari: item.hari,
+                omset: parseFloat(item.omset) || 0,
+                laba: parseFloat(item.laba) || 0
+            })),
             
             // Produk Terlaris
             produk_terlaris: produkTerlarisResult.map(item => ({
@@ -265,25 +283,15 @@ router.get('/managementU', async (req, res) => {
             
             // Summary Data
             total_omset: omsetBulanIni,
-            max_omset: trend7HariResult.length > 0 
-                ? Math.max(...trend7HariResult.map(t => parseFloat(t.omset) || 0))
-                : 0,
-            min_omset: trend7HariResult.length > 0 
-                ? Math.min(...trend7HariResult.map(t => parseFloat(t.omset) || 0))
-                : 0,
-            avg_omset: trend7HariResult.length > 0 
-                ? Math.round(omsetBulanIni / trend7HariResult.length) 
-                : 0,
             total_laba: labaBulanIni,
-            max_laba: labaBulanIni * 0.4,
-            min_laba: labaBulanIni * 0.1,
-            avg_margin: parseFloat(marginBulanIni),
             total_transaksi: totalTransaksiBulan,
-            transaksi_per_hari: totalTransaksiBulan > 0 
-                ? parseFloat((totalTransaksiBulan / 30).toFixed(1))
-                : 0,
-            avg_transaksi: rataTransaksi,
-            total_produk_terjual: totalProdukTerjual
+            total_produk_terjual: totalProdukTerjual,
+            
+            // Info minggu
+            minggu_ke: currentWeek,
+            start_date: weekDates.startDate,
+            end_date: weekDates.endDate,
+            tahun: currentYear
         };
         
         // Render halaman
@@ -291,7 +299,7 @@ router.get('/managementU', async (req, res) => {
             title: 'Laporan Keuangan',
             user: req.session.user,
             data: data,
-            laporan: laporanResult || []
+            laporan: []  // Kosong karena tidak menggunakan laporan_keuangan lagi
         });
         
     } catch (error) {
@@ -305,33 +313,26 @@ router.get('/managementU', async (req, res) => {
 
 // ============ KEUANGAN API ROUTES ============
 
-// Generate Laporan Harian (AJAX)
+// Generate Laporan Harian (AJAX) - Tidak digunakan lagi
 router.post('/keuangan/generate', keuanganController.generateLaporanHarian);
 
-// Get Laporan dengan Pagination (AJAX)
+// Get Laporan (AJAX) - Tidak digunakan lagi
 router.get('/keuangan/laporan', keuanganController.getAllLaporan);
 
-// Get Laporan by Range (AJAX)
-router.get('/keuangan/laporan/range', keuanganController.getLaporanByRange);
-
-// Get Laporan by ID (AJAX)
-router.get('/keuangan/laporan/:id', keuanganController.getLaporanById);
-
-// Update Laporan (AJAX)
-router.put('/keuangan/laporan/:id', keuanganController.updateLaporan);
-
-// Delete Laporan (AJAX)
-router.delete('/keuangan/laporan/:id', keuanganController.deleteLaporan);
-
-// Omset Routes (AJAX)
+// ============ OMSET ROUTES (AJAX) ============
 router.get('/keuangan/omset/harian', keuanganController.getOmsetHarian);
+router.get('/keuangan/omset/mingguan', keuanganController.getOmsetMingguan);
 router.get('/keuangan/omset/bulanan', keuanganController.getOmsetBulanan);
 router.get('/keuangan/omset/tahunan', keuanganController.getOmsetTahunan);
 
-// Laba Rugi (AJAX)
+// ============ LABA RUGI ROUTES (AJAX) ============
 router.get('/keuangan/laba-rugi', keuanganController.getLabaRugi);
+router.get('/keuangan/laba-rugi/mingguan', keuanganController.getLabaRugiMingguan);
 
-// Dashboard Statistik (AJAX)
+// ============ DETAIL OMSET ROUTES (AJAX) ============
+router.get('/keuangan/detail-omset', keuanganController.getDetailOmset);
+
+// ============ DASHBOARD STATISTIK (AJAX) ============
 router.get('/keuangan/dashboard-statistik', keuanganController.getStatistikDashboard);
 
 module.exports = router;
