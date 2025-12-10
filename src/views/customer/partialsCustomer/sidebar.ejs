@@ -52,6 +52,11 @@
                     <i class="fas fa-user-circle mr-2"></i>
                     <%= user.name %>
                 </span>
+                    <a href="/auth/logout"
+                    class="bg-blue-500 hover:bg-blue-600 px-3 py-2 lg:px-4 lg:py-2 rounded-lg transition duration-300 text-sm lg:text-base">
+                    <i class="fas fa-home mr-1 lg:mr-2"></i>
+                    <span class="hidden sm:inline">Home</span>
+                </a>
                 <a href="/auth/logout"
                     class="bg-red-500 hover:bg-red-600 px-3 py-2 lg:px-4 lg:py-2 rounded-lg transition duration-300 text-sm lg:text-base">
                     <i class="fas fa-sign-out-alt mr-1 lg:mr-2"></i>
@@ -100,16 +105,6 @@
                     </li>
                 </ul>
 
-                <h3 class="text-lg font-semibold mt-8 mb-4 text-gray-400">QUICK LINKS</h3>
-                <ul class="space-y-2">
-                    <li>
-                        <a href="/" target="_blank"
-                            class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition duration-300">
-                            <i class="fas fa-external-link-alt mr-3 w-6"></i>
-                            Lihat Website
-                        </a>
-                    </li>
-                </ul>
             </div>
         </div>
         <div class="flex-1 m-0 ml-0">

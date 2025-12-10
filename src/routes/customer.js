@@ -1,5 +1,3 @@
-// routes/customer.js
-
 const express = require('express');
 const router = express.Router();
 const customerController = require('../controllers/customerController');
@@ -20,8 +18,17 @@ router.get('/dashboard', customerController.getDashboard);
 
 // Orders
 router.get('/order', customerController.getPageOrders);
-router.get('/orders/:orderId', customerController.getOrderDetail);
-router.post('/orders/:orderId/cancel', customerController.cancelOrder);
+router.get('/order/:orderId', customerController.getOrderDetail);
+router.post('/order/:orderId/cancel', customerController.cancelOrder);
+
+// Modal Detail Order (AJAX)
+router.get('/order/:orderId/detail', customerController.getOrderDetailModal);
+
+// Invoice (new window)
+router.get('/order/:orderId/invoice', customerController.getInvoice);
+
+// Cancel Order (AJAX - untuk modal)
+router.post('/order/:orderId/cancel-ajax', customerController.cancelOrderAjax);
 
 // Account Management
 router.get('/akun', customerController.getPageAkun);
