@@ -309,42 +309,35 @@
     </div>
 
     <!-- Checkout Modal -->
-    <!-- Snap Midtrans Modal (Direct Payment) -->
-<div id="snap-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2">
-
-
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate_animated animate_zoomIn">
-
-<div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate__animated animate__zoomIn">
-
-
-
+ <!-- Checkout Modal - Disederhanakan menjadi 2 opsi -->
+<div id="checkout-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate_animated animate_zoomIn">
         <div class="p-6">
             <!-- Header -->
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-gray-800">Checkout</h3>
-                <button id="close-snap" class="text-gray-400 hover:text-gray-600 text-2xl">
+                <button id="close-checkout" class="text-gray-400 hover:text-gray-600 text-2xl">
                     &times;
                 </button>
             </div>
 
             <!-- Order Summary -->
-            <div id="snap-order-summary" class="mb-6 space-y-4">
+            <div id="order-summary" class="mb-6 space-y-4 max-h-60 overflow-y-auto p-4 border rounded-lg">
                 <!-- Items akan dimasukkan via JavaScript -->
             </div>
 
             <!-- Customer Form -->
-            <form id="snap-form" class="space-y-4">
+            <form id="checkout-form" class="space-y-4">
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">Nama Lengkap *</label>
-                    <input type="text" id="snap-name" required
+                    <input type="text" id="customer-name" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
                         placeholder="Masukkan nama lengkap">
                 </div>
 
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">Nomor WhatsApp *</label>
-                    <input type="tel" id="snap-phone" required
+                    <input type="tel" id="customer-phone" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
                         placeholder="081234567890">
                     <p class="text-sm text-gray-500 mt-1">Untuk konfirmasi pesanan</p>
@@ -352,59 +345,67 @@
 
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">Alamat Pengiriman *</label>
-                    <textarea id="snap-address" required rows="3"
+                    <textarea id="customer-address" required rows="3"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
                         placeholder="Alamat lengkap untuk pengiriman"></textarea>
                 </div>
 
+                <!-- OPSI PEMBAYARAN - Disederhanakan menjadi 2 -->
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">Metode Pembayaran</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="payment-method-option">
-                            <input type="radio" name="snap-payment" value="credit_card" checked class="hidden">
-                            <div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition text-center">
-                                <div class="mb-2">
-                                    <svg class="w-8 h-8 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                                    </svg>
+                    <label class="block text-gray-700 font-medium mb-2">Metode Pembayaran *</label>
+                    <div class="space-y-3">
+                        <!-- Opsi 1: COD -->
+                        <label class="payment-option-simple">
+                            <input type="radio" name="payment" value="COD" class="hidden" required>
+                            <div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-gray-800">Cash On Delivery (COD)</span>
+                                            <p class="text-sm text-gray-600">Bayar saat pesanan sampai</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-green-600 font-semibold">✓</span>
                                 </div>
-                                <span class="font-medium">Kartu</span>
                             </div>
                         </label>
 
-                        <label class="payment-method-option">
-                            <input type="radio" name="snap-payment" value="gopay" class="hidden">
-                            <div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition text-center">
-                                <div class="mb-2">
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" class="w-8 h-8 mx-auto">
+                        <!-- Opsi 2: Pembayaran Lainnya (Midtrans) -->
+                        <label class="payment-option-simple">
+                            <input type="radio" name="payment" value="midtrans" class="hidden" required>
+                            <div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-gray-800">Pembayaran Lainnya</span>
+                                            <p class="text-sm text-gray-600">Kartu Kredit, E-Wallet, QRIS, dll</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-primary">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </span>
                                 </div>
-                                <span class="font-medium">GoPay</span>
                             </div>
                         </label>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-3 mt-3">
-                        <label class="payment-method-option">
-                            <input type="radio" name="snap-payment" value="shopeepay" class="hidden">
-                            <div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition text-center">
-                                <div class="mb-2">
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/ShopeePay_Logo.png" alt="ShopeePay" class="w-8 h-8 mx-auto">
-                                </div>
-                                <span class="font-medium">ShopeePay</span>
-                            </div>
-                        </label>
-
-                        <label class="payment-method-option">
-                            <input type="radio" name="snap-payment" value="qris" class="hidden">
-                            <div class="border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition text-center">
-                                <div class="mb-2">
-                                    <svg class="w-8 h-8 mx-auto text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                                    </svg>
-                                </div>
-                                <span class="font-medium">QRIS</span>
-                            </div>
-                        </label>
+                    <!-- Info tambahan untuk pembayaran lainnya -->
+                    <div id="midtrans-info" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            <span class="font-semibold">Pilihan tersedia:</span> Kartu Kredit/Debit, GoPay, ShopeePay, QRIS, Transfer Bank, dll
+                        </p>
                     </div>
                 </div>
 
@@ -412,72 +413,19 @@
                 <div class="border-t pt-4">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-lg font-bold text-gray-800">Total Pembayaran:</span>
-                        <span id="snap-total" class="text-2xl font-bold text-primary">Rp 0</span>
+                        <span id="checkout-total" class="text-2xl font-bold text-primary">Rp 0</span>
                     </div>
 
-                    <button type="submit" id="snap-submit-btn"
+                    <button type="submit" id="submit-order-btn"
                         class="w-full bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white py-4 px-6 rounded-lg transition duration-300 font-bold text-lg shadow-lg hover:shadow-xl">
-                        <span id="snap-btn-text">Bayar Sekarang</span>
+                        <span id="submit-btn-text">Lanjutkan Pesanan</span>
                     </button>
                     
                     <p class="text-center text-sm text-gray-500 mt-3">
-                        Anda akan diarahkan ke halaman pembayaran yang aman
+                        <span id="payment-note">Pilih metode pembayaran terlebih dahulu</span>
                     </p>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
-
-<!-- Loading Overlay untuk Snap -->
-<div id="snap-loading" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
-    <div class="text-center">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-        <p class="text-white text-xl font-semibold">Mempersiapkan pembayaran...</p>
-        <p class="text-gray-300 mt-2">Harap tunggu sebentar</p>
-    </div>
-</div>
-
-<!-- Success Modal -->
-<div id="snap-success-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full animate__animated animate__zoomIn">
-        <div class="p-8 text-center">
-            <!-- Success Icon -->
-            <div class="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            
-            <h3 class="text-2xl font-bold text-gray-800 mb-4">Pembayaran Berhasil!</h3>
-            
-            <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-gray-600">Kode Pesanan:</span>
-                    <span id="success-order-id" class="font-bold text-primary"></span>
-                </div>
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-gray-600">Total:</span>
-                    <span id="success-total" class="font-bold text-green-600"></span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Status:</span>
-                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                        Berhasil
-                    </span>
-                </div>
-            </div>
-            
-            <div class="text-sm text-gray-500 mb-6 space-y-2">
-                <p>📧 Notifikasi akan dikirim ke WhatsApp Anda</p>
-                <p>⏰ Pesanan akan diproses dalam 15 menit</p>
-                <p>📦 Estimasi pengiriman 1-2 jam</p>
-            </div>
-            
-            <button id="close-success-modal" 
-                    class="w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 font-semibold">
-                Tutup
-            </button>
         </div>
     </div>
 </div>
@@ -690,7 +638,7 @@
             </div>
         </div>
     </section>
-
+    
     <!-- Footer -->
     <footer class="bg-gray-900 text-white pt-12 pb-6">
         <div class="container mx-auto px-4">
@@ -787,7 +735,7 @@
             </div>
         </div>
     </footer>
-
+    
     <script>
 // Data produk dan cart
 let products = [];
@@ -829,7 +777,6 @@ function displayProducts() {
     productList.innerHTML = '';
     
     products.forEach(product => {
-        // PERBAIKAN DISINI: Gunakan EJS yang benar
         const isLoggedIn = <%- typeof user !== 'undefined' && user ? 'true' : 'false' %>;
         
         const productCard = document.createElement('div');
@@ -898,8 +845,73 @@ document.getElementById('product-search')?.addEventListener('input', function (e
         return nameMatch || descMatch || categoryMatch;
     });
     
-    displayProducts(filteredProducts);
+    // Tampilkan produk yang difilter
+    displayFilteredProducts(filteredProducts);
 });
+
+function displayFilteredProducts(filteredProducts) {
+    const productList = document.getElementById('product-list');
+    const noResults = document.getElementById('no-results');
+    
+    if (filteredProducts.length === 0) {
+        noResults.classList.remove('hidden');
+        productList.innerHTML = '';
+        return;
+    }
+    
+    noResults.classList.add('hidden');
+    productList.innerHTML = '';
+    
+    filteredProducts.forEach(product => {
+        const isLoggedIn = <%- typeof user !== 'undefined' && user ? 'true' : 'false' %>;
+        
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card bg-white rounded-lg shadow-lg overflow-hidden';
+        
+        let buttonHTML = '';
+        if (isLoggedIn) {
+            buttonHTML = `
+                <button onclick="addToCart(${product.id})" 
+                        class="w-full bg-primary hover:bg-accent text-white py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 font-semibold flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Tambah ke Keranjang
+                </button>
+            `;
+        } else {
+            buttonHTML = `
+                <button onclick="showLoginAlert()" 
+                        class="w-full bg-orange-300 text-gray-700 py-3 px-4 rounded-lg font-semibold flex items-center justify-center cursor-not-allowed opacity-80">
+                    Login untuk Beli
+                </button>
+            `;
+        }
+        
+        productCard.innerHTML = `
+            <div class="relative overflow-hidden">
+                <img src="${product.image || '/images/no-image.jpg'}" 
+                     alt="${product.name}" 
+                     class="w-full h-48 object-cover transform hover:scale-110 transition duration-500"
+                     onerror="this.src='/images/no-image.jpg'">
+                <div class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full font-bold">
+                    ${formatCurrency(product.price)}
+                </div>
+                ${product.category ? `
+                    <div class="absolute top-2 left-2 bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">
+                        ${product.category}
+                    </div>
+                ` : ''}
+            </div>
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-2 text-gray-800">${product.name}</h3>
+                <p class="text-gray-600 mb-4 line-clamp-2">${product.description || 'Produk berkualitas dari Cemal-Cemil'}</p>
+                ${buttonHTML}
+            </div>
+        `;
+        productList.appendChild(productCard);
+    });
+}
 
 // Cart Functions
 function addToCart(productId) {
@@ -933,7 +945,7 @@ function updateCartUI() {
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
     updateCartUI();
-    updateSnapOrderSummary();
+    updateCheckoutOrderSummary();
 }
 
 function updateQuantity(productId, change) {
@@ -944,7 +956,7 @@ function updateQuantity(productId, change) {
             removeFromCart(productId);
         } else {
             updateCartUI();
-            updateSnapOrderSummary();
+            updateCheckoutOrderSummary();
         }
     }
 }
@@ -982,7 +994,6 @@ function showLoginAlert() {
     
     document.body.appendChild(modal);
     
-    // Close on outside click
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.remove();
@@ -990,10 +1001,14 @@ function showLoginAlert() {
     });
 }
 
-// Update Snap Modal Order Summary
-function updateSnapOrderSummary() {
-    const summaryContainer = document.getElementById('snap-order-summary');
-    const snapTotal = document.getElementById('snap-total');
+// ============================================
+// CHECKOUT MODAL FUNCTIONS
+// ============================================
+
+// Update checkout order summary
+function updateCheckoutOrderSummary() {
+    const summaryContainer = document.getElementById('order-summary');
+    const checkoutTotal = document.getElementById('checkout-total');
     
     if (cart.length === 0) {
         summaryContainer.innerHTML = `
@@ -1004,7 +1019,7 @@ function updateSnapOrderSummary() {
                 <p class="text-gray-500">Keranjang Anda kosong</p>
             </div>
         `;
-        snapTotal.textContent = formatCurrency(0);
+        checkoutTotal.textContent = formatCurrency(0);
         return;
     }
     
@@ -1016,266 +1031,71 @@ function updateSnapOrderSummary() {
         total += itemTotal;
         
         itemsHTML += `
-            <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                <div class="flex items-center">
-                    <img src="${item.image || '/images/no-image.jpg'}" 
-                         alt="${item.name}" 
-                         class="w-12 h-12 object-cover rounded-lg mr-4"
-                         onerror="this.src='/images/no-image.jpg'">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">${item.name}</h4>
-                        <p class="text-sm text-gray-600">${formatCurrency(item.price)}</p>
+            <div class="flex items-center justify-between mb-3 pb-3 border-b">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-800">${item.name}</h4>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <span>${formatCurrency(item.price)} × ${item.quantity}</span>
+                        <div class="ml-4 flex items-center space-x-1">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                                -
+                            </button>
+                            <span class="w-6 text-center">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 bg-primary hover:bg-accent text-white rounded-full flex items-center justify-center text-xs">
+                                +
+                            </button>
+                            <button onclick="removeFromCart(${item.id})" class="ml-2 text-red-500 hover:text-red-700 text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="updateQuantity(${item.id}, -1)" 
-                            class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                        </svg>
-                    </button>
-                    <span class="font-bold w-8 text-center">${item.quantity}</span>
-                    <button onclick="updateQuantity(${item.id}, 1)" 
-                            class="w-8 h-8 bg-primary hover:bg-accent text-white rounded-full flex items-center justify-center transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </button>
-                    <button onclick="removeFromCart(${item.id})" 
-                            class="text-red-500 hover:text-red-700 ml-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </button>
-                </div>
+                <span class="font-bold text-gray-800 ml-4">${formatCurrency(itemTotal)}</span>
             </div>
         `;
     });
     
     summaryContainer.innerHTML = itemsHTML;
-    snapTotal.textContent = formatCurrency(total);
+    checkoutTotal.textContent = formatCurrency(total);
 }
 
-// Open Snap Modal
+// Buka modal checkout dari tombol cart
 document.getElementById('cart-button').addEventListener('click', () => {
     if (cart.length === 0) {
         showNotification('🛒 Keranjang Anda masih kosong');
         return;
     }
     
-    updateSnapOrderSummary();
-    document.getElementById('snap-modal').classList.remove('hidden');
+    updateCheckoutOrderSummary();
+    document.getElementById('checkout-modal').classList.remove('hidden');
+    
+    // Auto-fill user data jika login
+    <% if (typeof user !== 'undefined' && user) { %>
+        document.getElementById('customer-name').value = '<%= user.name || "" %>';
+        document.getElementById('customer-phone').value = '<%= user.phone || "" %>';
+        document.getElementById('customer-address').value = '<%= user.address || "" %>';
+    <% } %>
 });
 
-// Close Snap Modal
-document.getElementById('close-snap').addEventListener('click', () => {
-    document.getElementById('snap-modal').classList.add('hidden');
+// Tutup modal checkout
+document.getElementById('close-checkout').addEventListener('click', () => {
+    document.getElementById('checkout-modal').classList.add('hidden');
 });
 
 // Close on outside click
-document.getElementById('snap-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'snap-modal') {
-        document.getElementById('snap-modal').classList.add('hidden');
+document.getElementById('checkout-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'checkout-modal') {
+        document.getElementById('checkout-modal').classList.add('hidden');
     }
 });
 
-// Handle Snap Form Submission
-document.getElementById('snap-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const name = document.getElementById('snap-name').value.trim();
-    const phone = document.getElementById('snap-phone').value.trim();
-    const address = document.getElementById('snap-address').value.trim();
-    const paymentMethod = document.querySelector('input[name="snap-payment"]:checked').value;
-    
-    // Validation
-    if (!name || !phone || !address) {
-        showNotification('❌ Lengkapi semua data pelanggan');
-        return;
-    }
-    
-    if (cart.length === 0) {
-        showNotification('❌ Keranjang Anda kosong');
-        return;
-    }
-    
-    // Phone validation
-    const phoneRegex = /^08[0-9]{8,13}$/;
-    if (!phoneRegex.test(phone)) {
-        showNotification('❌ Format nomor telepon tidak valid. Gunakan 08xxxxxxxxxx');
-        return;
-    }
-    
-    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Show loading
-    document.getElementById('snap-loading').classList.remove('hidden');
-    const submitBtn = document.getElementById('snap-submit-btn');
-    submitBtn.disabled = true;
-    
-    try {
-        // Prepare order data
-        const orderData = {
-            name,
-            phone,
-            address,
-            payment: paymentMethod,
-            items: cart.map(item => ({
-                product_id: item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity
-            })),
-            total: totalAmount
-        };
-        
-        console.log('Sending order data:', orderData);
-        
-        // Send to backend
-        const response = await fetch('/orders', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(orderData)
-        });
-        
-        const data = await response.json();
-        console.log('Order response:', data);
-        
-        if (data.success && data.snap_token) {
-            // Close modals
-            document.getElementById('snap-modal').classList.add('hidden');
-            document.getElementById('snap-loading').classList.add('hidden');
-            
-            // Launch Snap payment
-            window.snap.pay(data.snap_token, {
-                onSuccess: function(result) {
-                    console.log('Payment success:', result);
-                    showSnapSuccess(data.order_id, totalAmount);
-                    resetCart();
-                },
-                onPending: function(result) {
-                    console.log('Payment pending:', result);
-                    showSnapSuccess(data.order_id, totalAmount, true);
-                    resetCart();
-                },
-                onError: function(result) {
-                    console.log('Payment error:', result);
-                    showNotification('❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
-                },
-                onClose: function() {
-                    console.log('Customer closed payment dialog');
-                    showNotification('⚠️ Pembayaran belum diselesaikan. Silakan selesaikan nanti.');
-                }
-            });
-            
-        } else {
-            throw new Error(data.message || 'Gagal membuat pesanan');
-        }
-        
-    } catch (error) {
-        console.error('Checkout error:', error);
-        showNotification('❌ ' + error.message);
-    } finally {
-        document.getElementById('snap-loading').classList.add('hidden');
-        submitBtn.disabled = false;
-    }
-});
+// ============================================
+// CHECKOUT FORM SUBMISSION - 2 OPSI PEMBAYARAN
+// ============================================
 
-// Show success modal
-function showSnapSuccess(orderId, totalAmount, isPending = false) {
-    const modal = document.getElementById('snap-success-modal');
-    const orderIdSpan = document.getElementById('success-order-id');
-    const totalSpan = document.getElementById('success-total');
-    const title = modal.querySelector('h3');
-    
-    orderIdSpan.textContent = orderId;
-    totalSpan.textContent = formatCurrency(totalAmount);
-    
-    if (isPending) {
-        title.textContent = 'Pembayaran Tertunda';
-        modal.querySelector('.bg-green-100').classList.replace('bg-green-100', 'bg-yellow-100');
-        modal.querySelector('.text-green-600').classList.replace('text-green-600', 'text-yellow-600');
-        modal.querySelector('.text-green-800').classList.replace('text-green-800', 'text-yellow-800');
-        modal.querySelector('.bg-green-100').innerHTML = `
-            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                Tertunda
-            </span>
-        `;
-    }
-    
-    modal.classList.remove('hidden');
-}
-
-// Close success modal
-document.getElementById('close-success-modal').addEventListener('click', () => {
-    document.getElementById('snap-success-modal').classList.add('hidden');
-});
-
-// Reset cart
-function resetCart() {
-    cart = [];
-    updateCartUI();
-    updateSnapOrderSummary();
-}
-
-// Show notification
-function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate__animated animate__fadeInRight';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.remove('animate__fadeInRight');
-        notification.classList.add('animate__fadeOutRight');
-        setTimeout(() => notification.remove(), 500);
-    }, 2000);
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    fetchProducts();
-    
-    // PERBAIKAN DISINI: Auto-fill user data if logged in
-    <%- typeof user !== 'undefined' && user ? `
-        const userData = ${JSON.stringify(user)};
-        document.getElementById('snap-name').value = userData.name || '';
-        document.getElementById('snap-phone').value = userData.phone || '';
-    ` : '' %>
-    
-    // Add CSS for payment method selection
-    const style = document.createElement('style');
-    style.textContent = `
-        .payment-method-option input:checked + div {
-            border-color: #ff6b6b;
-            background-color: rgba(255, 107, 107, 0.05);
-            transform: scale(1.02);
-        }
-        
-        .payment-method-option div {
-            transition: all 0.2s ease;
-        }
-        
-        .cart-badge {
-            animation: bounce 0.5s ease;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-    `;
-    document.head.appendChild(style);
-});
-
-        // ============================================
-        // CHECKOUT FORM SUBMISSION - DENGAN POPUP SUCCESS
-        // ============================================
-// Di dalam <script> home.ejs, update bagian form submission
-
-// Update form submission untuk Midtrans
+// Update form submission untuk 2 opsi pembayaran
 document.getElementById('checkout-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -1300,7 +1120,6 @@ document.getElementById('checkout-form').addEventListener('submit', async (e) =>
         return;
     }
 
-    const customerData = { name, phone, address };
     const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const selectedPayment = paymentMethod.value;
 
@@ -1311,66 +1130,71 @@ document.getElementById('checkout-form').addEventListener('submit', async (e) =>
     submitBtn.innerHTML = '<span class="animate-spin mr-2">⟳</span> Memproses...';
 
     try {
-        // Kirim data ke server
+        // Siapkan data order
+        const orderData = {
+            name,
+            phone,
+            address,
+            payment: selectedPayment, // 'COD' atau 'midtrans'
+            items: cart.map(item => ({
+                product_id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            })),
+            total: totalAmount
+        };
+
+        console.log('Mengirim data order:', orderData);
+
+        // Kirim ke backend
         const response = await fetch('/orders', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                name,
-                phone,
-                address,
-                payment: selectedPayment,
-                items: cart.map(item => ({
-                    product_id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity
-                })),
-                total: totalAmount
-            })
+            body: JSON.stringify(orderData)
         });
 
         const data = await response.json();
-        console.log('Server response:', data);
+        console.log('Response dari server:', data);
 
         if (data.success) {
             // Jika COD
             if (selectedPayment === 'COD') {
-                showSuccessPopup(name, data.orderId, totalAmount, 'COD', phone);
+                showSuccessPopup(name, data.order_id, totalAmount, 'COD', phone);
                 resetCart();
                 document.getElementById('checkout-modal').classList.add('hidden');
             } 
             // Jika Midtrans
-            else if (data.paymentData && data.paymentData.token) {
+            else if (selectedPayment === 'midtrans' && data.snap_token) {
+                // Close checkout modal
+                document.getElementById('checkout-modal').classList.add('hidden');
+                
                 // Buka popup Midtrans
-                window.snap.pay(data.paymentData.token, {
+                window.snap.pay(data.snap_token, {
                     onSuccess: function(result) {
-                        console.log('Payment success:', result);
-                        showMidtransSuccessPopup(name, data.orderId, totalAmount, selectedPayment, phone);
+                        console.log('Pembayaran berhasil:', result);
+                        showMidtransSuccessPopup(name, data.order_id, totalAmount, 'midtrans', phone);
                         resetCart();
-                        document.getElementById('checkout-modal').classList.add('hidden');
                     },
                     onPending: function(result) {
-                        console.log('Payment pending:', result);
-                        showMidtransPendingPopup(name, data.orderId, totalAmount, selectedPayment, phone);
+                        console.log('Pembayaran tertunda:', result);
+                        showMidtransPendingPopup(name, data.order_id, totalAmount, 'midtrans', phone);
                         resetCart();
-                        document.getElementById('checkout-modal').classList.add('hidden');
                     },
                     onError: function(result) {
-                        console.log('Payment error:', result);
+                        console.log('Pembayaran gagal:', result);
                         showNotification('❌ Pembayaran gagal: ' + (result.status_message || 'Silakan coba lagi'));
-                        // Don't reset cart, let customer retry
+                        // Jangan reset cart, biarkan user coba lagi
                     },
                     onClose: function() {
-                        console.log('Customer closed the popup');
-                        showNotification('⚠️ Pembayaran belum diselesaikan. Silakan selesaikan pembayaran di halaman order Anda.');
-                        // Don't reset cart, let customer retry
+                        console.log('Popup pembayaran ditutup');
+                        showNotification('⚠️ Pembayaran belum diselesaikan. Pesanan Anda tetap tercatat.');
                     }
                 });
             } else {
-                showNotification('❌ Gagal mendapatkan token pembayaran');
+                showNotification('❌ Gagal memproses pembayaran. Silakan coba lagi.');
             }
             
         } else {
@@ -1378,15 +1202,42 @@ document.getElementById('checkout-form').addEventListener('submit', async (e) =>
         }
 
     } catch (error) {
-        console.error('Checkout error:', error);
-        showNotification('❌ Terjadi kesalahan jaringan. Coba lagi.');
+        console.error('Error checkout:', error);
+        showNotification('❌ Terjadi kesalahan. Coba lagi nanti.');
     } finally {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }
 });
 
-// Function untuk show Midtrans success popup
+// ============================================
+// PAYMENT OPTIONS UI
+// ============================================
+
+// Update UI berdasarkan pilihan pembayaran
+document.querySelectorAll('input[name="payment"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const midtransInfo = document.getElementById('midtrans-info');
+        const paymentNote = document.getElementById('payment-note');
+        const submitBtnText = document.getElementById('submit-btn-text');
+        
+        if (this.value === 'COD') {
+            midtransInfo.classList.add('hidden');
+            paymentNote.textContent = "Bayar saat pesanan diterima";
+            submitBtnText.textContent = "Pesan Sekarang (COD)";
+        } else if (this.value === 'midtrans') {
+            midtransInfo.classList.remove('hidden');
+            paymentNote.textContent = "Akan diarahkan ke halaman pembayaran";
+            submitBtnText.textContent = "Lanjutkan Pembayaran";
+        }
+    });
+});
+
+// ============================================
+// SUCCESS POPUP FUNCTIONS
+// ============================================
+
+// Fungsi untuk show success popup Midtrans
 function showMidtransSuccessPopup(customerName, orderId, totalAmount, paymentMethod, phoneNumber) {
     const overlay = document.createElement('div');
     overlay.id = 'midtrans-success-popup';
@@ -1410,7 +1261,7 @@ function showMidtransSuccessPopup(customerName, orderId, totalAmount, paymentMet
                     </div>
                     <div class="flex justify-between mb-2">
                         <span class="text-gray-600">Metode:</span>
-                        <span class="font-semibold">${getPaymentName(paymentMethod)}</span>
+                        <span class="font-semibold">Pembayaran Digital</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Total:</span>
@@ -1439,341 +1290,433 @@ function showMidtransSuccessPopup(customerName, orderId, totalAmount, paymentMet
     });
 }
 
-// Helper function untuk nama payment method
+// Fungsi untuk show pending popup
+function showMidtransPendingPopup(customerName, orderId, totalAmount, paymentMethod, phoneNumber) {
+    const overlay = document.createElement('div');
+    overlay.id = 'midtrans-pending-popup';
+    overlay.className = 'fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 animate__animated animate__fadeIn';
+    
+    overlay.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full animate__animated animate__zoomIn">
+            <div class="p-6 text-center">
+                <div class="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Menunggu Pembayaran</h3>
+                <p class="text-gray-600 mb-4">Pembayaran Anda sedang diproses, ${customerName}.</p>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600">Kode Pesanan:</span>
+                        <span class="font-bold text-primary">${orderId}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total:</span>
+                        <span class="font-bold text-yellow-600">${formatCurrency(totalAmount)}</span>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-yellow-700 bg-yellow-50 p-4 rounded-lg mb-6">
+                    <p class="font-semibold mb-2">⚠️ Perhatian:</p>
+                    <p>• Selesaikan pembayaran dalam 24 jam</p>
+                    <p>• Pesanan akan dibatalkan otomatis jika pembayaran tidak diterima</p>
+                </div>
+                
+                <button id="close-midtrans-pending" 
+                        class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold">
+                    Saya Mengerti
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    document.getElementById('close-midtrans-pending').addEventListener('click', () => {
+        overlay.remove();
+    });
+}
+
+// ============================================
+// COD SUCCESS POPUP
+// ============================================
+
+function showSuccessPopup(customerName, orderId, totalAmount, paymentMethod, phoneNumber) {
+    // Generate order number
+    const formattedOrderId = orderId.toString().slice(-6).padStart(6, '0');
+
+    // Buat overlay modal
+    const overlay = document.createElement('div');
+    overlay.id = 'success-popup-overlay';
+    overlay.className = 'fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 animate__animated animate__fadeIn';
+
+    // Buat konten popup landscape kecil
+    const popupContent = document.createElement('div');
+    popupContent.className = 'bg-white rounded-xl shadow-2xl w-full max-w-2xl animate__animated animate__zoomIn success-popup-landscape-small';
+
+    // Popup content landscape kecil
+    popupContent.innerHTML = `
+    <div class="flex flex-col md:flex-row">
+        <!-- Left Side - Success Icon & Order Info -->
+        <div class="md:w-2/5 bg-gradient-to-b from-green-500 to-emerald-600 text-white p-6 flex flex-col items-center justify-center">
+            <div class="mb-4">
+                <div class="bg-white rounded-full p-4 animate__animated animate__bounceIn">
+                    <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-2xl font-bold mb-2 text-center">Pesanan Berhasil!</h3>
+            <p class="text-green-100 text-center mb-6">Terima kasih, ${customerName}</p>
+            
+            <!-- Order ID -->
+            <div class="bg-white bg-opacity-20 rounded-lg p-4 w-full">
+                <p class="text-green-100 text-sm mb-2">Kode Pesanan</p>
+                <div class="bg-white rounded-lg p-3 text-center">
+                    <span class="text-xl font-bold text-green-600 tracking-wide">ORD-${formattedOrderId}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Order Details -->
+        <div class="md:w-3/5 p-6">
+            <!-- Customer Info -->
+            <div class="mb-4">
+                <h4 class="text-lg font-bold text-gray-800 mb-2">📋 Informasi Pesanan</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Nama:</span>
+                        <span class="font-medium">${customerName}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Telepon:</span>
+                        <span class="font-medium">${phoneNumber || '-'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Jumlah Item:</span>
+                        <span class="font-medium">${cart.reduce((sum, item) => sum + item.quantity, 0)} item</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Total & Payment -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg mb-3">
+                    <div>
+                        <span class="font-bold text-gray-800">Total Pembayaran</span>
+                    </div>
+                    <span class="text-xl font-bold text-green-600">${formatCurrency(totalAmount)}</span>
+                </div>
+                
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            ${getPaymentIconSmall(paymentMethod)}
+                        </div>
+                        <div>
+                            <span class="font-bold text-gray-800">${getPaymentName(paymentMethod)}</span>
+                            <p class="text-xs text-gray-600">${getPaymentMessage(paymentMethod)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-medium text-gray-700">Status Pesanan:</span>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Diproses</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-500 h-2 rounded-full w-1/3 animate-pulse"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Dikirim</span>
+                    <span>Selesai</span>
+                </div>
+            </div>
+            
+            <!-- Button -->
+            <button id="close-success-popup" 
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold shadow-md flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                OK, Pesanan Selesai
+            </button>
+            
+            <!-- Note -->
+            <p class="text-center text-gray-500 text-xs mt-3">
+                Notifikasi akan dikirim via WhatsApp dalam 5 menit
+            </p>
+        </div>
+    </div>
+    `;
+
+    // Tambahkan ke overlay
+    overlay.appendChild(popupContent);
+
+    // Tambahkan efek konfeti hijau
+    createGreenConfettiEffect();
+
+    // Tambahkan ke body
+    document.body.appendChild(overlay);
+
+    // Tambahkan event listener untuk tombol OK
+    setTimeout(() => {
+        document.getElementById('close-success-popup').addEventListener('click', () => {
+            overlay.classList.remove('animate__fadeIn');
+            overlay.classList.add('animate__fadeOut');
+            setTimeout(() => overlay.remove(), 500);
+        });
+
+        // Auto close setelah 10 detik
+        setTimeout(() => {
+            if (document.body.contains(overlay)) {
+                overlay.classList.remove('animate__fadeIn');
+                overlay.classList.add('animate__fadeOut');
+                setTimeout(() => overlay.remove(), 500);
+            }
+        }, 10000);
+    }, 100);
+}
+
+// ============================================
+// HELPER FUNCTIONS UNTUK POPUP
+// ============================================
+
+function getPaymentIconSmall(paymentMethod) {
+    const icons = {
+        'COD': `<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>`,
+        'midtrans': `<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+            </svg>`
+    };
+    return icons[paymentMethod] || icons['COD'];
+}
+
 function getPaymentName(paymentMethod) {
     const names = {
         'COD': 'Cash On Delivery',
-        'credit_card': 'Kartu Kredit/Debit',
-        'gopay': 'GoPay',
-        'shopeepay': 'ShopeePay',
-        'qris': 'QRIS',
-        'bank_transfer': 'Transfer Bank'
+        'midtrans': 'Pembayaran Digital'
     };
-    
     return names[paymentMethod] || paymentMethod;
 }
 
-        // ============================================
-        // FUNCTION UNTUK SHOW SUCCESS POPUP (LANDSCAPE HIJAU KECIL)
-        // ============================================
-        function showSuccessPopup(customerName, orderId, totalAmount, paymentMethod, phoneNumber) {
-            // Generate order number
-            const formattedOrderId = orderId.toString().slice(-6).padStart(6, '0');
+function getPaymentMessage(paymentMethod) {
+    const messages = {
+        'COD': 'Bayar saat pesanan diterima',
+        'midtrans': 'Pembayaran via berbagai metode'
+    };
+    return messages[paymentMethod] || 'Metode pembayaran';
+}
 
-            // Buat overlay modal
-            const overlay = document.createElement('div');
-            overlay.id = 'success-popup-overlay';
-            overlay.className = 'fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 animate__animated animate__fadeIn';
+// ============================================
+// EFEK KONFETI HIJAU
+// ============================================
 
-            // Buat konten popup landscape kecil
-            const popupContent = document.createElement('div');
-            popupContent.className = 'bg-white rounded-xl shadow-2xl w-full max-w-2xl animate__animated animate__zoomIn success-popup-landscape-small';
+function createGreenConfettiEffect() {
+    const confettiCount = 25;
+    const colors = ['#10b981', '#34d399', '#059669', '#047857', '#065f46'];
 
-            // Popup content landscape kecil
-            popupContent.innerHTML = `
-            <div class="flex flex-col md:flex-row">
-                <!-- Left Side - Success Icon & Order Info -->
-                <div class="md:w-2/5 bg-gradient-to-b from-green-500 to-emerald-600 text-white p-6 flex flex-col items-center justify-center">
-                    <div class="mb-4">
-                        <div class="bg-white rounded-full p-4 animate__animated animate__bounceIn">
-                            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2 text-center">Pesanan Berhasil!</h3>
-                    <p class="text-green-100 text-center mb-6">Terima kasih, ${customerName}</p>
-                    
-                    <!-- Order ID -->
-                    <div class="bg-white bg-opacity-20 rounded-lg p-4 w-full">
-                        <p class="text-green-100 text-sm mb-2">Kode Pesanan</p>
-                        <div class="bg-white rounded-lg p-3 text-center">
-                            <span class="text-xl font-bold text-green-600 tracking-wide">ORD-${formattedOrderId}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Right Side - Order Details -->
-                <div class="md:w-3/5 p-6">
-                    <!-- Customer Info -->
-                    <div class="mb-4">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2">📋 Informasi Pesanan</h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Nama:</span>
-                                <span class="font-medium">${customerName}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Telepon:</span>
-                                <span class="font-medium">${phoneNumber || '-'}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Jumlah Item:</span>
-                                <span class="font-medium">${cart.reduce((sum, item) => sum + item.quantity, 0)} item</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Total & Payment -->
-                    <div class="mb-4">
-                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg mb-3">
-                            <div>
-                                <span class="font-bold text-gray-800">Total Pembayaran</span>
-                            </div>
-                            <span class="text-xl font-bold text-green-600">Rp ${totalAmount.toLocaleString('id-ID')}</span>
-                        </div>
-                        
-                        <div class="p-3 bg-gray-50 rounded-lg">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    ${getPaymentIconSmall(paymentMethod)}
-                                </div>
-                                <div>
-                                    <span class="font-bold text-gray-800">${getPaymentName(paymentMethod)}</span>
-                                    <p class="text-xs text-gray-600">${getPaymentMessage(paymentMethod)}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Status -->
-                    <div class="mb-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium text-gray-700">Status Pesanan:</span>
-                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Diproses</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full w-1/3 animate-pulse"></div>
-                        </div>
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>Dikirim</span>
-                            <span>Selesai</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Button -->
-                    <button id="close-success-popup" 
-                            class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 px-4 rounded-lg transition duration-300 font-semibold shadow-md flex items-center justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        OK, Pesanan Selesai
-                    </button>
-                    
-                    <!-- Note -->
-                    <p class="text-center text-gray-500 text-xs mt-3">
-                        Notifikasi akan dikirim via WhatsApp dalam 5 menit
-                    </p>
-                </div>
-            </div>
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-green';
+        confetti.style.cssText = `
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: ${colors[Math.floor(Math.random() * colors.length)]};
+            top: 40%;
+            left: 50%;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+            opacity: 0.9;
+            z-index: 9999;
+            pointer-events: none;
         `;
 
-            // Tambahkan ke overlay
-            overlay.appendChild(popupContent);
+        // Animasi
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 50 + Math.random() * 100;
+        const rotation = Math.random() * 360;
 
-            // Tambahkan efek konfeti hijau
-            createGreenConfettiEffect();
+        const animation = confetti.animate([
+            {
+                transform: `translate(0, 0) rotate(0deg) scale(1)`,
+                opacity: 1
+            },
+            {
+                transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) rotate(${rotation}deg) scale(0.5)`,
+                opacity: 0
+            }
+        ], {
+            duration: 1200 + Math.random() * 800,
+            easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+        });
 
-            // Tambahkan ke body
-            document.body.appendChild(overlay);
+        document.body.appendChild(confetti);
 
-            // Tambahkan event listener untuk tombol OK
-            setTimeout(() => {
-                document.getElementById('close-success-popup').addEventListener('click', () => {
-                    overlay.classList.remove('animate__fadeIn');
-                    overlay.classList.add('animate__fadeOut');
-                    setTimeout(() => overlay.remove(), 500);
-                });
+        // Hapus setelah animasi selesai
+        animation.onfinish = () => confetti.remove();
+    }
+}
 
-                // Auto close setelah 10 detik
-                setTimeout(() => {
-                    if (document.body.contains(overlay)) {
-                        overlay.classList.remove('animate__fadeIn');
-                        overlay.classList.add('animate__fadeOut');
-                        setTimeout(() => overlay.remove(), 500);
-                    }
-                }, 10000);
-            }, 100);
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function resetCart() {
+    cart = [];
+    updateCartUI();
+    updateCheckoutOrderSummary();
+}
+
+// Show notification
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate__animated animate__fadeInRight';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.remove('animate__fadeInRight');
+        notification.classList.add('animate__fadeOutRight');
+        setTimeout(() => notification.remove(), 500);
+    }, 2000);
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProducts();
+    
+    // Toggle mobile menu
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        });
+    });
+
+    // Contact form
+    document.getElementById('contact-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        showNotification('Pesan Anda telah terkirim!');
+        e.target.reset();
+    });
+
+    // Tambahkan style untuk payment option
+    const paymentStyle = document.createElement('style');
+    paymentStyle.textContent = `
+        .payment-option-simple input:checked + div {
+            border-color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.05);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
         }
-
-        // ============================================
-        // HELPER FUNCTIONS UNTUK POPUP LANDSCAPE
-        // ============================================
-        function getPaymentIconSmall(paymentMethod) {
-            const icons = {
-                'COD': `<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>`,
-                'GoPay': `<img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" class="w-6 h-6">`,
-                'OVO': `<img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg" alt="OVO" class="w-6 h-6">`,
-                'DANA': `<img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA" class="w-6 h-6">`
-            };
-            return icons[paymentMethod] || icons['COD'];
+        
+        .payment-option-simple div {
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
-
-        function getPaymentName(paymentMethod) {
-            const names = {
-                'COD': 'Cash On Delivery',
-                'GoPay': 'GoPay',
-                'OVO': 'OVO',
-                'DANA': 'DANA'
-            };
-            return names[paymentMethod] || paymentMethod;
+        
+        .payment-option-simple:hover div {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
-        function getPaymentMessage(paymentMethod) {
-            const messages = {
-                'COD': 'Bayar saat pesanan diterima',
-                'GoPay': 'Pembayaran via GoPay',
-                'OVO': 'Pembayaran via OVO',
-                'DANA': 'Pembayaran via DANA'
-            };
-            return messages[paymentMethod] || 'Metode pembayaran';
+        
+        #midtrans-info {
+            animation: fadeInUp 0.3s ease;
         }
-
-        // ============================================
-        // EFEK KONFETI HIJAU
-        // ============================================
-        function createGreenConfettiEffect() {
-            const confettiCount = 25;
-            const colors = ['#10b981', '#34d399', '#059669', '#047857', '#065f46'];
-
-            for (let i = 0; i < confettiCount; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti-green';
-                confetti.style.cssText = `
-                position: fixed;
-                width: 10px;
-                height: 10px;
-                background-color: ${colors[Math.floor(Math.random() * colors.length)]};
-                top: 40%;
-                left: 50%;
-                border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-                opacity: 0.9;
-                z-index: 9999;
-                pointer-events: none;
-            `;
-
-                // Animasi
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = 50 + Math.random() * 100;
-                const rotation = Math.random() * 360;
-
-                const animation = confetti.animate([
-                    {
-                        transform: `translate(0, 0) rotate(0deg) scale(1)`,
-                        opacity: 1
-                    },
-                    {
-                        transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) rotate(${rotation}deg) scale(0.5)`,
-                        opacity: 0
-                    }
-                ], {
-                    duration: 1200 + Math.random() * 800,
-                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
-                });
-
-                document.body.appendChild(confetti);
-
-                // Hapus setelah animasi selesai
-                animation.onfinish = () => confetti.remove();
+        
+        .cart-badge {
+            animation: bounce 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-
-        // Update button text based on payment selection
-        document.querySelectorAll('input[name="payment"]').forEach(radio => {
-            radio.addEventListener('change', function () {
-                const submitBtn = document.getElementById('submit-btn-text');
-                const payment = this.value || '';
-                submitBtn.textContent = payment ? `Kirim Pesanan (${payment})` : 'Kirim Pesanan';
-            });
-        });
-
-        // Contact form
-        document.getElementById('contact-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            showNotification('Pesan Anda telah terkirim!');
-            e.target.reset();
-        });
-
-        // Toggle mobile menu
-        document.getElementById('menu-toggle').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
-
-        // Close mobile menu when clicking a link
-        document.querySelectorAll('#mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('mobile-menu').classList.add('hidden');
-            });
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchProducts(); // Fetch dari database
-
-            // Tambahkan style untuk popup landscape kecil dan confetti
-            const style = document.createElement('style');
-            style.textContent = `
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .success-popup-landscape-small {
+            animation: popupSlideIn 0.5s ease-out;
+        }
+        
+        @keyframes popupSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-15px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .confetti-green {
+            animation: fallGreen linear forwards;
+        }
+        
+        @keyframes fallGreen {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsif untuk mobile */
+        @media (max-width: 768px) {
             .success-popup-landscape-small {
-                animation: popupSlideIn 0.5s ease-out;
+                max-width: 95%;
             }
             
-            @keyframes popupSlideIn {
-                0% {
-                    opacity: 0;
-                    transform: translateY(-15px) scale(0.95);
-                }
-                100% {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
+            .success-popup-landscape-small .flex-col.md\\:flex-row {
+                flex-direction: column;
             }
             
-            .confetti-green {
-                animation: fallGreen linear forwards;
+            .success-popup-landscape-small .md\\:w-2\\/5,
+            .success-popup-landscape-small .md\\:w-3\\/5 {
+                width: 100%;
             }
             
-            @keyframes fallGreen {
-                0% {
-                    transform: translateY(0) rotate(0deg);
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(100vh) rotate(360deg);
-                    opacity: 0;
-                }
+            .success-popup-landscape-small .md\\:w-2\\/5 {
+                padding: 1.5rem;
             }
-            
-            /* Responsif untuk mobile */
-            @media (max-width: 768px) {
-                .success-popup-landscape-small {
-                    max-width: 95%;
-                }
-                
-                .success-popup-landscape-small .flex-col.md\\:flex-row {
-                    flex-direction: column;
-                }
-                
-                .success-popup-landscape-small .md\\:w-2\\/5,
-                .success-popup-landscape-small .md\\:w-3\\/5 {
-                    width: 100%;
-                }
-                
-                .success-popup-landscape-small .md\\:w-2\\/5 {
-                    padding: 1.5rem;
-                }
+        }
+        
+        /* Untuk desktop landscape */
+        @media (min-width: 769px) {
+            .success-popup-landscape-small {
+                max-width: 600px;
             }
-            
-            /* Untuk desktop landscape */
-            @media (min-width: 769px) {
-                .success-popup-landscape-small {
-                    max-width: 600px;
-                }
-            }
-        `;
-            document.head.appendChild(style);
-        });
+        }
+    `;
+    document.head.appendChild(paymentStyle);
+});
     </script>
 </body>
 
