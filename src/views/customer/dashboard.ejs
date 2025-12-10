@@ -100,7 +100,7 @@
                 <div class="p-6 border-b border-gray-100">
                     <div class="flex justify-between items-center">
                         <h2 class="text-xl font-bold text-gray-800">Pesanan Anda</h2>
-                        <a href="/customer/orders" class="text-red-500 hover:text-red-600 text-sm font-medium flex items-center">
+                        <a href="/customer/order" class="text-red-500 hover:text-red-600 text-sm font-medium flex items-center">
                             Lihat Semua
                             <i class="fas fa-arrow-right ml-2"></i>
                         </a>
@@ -198,19 +198,7 @@
                                         <!-- Actions -->
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <!-- PERBAIKI URL DI SINI -->
-                                            <a href="/customer/orders/<%= order.id %>" 
-                                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-200 flex items-center">
-                                                <i class="fas fa-eye mr-2"></i>
-                                                Detail
-                                            </a>
                                             
-                                            <% if (order.status === 'pending') { %>
-                                                <button onclick="cancelOrder('<%= order.id %>', '<%= order.total %>')"
-                                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition duration-200 flex items-center">
-                                                    <i class="fas fa-times mr-2"></i>
-                                                    Batalkan
-                                                </button>
-                                            <% } %>
                                         </div>
                                     </div>
                                 </div>
@@ -236,7 +224,7 @@
 
             <!-- Quick Links -->
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="/customer/orders" 
+                <a href="/customer/order" 
                     class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-red-300 transition duration-200 flex items-center">
                     <div class="bg-red-100 p-3 rounded-lg mr-4">
                         <i class="fas fa-history text-red-500 text-xl"></i>
@@ -247,7 +235,7 @@
                     </div>
                 </a>
 
-                <a href="/customer/profile" 
+                <a href="/customer/akun" 
                     class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-blue-300 transition duration-200 flex items-center">
                     <div class="bg-blue-100 p-3 rounded-lg mr-4">
                         <i class="fas fa-user-edit text-blue-500 text-xl"></i>

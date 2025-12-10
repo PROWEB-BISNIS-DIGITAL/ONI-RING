@@ -531,4 +531,216 @@ exports.cancelOrder = async (req, res) => {
             message: 'Gagal membatalkan pesanan' 
         });
     }
+
+};
+
+// Get Order Detail for Modal
+exports.getOrderDetailModal = async (req, res) => {
+    try {
+        // Cek session user
+        let userId;
+        if (req.user && req.user.id) {
+            userId = req.user.id;
+        } else if (req.session.user && req.session.user.id) {
+            userId = req.session.user.id;
+        } else {
+            return res.json({ 
+                success: false, 
+                message: 'Silakan login terlebih dahulu' 
+            });
+        }
+
+        const { orderId } = req.params;
+
+        // Ambil detail pesanan
+        const [orders] = await pool.query(`
+            SELECT * FROM orders 
+            WHERE id = ? AND user_id = ?
+        `, [orderId, userId]);
+
+        if (orders.length === 0) {
+            return res.json({ 
+                success: false, 
+                message: 'Pesanan tidak ditemukan' 
+            });
+        }
+
+        const order = orders[0];
+
+        // Ambil item pesanan
+        const [items] = await pool.query(`
+            SELECT 
+                oi.*,
+                p.name as product_name,
+                p.image
+            FROM order_items oi
+            LEFT JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ?
+        `, [orderId]);
+
+        // Format data items
+        const formattedItems = items.map(item => ({
+            id: item.id,
+            name: item.name || item.product_name,
+            quantity: item.quantity,
+            price: Number(item.price),
+            subtotal: Number(item.quantity * item.price)
+        }));
+
+        res.json({
+            success: true,
+            order: {
+                id: order.id,
+                customer_name: order.customer_name,
+                customer_phone: order.customer_phone,
+                customer_address: order.customer_address,
+                payment_method: order.payment_method,
+                total: Number(order.total),
+                status: order.status,
+                notes: order.notes,
+                created_at: order.created_at
+            },
+            items: formattedItems
+        });
+
+    } catch (error) {
+        console.error('Error fetching order detail:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal memuat detail pesanan' 
+        });
+    }
+};
+
+// Invoice Page (new window)
+exports.getInvoice = async (req, res) => {
+    try {
+        // Cek session user
+        let userId;
+        if (req.user && req.user.id) {
+            userId = req.user.id;
+        } else if (req.session.user && req.session.user.id) {
+            userId = req.session.user.id;
+        } else {
+            return res.redirect('/login');
+        }
+
+        const { orderId } = req.params;
+
+        // Ambil detail pesanan
+        const [orders] = await pool.query(`
+            SELECT 
+                o.*,
+                u.name as user_name,
+                u.email as user_email
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.id = ? AND o.user_id = ?
+        `, [orderId, userId]);
+
+        if (orders.length === 0) {
+            return res.status(404).render('error', {
+                title: 'Invoice Tidak Ditemukan',
+                message: 'Invoice tidak ditemukan'
+            });
+        }
+
+        // Ambil item pesanan
+        const [items] = await pool.query(`
+            SELECT 
+                oi.*,
+                p.name as product_name
+            FROM order_items oi
+            LEFT JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ?
+        `, [orderId]);
+
+        // Hitung subtotal
+        let subtotal = 0;
+        items.forEach(item => {
+            subtotal += (item.quantity || 0) * (item.price || 0);
+        });
+
+        res.render('customer/invoice', {
+            title: 'Invoice Pesanan',
+            order: orders[0],
+            items: items,
+            subtotal: subtotal,
+            date: new Date().toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })
+        });
+
+    } catch (error) {
+        console.error('Error generating invoice:', error);
+        res.status(500).render('error', {
+            title: 'Terjadi Kesalahan',
+            message: 'Gagal membuat invoice'
+        });
+    }
+};
+
+// Batalkan Pesanan (AJAX)
+exports.cancelOrderAjax = async (req, res) => {
+    try {
+        // Cek session user
+        let userId;
+        if (req.user && req.user.id) {
+            userId = req.user.id;
+        } else if (req.session.user && req.session.user.id) {
+            userId = req.session.user.id;
+        } else {
+            return res.json({ 
+                success: false, 
+                message: 'Silakan login terlebih dahulu' 
+            });
+        }
+
+        const { orderId } = req.params;
+        const { reason } = req.body;
+
+        // Validasi alasan
+        if (!reason || reason.trim() === '') {
+            return res.json({ 
+                success: false, 
+                message: 'Silakan pilih alasan pembatalan' 
+            });
+        }
+
+        // Cek apakah pesanan milik user dan status pending
+        const [orders] = await pool.query(`
+            SELECT status FROM orders 
+            WHERE id = ? AND user_id = ? AND status = 'pending'
+        `, [orderId, userId]);
+
+        if (orders.length === 0) {
+            return res.json({ 
+                success: false, 
+                message: 'Pesanan tidak dapat dibatalkan' 
+            });
+        }
+
+        // Update status menjadi cancelled
+        await pool.query(`
+            UPDATE orders 
+            SET status = 'cancelled', 
+                updated_at = NOW(),
+                notes = CONCAT(COALESCE(notes, ''), ' | Dibatalkan oleh customer. Alasan: ', ?)
+            WHERE id = ?
+        `, [reason, orderId]);
+
+        res.json({ 
+            success: true, 
+            message: 'Pesanan berhasil dibatalkan!' 
+        });
+
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal membatalkan pesanan' 
+        });
+    }
 };

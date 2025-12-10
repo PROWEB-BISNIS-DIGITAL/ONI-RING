@@ -8,15 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .sidebar {
-            transition: all 0.3s ease;
-        }
-        .main-content {
-            transition: all 0.3s ease;
-        }
-        .dashboard-card {
-            transition: all 0.3s ease;
-        }
+        .sidebar { transition: all 0.3s ease; }
+        .main-content { transition: all 0.3s ease; }
+        .dashboard-card { transition: all 0.3s ease; }
         .dashboard-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -25,9 +19,7 @@
             background-color: #374151;
             color: white;
         }
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 6px;
-        }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
         .scrollbar-thin::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 3px;
@@ -36,9 +28,7 @@
             background: #d1d5db;
             border-radius: 3px;
         }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         .tab-active {
             border-bottom: 3px solid #ef4444;
             color: #ef4444;
@@ -50,14 +40,13 @@
             font-weight: 500;
             cursor: pointer;
         }
-        .tab-inactive:hover {
-            color: #ef4444;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+        .tab-inactive:hover { color: #ef4444; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .filter-btn { transition: all 0.2s; }
+        .filter-btn.active {
+            background-color: #ef4444;
+            color: white;
         }
     </style>
 </head>
@@ -71,21 +60,19 @@
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800">Manajemen Laporan Keuangan</h1>
-                    <p class="text-gray-600">Kelola omset, laba rugi, dan laporan keuangan harian</p>
+                    <p class="text-gray-600">Kelola omset, laba rugi, dan laporan keuangan</p>
+                    <% if (data.minggu_ke) { %>
+                    <p class="text-sm text-gray-500 mt-1">
+                        <i class="fas fa-calendar-week"></i> 
+                        Minggu ke-<%= data.minggu_ke %> Tahun <%= data.tahun %> | 
+                        <%= data.start_date %> s/d <%= data.end_date %>
+                    </p>
+                    <% } %>
                 </div>
             </div>
 
-            <!-- Tambahkan tombol Generate Laporan (sebelum Stats Cards) -->
-            <div class="mb-6 flex justify-end">
-                <button onclick="openGenerateModal()" 
-                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg shadow flex items-center gap-2 transition">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Generate Laporan Harian</span>
-                </button>
-            </div>
-
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <!-- Omset Hari Ini -->
                 <div class="dashboard-card bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center justify-between">
@@ -108,13 +95,13 @@
                     </p>
                 </div>
 
-                <!-- Laba Bulan Ini -->
+                <!-- Laba Minggu Ini -->
                 <div class="dashboard-card bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-500">Laba Bulan Ini</p>
+                            <p class="text-gray-500">Laba Minggu Ini</p>
                             <p class="text-2xl font-bold text-blue-600">
-                                Rp <%= data.laba_bulan_ini ? data.laba_bulan_ini.toLocaleString('id-ID') : '0' %>
+                                Rp <%= data.laba_minggu_ini ? data.laba_minggu_ini.toLocaleString('id-ID') : '0' %>
                             </p>
                         </div>
                         <div class="bg-blue-100 p-3 rounded-full">
@@ -122,19 +109,19 @@
                         </div>
                     </div>
                     <p class="text-sm text-gray-500 mt-2">
-                        Margin: <span class="font-medium <%= data.margin_bulan_ini >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                            <%= (data.margin_bulan_ini || 0).toFixed(2) %>%
+                        Margin: <span class="font-medium <%= data.margin_minggu_ini >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                            <%= (data.margin_minggu_ini || 0).toFixed(2) %>%
                         </span>
                     </p>
                 </div>
 
-                <!-- Total Transaksi -->
+                <!-- Total Transaksi Minggu Ini -->
                 <div class="dashboard-card bg-white p-6 rounded-lg shadow">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-500">Total Transaksi</p>
+                            <p class="text-gray-500">Total Transaksi Minggu Ini</p>
                             <p class="text-2xl font-bold text-purple-600">
-                                <%= data.total_transaksi_bulan_ini || 0 %>
+                                <%= data.total_transaksi_minggu_ini || 0 %>
                             </p>
                         </div>
                         <div class="bg-purple-100 p-3 rounded-full">
@@ -142,27 +129,7 @@
                         </div>
                     </div>
                     <p class="text-sm text-gray-500 mt-2">
-                        Rp <%= data.rata_transaksi_bulan_ini ? data.rata_transaksi_bulan_ini.toLocaleString('id-ID') : '0' %>/transaksi
-                    </p>
-                </div>
-
-                <!-- Pengeluaran -->
-                <div class="dashboard-card bg-white p-6 rounded-lg shadow">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500">Pengeluaran</p>
-                            <p class="text-2xl font-bold text-yellow-600">
-                                Rp <%= data.pengeluaran_bulan_ini ? data.pengeluaran_bulan_ini.toLocaleString('id-ID') : '0' %>
-                            </p>
-                        </div>
-                        <div class="bg-yellow-100 p-3 rounded-full">
-                            <i class="fas fa-money-bill-wave text-yellow-600 text-2xl"></i>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-2">
-                        <span class="<%= data.persen_pengeluaran <= 30 ? 'text-green-600' : data.persen_pengeluaran <= 50 ? 'text-yellow-600' : 'text-red-600' %>">
-                            <%= (data.persen_pengeluaran || 0).toFixed(1) %>%
-                        </span> dari omset
+                        Rata-rata: Rp <%= data.rata_transaksi_minggu_ini ? data.rata_transaksi_minggu_ini.toLocaleString('id-ID') : '0' %>/transaksi
                     </p>
                 </div>
             </div>
@@ -181,10 +148,6 @@
                     <button onclick="switchTab('laba')" id="tab-laba" 
                             class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
                         <i class="fas fa-balance-scale mr-2"></i>Laba Rugi
-                    </button>
-                    <button onclick="switchTab('laporan')" id="tab-laporan" 
-                            class="py-3 px-1 border-b-2 font-medium text-sm tab-inactive">
-                        <i class="fas fa-file-alt mr-2"></i>Laporan
                     </button>
                 </nav>
             </div>
@@ -213,10 +176,10 @@
                         </div>
                     </div>
 
-                    <!-- Laba vs Pengeluaran Chart -->
+                    <!-- Laba Chart -->
                     <div class="bg-white p-6 rounded-lg shadow">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-gray-800">Laba vs Pengeluaran</h3>
+                            <h3 class="text-lg font-bold text-gray-800">Perbandingan Laba</h3>
                             <span class="text-sm text-gray-500">
                                 <%= new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) %>
                             </span>
@@ -227,10 +190,10 @@
                     </div>
                 </div>
 
-                <!-- Produk Terlaris -->
+                <!-- Produk Terlaris Minggu Ini -->
                 <div class="bg-white p-6 rounded-lg shadow mb-8">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-gray-800">Produk Terlaris Bulan Ini</h3>
+                        <h3 class="text-lg font-bold text-gray-800">Produk Terlaris Minggu Ini</h3>
                         <a href="/admin/products" class="text-red-500 hover:text-red-600 font-semibold text-sm">
                             Lihat Semua Produk →
                         </a>
@@ -278,7 +241,7 @@
                                     <tr>
                                         <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                                             <i class="fas fa-chart-bar text-3xl mb-2 text-gray-400"></i>
-                                            <p>Belum ada data penjualan produk</p>
+                                            <p>Belum ada data penjualan produk minggu ini</p>
                                         </td>
                                     </tr>
                                 <% } %>
@@ -359,384 +322,1019 @@
 
             <!-- Tab Content: Omset -->
             <div id="content-omset" class="tab-content">
-                <div class="bg-white p-6 rounded-lg shadow mb-8">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Omset</h3>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex">
-                            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
-                            <div>
-                                <p class="font-medium text-blue-700">Fitur dalam pengembangan</p>
-                                <p class="text-sm text-blue-600 mt-1">
-                                    Fitur laporan omset detail sedang dalam tahap pengembangan. Untuk saat ini, data omset tersedia di tab Ringkasan.
-                                </p>
-                            </div>
+                <!-- Filter Periode -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <div class="flex gap-2">
+                            <button onclick="loadOmsetData('harian')" id="btn-harian" 
+                                    class="filter-btn active px-6 py-2 rounded-lg border border-gray-300">
+                                Harian
+                            </button>
+                            <button onclick="loadOmsetData('mingguan')" id="btn-mingguan" 
+                                    class="filter-btn px-6 py-2 rounded-lg border border-gray-300">
+                                Mingguan
+                            </button>
+                            <button onclick="loadOmsetData('bulanan')" id="btn-bulanan" 
+                                    class="filter-btn px-6 py-2 rounded-lg border border-gray-300">
+                                Bulanan
+                            </button>
+                            <button onclick="loadOmsetData('tahunan')" id="btn-tahunan" 
+                                    class="filter-btn px-6 py-2 rounded-lg border border-gray-300">
+                                Tahunan
+                            </button>
                         </div>
+                        
+                        <!-- Filter Harian -->
+                        <div id="filter-harian" class="flex gap-2 items-center">
+                            <input type="date" id="filterTanggal" 
+                                   class="px-4 py-2 border border-gray-300 rounded-lg"
+                                   value="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                        
+                        <!-- Filter Mingguan -->
+                        <div id="filter-mingguan" class="hidden flex gap-2 items-center">
+                            <span class="text-gray-600">Minggu ke:</span>
+                            <input type="number" id="filterMingguKe" min="1" max="53" 
+                                   class="px-4 py-2 border border-gray-300 rounded-lg w-20"
+                                   value="<%= data.minggu_ke || getWeekNumber(new Date()) %>">
+                            <span class="text-gray-600">Tahun:</span>
+                            <select id="filterTahunMingguan" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let year = new Date().getFullYear(); year >= 2020; year--) { %>
+                                    <option value="<%= year %>" <%= year == data.tahun ? 'selected' : '' %>>
+                                        <%= year %>
+                                    </option>
+                                <% } %>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Bulanan -->
+                        <div id="filter-bulanan" class="hidden flex gap-2 items-center">
+                            <select id="filterBulan" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let i=1; i<=12; i++) { %>
+                                    <option value="<%= i %>" <%= i === new Date().getMonth() + 1 ? 'selected' : '' %>>
+                                        <%= new Date(2000, i-1).toLocaleString('id-ID', {month: 'long'}) %>
+                                    </option>
+                                <% } %>
+                            </select>
+                            <select id="filterTahun" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let year = new Date().getFullYear(); year >= 2020; year--) { %>
+                                    <option value="<%= year %>"><%= year %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Tahunan -->
+                        <div id="filter-tahunan" class="hidden flex gap-2 items-center">
+                            <select id="filterTahunOnly" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let year = new Date().getFullYear(); year >= 2020; year--) { %>
+                                    <option value="<%= year %>"><%= year %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistik Omset -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-600 text-sm">Total Omset</span>
+                            <i class="fas fa-money-bill-wave text-green-500"></i>
+                        </div>
+                        <p id="stat-total-omset" class="text-2xl font-bold text-gray-800">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-600 text-sm">Total Modal</span>
+                            <i class="fas fa-coins text-yellow-500"></i>
+                        </div>
+                        <p id="stat-total-modal" class="text-2xl font-bold text-gray-800">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-600 text-sm">Laba Kotor</span>
+                            <i class="fas fa-chart-line text-blue-500"></i>
+                        </div>
+                        <p id="stat-laba-kotor" class="text-2xl font-bold text-gray-800">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-600 text-sm">Transaksi</span>
+                            <i class="fas fa-shopping-cart text-purple-500"></i>
+                        </div>
+                        <p id="stat-total-transaksi" class="text-2xl font-bold text-gray-800">0</p>
+                    </div>
+                </div>
+
+                <!-- Chart Omset -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Grafik Omset</h3>
+                    <div class="h-96">
+                        <canvas id="omsetDetailChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tabel Detail Omset -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Detail Omset</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Periode</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Omset</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laba Kotor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="omsetTableBody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                                        <p>Memuat data...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <!-- Tab Content: Laba Rugi -->
             <div id="content-laba" class="tab-content">
-                <div class="bg-white p-6 rounded-lg shadow mb-8">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6">Laporan Laba Rugi</h3>
-                    
-                    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div class="flex">
-                            <i class="fas fa-info-circle text-yellow-500 mt-0.5 mr-3"></i>
-                            <div>
-                                <p class="font-medium text-yellow-700">Fitur dalam pengembangan</p>
-                                <p class="text-sm text-yellow-600 mt-1">
-                                    Fitur laporan laba rugi detail sedang dalam tahap pengembangan. Untuk saat ini, data laba tersedia di tab Ringkasan.
-                                </p>
-                            </div>
+                <!-- Filter Periode Laba Rugi -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <div class="flex gap-2">
+                            <button onclick="loadLabaRugiData('harian')" id="lr-btn-harian" 
+                                    class="filter-btn active px-6 py-2 rounded-lg border border-gray-300">
+                                Harian
+                            </button>
+                            <button onclick="loadLabaRugiData('mingguan')" id="lr-btn-mingguan" 
+                                    class="filter-btn px-6 py-2 rounded-lg border border-gray-300">
+                                Mingguan
+                            </button>
+                            <button onclick="loadLabaRugiData('bulanan')" id="lr-btn-bulanan" 
+                                    class="filter-btn px-6 py-2 rounded-lg border border-gray-300">
+                                Bulanan
+                            </button>
+                            <button onclick="loadLabaRugiData('tahunan')" id="lr-btn-tahunan" 
+                                    class="filter-btn px-6 py-2 rounded-lg border border-gray-300">
+                                Tahunan
+                            </button>
+                        </div>
+                        
+                        <!-- Filter Harian -->
+                        <div id="lr-filter-harian" class="flex gap-2 items-center">
+                            <input type="date" id="lrFilterTanggal" 
+                                   class="px-4 py-2 border border-gray-300 rounded-lg"
+                                   value="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                        
+                        <!-- Filter Mingguan -->
+                        <div id="lr-filter-mingguan" class="hidden flex gap-2 items-center">
+                            <span class="text-gray-600">Minggu ke:</span>
+                            <input type="number" id="lrFilterMingguKe" min="1" max="53" 
+                                   class="px-4 py-2 border border-gray-300 rounded-lg w-20"
+                                   value="<%= data.minggu_ke || getWeekNumber(new Date()) %>">
+                            <span class="text-gray-600">Tahun:</span>
+                            <select id="lrFilterTahunMingguan" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let year = new Date().getFullYear(); year >= 2020; year--) { %>
+                                    <option value="<%= year %>" <%= year == data.tahun ? 'selected' : '' %>>
+                                        <%= year %>
+                                    </option>
+                                <% } %>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Bulanan -->
+                        <div id="lr-filter-bulanan" class="hidden flex gap-2 items-center">
+                            <select id="lrFilterBulan" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let i=1; i<=12; i++) { %>
+                                    <option value="<%= i %>" <%= i === new Date().getMonth() + 1 ? 'selected' : '' %>>
+                                        <%= new Date(2000, i-1).toLocaleString('id-ID', {month: 'long'}) %>
+                                    </option>
+                                <% } %>
+                            </select>
+                            <select id="lrFilterTahun" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let year = new Date().getFullYear(); year >= 2020; year--) { %>
+                                    <option value="<%= year %>"><%= year %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Tahunan -->
+                        <div id="lr-filter-tahunan" class="hidden flex gap-2 items-center">
+                            <select id="lrFilterTahunOnly" class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <% for(let year = new Date().getFullYear(); year >= 2020; year--) { %>
+                                    <option value="<%= year %>"><%= year %></option>
+                                <% } %>
+                            </select>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab Content: Laporan -->
-            <div id="content-laporan" class="tab-content">
-                <div class="bg-white rounded-lg shadow mb-8">
-                    <div class="p-6 border-b">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-gray-800">Daftar Laporan Keuangan</h3>
+                <!-- Laporan Laba Rugi -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Laporan Laba Rugi</h3>
+                    
+                    <div id="labaRugiContent">
+                        <div class="flex items-center justify-center py-12">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-500">Memuat data laba rugi...</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="overflow-x-auto scrollbar-thin">
-                        <table class="min-w-full">
-                            <!-- Update thead Table - tambah kolom header -->
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaksi</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Omset</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Modal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pengeluaran</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Laba</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Margin</th>
-                                </tr>
-                            </thead>
-                            
-                            <!-- Update bagian Table Laporan - tambah kolom pengeluaran -->
-                            <tbody class="divide-y divide-gray-200">
-                                <% if (laporan && laporan.length > 0) { %>
-                                    <% laporan.forEach((item, index) => { %>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    <%= new Date(item.tanggal).toLocaleDateString('id-ID', { 
-                                                        day: 'numeric',
-                                                        month: 'short',
-                                                        year: 'numeric'
-                                                    }) %>
-                                                </div>
-                                                <div class="text-xs text-gray-500">
-                                                    <%= new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'short' }) %>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900"><%= item.total_penjualan %></div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    Rp <%= item.omset.toLocaleString('id-ID') %>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-500">
-                                                    Rp <%= item.total_modal.toLocaleString('id-ID') %>
-                                                </div>
-                                            </td>
-                                            <!-- KOLOM BARU: Total Pengeluaran -->
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-orange-600">
-                                                    Rp <%= (item.total_pengeluaran || 0).toLocaleString('id-ID') %>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm font-medium <%= item.laba >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                                                    Rp <%= item.laba.toLocaleString('id-ID') %>
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="w-20 bg-gray-200 rounded-full h-2">
-                                                        <div class="h-2 rounded-full <%= item.margin_percent >= 0 ? 'bg-green-500' : 'bg-red-500' %>" 
-                                                             style="width: <%= Math.min(Math.abs(item.margin_percent), 100) %>%"></div>
-                                                    </div>
-                                                    <span class="text-xs <%= item.margin_percent >= 0 ? 'text-green-600' : 'text-red-600' %> ml-2">
-                                                        <%= (Number(item.margin_percent) || 0).toFixed(1) %>%
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <% }); %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                            <i class="fas fa-file-alt text-4xl mb-3 text-gray-400"></i>
-                                            <p class="mb-4">Belum ada laporan yang digenerate</p>
-                                            <button onclick="openGenerateModal()" 
-                                                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2">
-                                                <i class="fas fa-plus"></i>
-                                                Generate Laporan Pertama
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal Generate Laporan (tambahkan sebelum script) -->
-    <div id="generateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Generate Laporan Harian</h3>
-                <button onclick="closeGenerateModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
+<script>
+    // Global variables
+let omsetChart, labaChart, omsetDetailChart;
+let currentOmsetPeriode = 'harian';
+let currentLabaRugiPeriode = 'harian';
+
+// Helper function untuk mendapatkan nomor minggu
+function getWeekNumber(date = new Date()) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initSummaryCharts();
+    loadOmsetData('harian');
+    loadLabaRugiData('harian');
+    
+    // Event listeners untuk filter changes
+    ['filterTanggal', 'filterMingguKe', 'filterTahunMingguan', 'filterBulan', 'filterTahun', 'filterTahunOnly'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => loadOmsetData(currentOmsetPeriode));
+        }
+    });
+    
+    ['lrFilterTanggal', 'lrFilterMingguKe', 'lrFilterTahunMingguan', 'lrFilterBulan', 'lrFilterTahun', 'lrFilterTahunOnly'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => loadLabaRugiData(currentLabaRugiPeriode));
+        }
+    });
+});
+
+// ============ TAB SWITCHING ============
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    document.querySelectorAll('[id^="tab-"]').forEach(el => {
+        el.classList.remove('tab-active');
+        el.classList.add('tab-inactive');
+    });
+    
+    const contentElement = document.getElementById('content-' + tabName);
+    if (contentElement) {
+        contentElement.classList.add('active');
+    }
+    
+    const activeTab = document.getElementById('tab-' + tabName);
+    if (activeTab) {
+        activeTab.classList.remove('tab-inactive');
+        activeTab.classList.add('tab-active');
+    }
+}
+
+// ============ SUMMARY CHARTS ============
+function initSummaryCharts() {
+    // Omset Chart
+    const omsetCtx = document.getElementById('omsetChart').getContext('2d');
+    const omsetData = <%- JSON.stringify(data.chart_omset || []) %>;
+    
+    const labels = omsetData.length > 0 
+        ? omsetData.map(item => {
+            const date = new Date(item.tanggal);
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+        })
+        : ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    
+    const dataValues = omsetData.length > 0
+        ? omsetData.map(item => parseFloat(item.omset) || 0)
+        : [0, 0, 0, 0, 0, 0, 0];
+    
+    omsetChart = new Chart(omsetCtx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Omset',
+                data: dataValues,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Omset: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000000) {
+                                return 'Rp ' + (value / 1000000).toFixed(1) + 'Jt';
+                            } else if (value >= 1000) {
+                                return 'Rp ' + (value / 1000).toFixed(0) + 'K';
+                            }
+                            return 'Rp ' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Laba Chart (tanpa pengeluaran operasional)
+    const labaCtx = document.getElementById('labaChart').getContext('2d');
+    const chartMingguan = <%- JSON.stringify(data.chart_mingguan || []) %>;
+    
+    if (chartMingguan && chartMingguan.length > 0) {
+        // Chart garis untuk laba harian dalam minggu
+        const labaLabels = chartMingguan.map(item => item.hari || 'Day');
+        const labaData = chartMingguan.map(item => parseFloat(item.laba) || 0);
+        
+        labaChart = new Chart(labaCtx, {
+            type: 'line',
+            data: {
+                labels: labaLabels,
+                datasets: [{
+                    label: 'Laba Harian',
+                    data: labaData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Laba: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return 'Rp ' + (value / 1000000).toFixed(1) + 'Jt';
+                                } else if (value >= 1000) {
+                                    return 'Rp ' + (value / 1000).toFixed(0) + 'K';
+                                }
+                                return 'Rp ' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        // Fallback chart jika tidak ada data mingguan
+        labaChart = new Chart(labaCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Laba Bersih'],
+                datasets: [{
+                    data: [<%= data.laba_minggu_ini || 0 %>],
+                    backgroundColor: ['rgba(34, 197, 94, 0.7)'],
+                    borderColor: ['rgb(34, 197, 94)'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Laba: Rp ${context.parsed.toLocaleString('id-ID')}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+function changeChartType(chartId, type) {
+    if (chartId === 'omsetChart' && omsetChart) {
+        omsetChart.config.type = type;
+        omsetChart.update();
+    }
+}
+
+// ============ OMSET DATA FUNCTIONS ============
+async function loadOmsetData(periode) {
+    currentOmsetPeriode = periode;
+    
+    console.log(`🔄 Loading Omset Data - Periode: ${periode}`);
+    
+    // Update button states
+    document.querySelectorAll('#content-omset .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`btn-${periode}`).classList.add('active');
+    
+    // Hide all filters first
+    ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(type => {
+        const filterEl = document.getElementById(`filter-${type}`);
+        if (filterEl) filterEl.classList.add('hidden');
+    });
+    
+    // Show selected filter
+    const currentFilter = document.getElementById(`filter-${periode}`);
+    if (currentFilter) currentFilter.classList.remove('hidden');
+    
+    let url = '';
+    
+    if (periode === 'harian') {
+        const tanggal = document.getElementById('filterTanggal').value;
+        url = `/admin/keuangan/omset/harian?tanggal=${tanggal}`;
+    } else if (periode === 'mingguan') {
+        const mingguKe = document.getElementById('filterMingguKe').value;
+        const tahun = document.getElementById('filterTahunMingguan').value;
+        url = `/admin/keuangan/omset/mingguan?minggu_ke=${mingguKe}&tahun=${tahun}`;
+    } else if (periode === 'bulanan') {
+        const bulan = document.getElementById('filterBulan').value;
+        const tahun = document.getElementById('filterTahun').value;
+        url = `/admin/keuangan/omset/bulanan?bulan=${bulan}&tahun=${tahun}`;
+    } else {
+        const tahun = document.getElementById('filterTahunOnly').value;
+        url = `/admin/keuangan/omset/tahunan?tahun=${tahun}`;
+    }
+    
+    console.log('📡 API URL:', url);
+    
+    // Tampilkan loading
+    const tbody = document.getElementById('omsetTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                <p>Memuat data untuk ${periode}...</p>
+                <p class="text-xs text-gray-400 mt-1">URL: ${url}</p>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        const response = await fetch(url);
+        console.log('📥 Response Status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('✅ API Response:', result);
+        
+        if (result.success) {
+            updateOmsetStats(result.data, periode);
+            updateOmsetChart(result.data, periode);
+            updateOmsetTable(result.data, periode);
+        } else {
+            console.error('❌ API Error:', result.message);
+            showErrorInTable(`Gagal memuat data: ${result.message}`);
+        }
+    } catch (error) {
+        console.error('❌ Error loading omset data:', error);
+        showErrorInTable(`Error: ${error.message}`);
+    }
+}
+
+function showErrorInTable(message) {
+    const tbody = document.getElementById('omsetTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" class="px-6 py-12 text-center text-red-500">
+                <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+                <p>${message}</p>
+                <button onclick="loadOmsetData(currentOmsetPeriode)" 
+                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    Coba Lagi
                 </button>
+            </td>
+        </tr>
+    `;
+}
+
+function updateOmsetStats(data, periode) {
+    console.log('📊 Update Stats - Periode:', periode, 'Data:', data);
+    
+    if (periode === 'harian') {
+        document.getElementById('stat-total-omset').textContent = 
+            'Rp ' + (parseFloat(data.omset) || 0).toLocaleString('id-ID');
+        document.getElementById('stat-total-modal').textContent = 
+            'Rp ' + (parseFloat(data.modal) || 0).toLocaleString('id-ID');
+        document.getElementById('stat-laba-kotor').textContent = 
+            'Rp ' + (parseFloat(data.laba_kotor) || 0).toLocaleString('id-ID');
+        document.getElementById('stat-total-transaksi').textContent = 
+            data.total_transaksi || 0;
+    } else {
+        // Untuk mingguan/bulanan/tahunan
+        if (data.summary) {
+            console.log('📈 Summary Data:', data.summary);
+            document.getElementById('stat-total-omset').textContent = 
+                'Rp ' + (parseFloat(data.summary.total_omset) || 0).toLocaleString('id-ID');
+            document.getElementById('stat-total-modal').textContent = 
+                'Rp ' + (parseFloat(data.summary.total_modal) || 0).toLocaleString('id-ID');
+            document.getElementById('stat-laba-kotor').textContent = 
+                'Rp ' + (parseFloat(data.summary.total_laba_kotor) || 0).toLocaleString('id-ID');
+            document.getElementById('stat-total-transaksi').textContent = 
+                data.summary.total_transaksi || 0;
+        } else {
+            console.warn('⚠️ No summary data available');
+        }
+    }
+}
+
+function updateOmsetChart(data, periode) {
+    const ctx = document.getElementById('omsetDetailChart').getContext('2d');
+    
+    if (omsetDetailChart) {
+        omsetDetailChart.destroy();
+    }
+    
+    let labels = [];
+    let omsetData = [];
+    let modalData = [];
+    let labaData = [];
+    
+    if (periode === 'harian') {
+        labels = [data.tanggal ? new Date(data.tanggal).toLocaleDateString('id-ID', { 
+            day: 'numeric', 
+            month: 'short' 
+        }) : 'Hari Ini'];
+        omsetData = [parseFloat(data.omset) || 0];
+        modalData = [parseFloat(data.modal) || 0];
+        labaData = [parseFloat(data.laba_kotor) || 0];
+    } else if (periode === 'mingguan') {
+        const dailyData = data.daily_data || [];
+        console.log('📈 Chart Daily Data (Mingguan):', dailyData);
+        
+        labels = dailyData.map(d => {
+            if (d.tanggal) {
+                const date = new Date(d.tanggal);
+                return date.toLocaleDateString('id-ID', { 
+                    weekday: 'short',
+                    day: 'numeric'
+                });
+            }
+            return d.nama_hari || `Hari ${d.hari || '0'}`;
+        });
+        
+        omsetData = dailyData.map(d => parseFloat(d.omset) || 0);
+        modalData = dailyData.map(d => parseFloat(d.modal) || 0);
+        labaData = dailyData.map(d => parseFloat(d.laba_kotor) || 0);
+    } else if (periode === 'bulanan') {
+        const dailyData = data.daily_data || [];
+        console.log('📈 Chart Daily Data (Bulanan):', dailyData);
+        
+        labels = dailyData.map(d => {
+            if (d.tanggal) {
+                return new Date(d.tanggal).toLocaleDateString('id-ID', { day: 'numeric' });
+            }
+            return `Hari ${d.hari || '0'}`;
+        });
+        
+        omsetData = dailyData.map(d => parseFloat(d.omset) || 0);
+        modalData = dailyData.map(d => parseFloat(d.modal) || 0);
+        labaData = dailyData.map(d => parseFloat(d.laba_kotor) || 0);
+    } else {
+        const monthlyData = data.monthly_data || [];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+        labels = monthlyData.map(d => monthNames[d.bulan - 1] || `Bln ${d.bulan}`);
+        omsetData = monthlyData.map(d => parseFloat(d.omset) || 0);
+        modalData = monthlyData.map(d => parseFloat(d.modal) || 0);
+        labaData = monthlyData.map(d => parseFloat(d.laba_kotor) || 0);
+    }
+    
+    console.log('📊 Chart Labels:', labels);
+    console.log('📊 Chart Omset Data:', omsetData);
+    console.log('📊 Chart Modal Data:', modalData);
+    
+    // Jika tidak ada data, tampilkan chart kosong
+    if (labels.length === 0 || (omsetData.every(val => val === 0) && modalData.every(val => val === 0))) {
+        labels = ['Tidak ada data'];
+        omsetData = [0];
+        modalData = [0];
+        labaData = [0];
+    }
+    
+    omsetDetailChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Omset',
+                    data: omsetData,
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Modal',
+                    data: modalData,
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                    borderColor: 'rgb(245, 158, 11)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000000) {
+                                return 'Rp ' + (value / 1000000).toFixed(1) + 'Jt';
+                            } else if (value >= 1000) {
+                                return 'Rp ' + (value / 1000).toFixed(0) + 'K';
+                            }
+                            return 'Rp ' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateOmsetTable(data, periode) {
+    const tbody = document.getElementById('omsetTableBody');
+    tbody.innerHTML = '';
+    
+    console.log('📊 Update Table - Data:', data);
+    console.log('📊 Update Table - Periode:', periode);
+    
+    let rows = [];
+    let title = '';
+    let showTotal = false;
+    
+    if (periode === 'harian') {
+        title = data.tanggal || 'Hari Ini';
+        rows = [{
+            periode: title,
+            transaksi: data.total_transaksi || 0,
+            omset: parseFloat(data.omset) || 0,
+            modal: parseFloat(data.modal) || 0,
+            laba: parseFloat(data.laba_kotor) || 0
+        }];
+    } else if (periode === 'mingguan') {
+        title = `Minggu ke-${data.minggu_ke} Tahun ${data.tahun}`;
+        const dailyData = data.daily_data || [];
+        showTotal = true;
+        
+        rows = dailyData.map(d => ({
+            periode: d.tanggal ? new Date(d.tanggal).toLocaleDateString('id-ID', { 
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short'
+            }) : `Hari ${d.hari || '0'}`,
+            transaksi: parseInt(d.total_transaksi) || 0,
+            omset: parseFloat(d.omset) || 0,
+            modal: parseFloat(d.modal) || 0,
+            laba: parseFloat(d.laba_kotor) || 0
+        }));
+    } else if (periode === 'bulanan') {
+        title = `${new Date(2000, data.bulan-1).toLocaleString('id-ID', {month: 'long'})} ${data.tahun}`;
+        const dailyData = data.daily_data || [];
+        showTotal = true;
+        
+        rows = dailyData.map(d => ({
+            periode: d.tanggal ? new Date(d.tanggal).toLocaleDateString('id-ID', { 
+                day: 'numeric', 
+                month: 'short' 
+            }) : `Hari ${d.hari || '0'}`,
+            transaksi: parseInt(d.total_transaksi) || 0,
+            omset: parseFloat(d.omset) || 0,
+            modal: parseFloat(d.modal) || 0,
+            laba: parseFloat(d.laba_kotor) || 0
+        }));
+    } else {
+        title = `Tahun ${data.tahun}`;
+        const monthlyData = data.monthly_data || [];
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        
+        rows = monthlyData.map(d => ({
+            periode: monthNames[d.bulan - 1],
+            transaksi: parseInt(d.total_transaksi) || 0,
+            omset: parseFloat(d.omset) || 0,
+            modal: parseFloat(d.modal) || 0,
+            laba: parseFloat(d.laba_kotor) || 0
+        }));
+    }
+    
+    // Tambahkan header info
+    tbody.innerHTML += `
+        <tr class="bg-gray-50">
+            <td colspan="5" class="px-6 py-3 text-sm text-gray-700 font-semibold">
+                Periode: ${title}
+            </td>
+        </tr>
+    `;
+    
+    if (rows.length === 0) {
+        tbody.innerHTML += `
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-inbox text-3xl mb-2 text-gray-400"></i>
+                    <p>Tidak ada data untuk periode ini</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Render rows
+    rows.forEach((row, index) => {
+        tbody.innerHTML += `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${row.periode}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${row.transaksi}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-green-600">
+                        Rp ${row.omset.toLocaleString('id-ID')}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">
+                        Rp ${row.modal.toLocaleString('id-ID')}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium ${row.laba >= 0 ? 'text-blue-600' : 'text-red-600'}">
+                        Rp ${row.laba.toLocaleString('id-ID')}
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    // Tambahkan total row jika ada summary
+    if (showTotal && data.summary) {
+        tbody.innerHTML += `
+            <tr class="bg-yellow-50 font-bold">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">TOTAL</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">${data.summary.total_transaksi || 0}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-green-700">
+                        Rp ${(parseFloat(data.summary.total_omset) || 0).toLocaleString('id-ID')}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold text-gray-900">
+                        Rp ${(parseFloat(data.summary.total_modal) || 0).toLocaleString('id-ID')}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-bold ${(parseFloat(data.summary.total_laba_kotor) || 0) >= 0 ? 'text-blue-700' : 'text-red-700'}">
+                        Rp ${(parseFloat(data.summary.total_laba_kotor) || 0).toLocaleString('id-ID')}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// ============ LABA RUGI DATA FUNCTIONS ============
+async function loadLabaRugiData(periode) {
+    currentLabaRugiPeriode = periode;
+    
+    console.log('🔄 Loading Laba Rugi - Periode:', periode);
+    
+    // Update button states
+    document.querySelectorAll('#content-laba .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`lr-btn-${periode}`).classList.add('active');
+    
+    // Hide all filters first
+    ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(type => {
+        const filterEl = document.getElementById(`lr-filter-${type}`);
+        if (filterEl) filterEl.classList.add('hidden');
+    });
+    
+    // Show selected filter
+    const currentFilter = document.getElementById(`lr-filter-${periode}`);
+    if (currentFilter) currentFilter.classList.remove('hidden');
+    
+    let url = '';
+    
+    if (periode === 'harian') {
+        const tanggal = document.getElementById('lrFilterTanggal').value;
+        url = `/admin/keuangan/laba-rugi?periode=harian&tanggal=${tanggal}`;
+    } else if (periode === 'mingguan') {
+        const mingguKe = document.getElementById('lrFilterMingguKe').value;
+        const tahun = document.getElementById('lrFilterTahunMingguan').value;
+        url = `/admin/keuangan/laba-rugi/mingguan?minggu_ke=${mingguKe}&tahun=${tahun}`;
+    } else if (periode === 'bulanan') {
+        const bulan = document.getElementById('lrFilterBulan').value;
+        const tahun = document.getElementById('lrFilterTahun').value;
+        url = `/admin/keuangan/laba-rugi?periode=bulanan&bulan=${bulan}&tahun=${tahun}`;
+    } else {
+        const tahun = document.getElementById('lrFilterTahunOnly').value;
+        url = `/admin/keuangan/laba-rugi?periode=tahunan&tahun=${tahun}`;
+    }
+    
+    console.log('📡 API URL:', url);
+    
+    try {
+        const response = await fetch(url);
+        
+        console.log('📥 Response Status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('✅ API Response:', result);
+        
+        if (result.success) {
+            updateLabaRugiDisplay(result.data);
+        } else {
+            console.error('API Error:', result.message);
+            showLabaRugiError('Gagal memuat data: ' + result.message);
+        }
+    } catch (error) {
+        console.error('❌ Error loading laba rugi data:', error);
+        showLabaRugiError('Gagal memuat data laba rugi. Pastikan endpoint API sudah benar.');
+    }
+}
+
+function updateLabaRugiDisplay(data) {
+    const container = document.getElementById('labaRugiContent');
+    
+    // Format periode
+    let periodeText = '';
+    if (data.start_date && data.end_date) {
+        periodeText = `${formatDate(data.start_date)} s/d ${formatDate(data.end_date)}`;
+    } else if (data.periode) {
+        periodeText = data.periode;
+    } else if (data.tanggal) {
+        periodeText = formatDate(data.tanggal);
+    } else {
+        periodeText = 'Periode saat ini';
+    }
+    
+    const pendapatan = parseFloat(data.pendapatan) || 0;
+    const hpp = parseFloat(data.hpp) || 0;
+    const labaBersih = parseFloat(data.laba_bersih) || 0;
+    const margin = parseFloat(data.margin_laba) || 0;
+    
+    container.innerHTML = `
+        <div class="space-y-4">
+            <!-- Header Periode -->
+            <div class="bg-blue-50 -mx-6 px-6 py-3 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-800">Periode: ${periodeText}</h4>
             </div>
             
-            <form id="generateForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
-                    <input type="date" id="tanggalLaporan" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            <!-- Pendapatan -->
+            <div class="border-b border-gray-200 pb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-lg font-semibold text-gray-800">Pendapatan</span>
+                    <span class="text-xl font-bold text-green-600">
+                        Rp ${pendapatan.toLocaleString('id-ID')}
+                    </span>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Pengeluaran (Opsional)</label>
-                    <input type="number" id="totalPengeluaran" placeholder="0" min="0" step="1000"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    <p class="text-xs text-gray-500 mt-1">Biaya operasional, gaji, dll. Kosongkan jika tidak ada.</p>
+            </div>
+            
+            <!-- HPP -->
+            <div class="border-b border-gray-200 pb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-700">Harga Pokok Penjualan (HPP)</span>
+                    <span class="text-lg font-medium text-red-600">
+                        (Rp ${hpp.toLocaleString('id-ID')})
+                    </span>
                 </div>
-                
-                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <p class="text-sm text-blue-700">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        Sistem akan otomatis menghitung omset dan laba dari transaksi completed pada tanggal tersebut.
-                    </p>
+            </div>
+            
+            <!-- Laba Bersih -->
+            <div class="bg-green-50 -mx-6 px-6 py-4 rounded-lg">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xl font-bold text-gray-800">Laba Bersih</span>
+                    <span class="text-2xl font-bold ${labaBersih >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        Rp ${labaBersih.toLocaleString('id-ID')}
+                    </span>
                 </div>
-                
-                <div class="flex gap-3 pt-4">
-                    <button type="button" onclick="closeGenerateModal()"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
-                        Generate
-                    </button>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Margin Laba</span>
+                    <span class="text-lg font-semibold ${margin >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${margin}%
+                    </span>
                 </div>
-            </form>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-sm text-gray-600">Total Transaksi</span>
+                    <span class="text-sm font-medium text-gray-800">
+                        ${data.total_transaksi || 0} transaksi
+                    </span>
+                </div>
+            </div>
         </div>
-    </div>
+    `;
+}
 
-    <script>
-        let omsetChart, labaChart;
+function showLabaRugiError(message) {
+    const container = document.getElementById('labaRugiContent');
+    container.innerHTML = `
+        <div class="flex items-center justify-center py-12">
+            <div class="text-center">
+                <i class="fas fa-exclamation-circle text-4xl text-red-400 mb-3"></i>
+                <p class="text-gray-700 font-medium mb-2">Gagal Memuat Data</p>
+                <p class="text-gray-500 text-sm">${message}</p>
+                <button onclick="loadLabaRugiData(currentLabaRugiPeriode)" 
+                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    Coba Lagi
+                </button>
+            </div>
+        </div>
+    `;
+}
 
-        // Initialize charts when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initCharts();
-        });
-
-        // Modal functions
-        function openGenerateModal() {
-            document.getElementById('generateModal').classList.remove('hidden');
-            document.getElementById('tanggalLaporan').valueAsDate = new Date();
-        }
-
-        function closeGenerateModal() {
-            document.getElementById('generateModal').classList.add('hidden');
-            document.getElementById('generateForm').reset();
-        }
-
-        // Generate laporan form submit
-        document.getElementById('generateForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const tanggal = document.getElementById('tanggalLaporan').value;
-            const pengeluaran = document.getElementById('totalPengeluaran').value || 0;
-            
-            try {
-                const response = await fetch('/admin/keuangan/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        tanggal: tanggal,
-                        total_pengeluaran: pengeluaran
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('✅ Laporan berhasil digenerate!');
-                    closeGenerateModal();
-                    location.reload();
-                } else {
-                    alert('❌ ' + result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Terjadi kesalahan saat generate laporan');
-            }
-        });
-
-        // Tab switching function
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
-            
-            document.querySelectorAll('[id^="tab-"]').forEach(el => {
-                el.classList.remove('tab-active');
-                el.classList.add('tab-inactive');
-            });
-            
-            const contentElement = document.getElementById('content-' + tabName);
-            if (contentElement) {
-                contentElement.classList.add('active');
-            }
-            
-            const activeTab = document.getElementById('tab-' + tabName);
-            if (activeTab) {
-                activeTab.classList.remove('tab-inactive');
-                activeTab.classList.add('tab-active');
-            }
-        }
-
-        // Initialize charts - FIXED
-        function initCharts() {
-            // Omset Chart - FIXED: data sudah object, bukan string
-            const omsetCtx = document.getElementById('omsetChart').getContext('2d');
-            const omsetData = <%- JSON.stringify(data.chart_omset || []) %>;
-            
-            const labels = omsetData.length > 0 
-                ? omsetData.map(item => {
-                    const date = new Date(item.tanggal);
-                    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-                })
-                : ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-            
-            const dataValues = omsetData.length > 0
-                ? omsetData.map(item => parseFloat(item.omset) || 0)
-                : [0, 0, 0, 0, 0, 0, 0];
-            
-            omsetChart = new Chart(omsetCtx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Omset',
-                        data: dataValues,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Omset: Rp ${context.parsed.y.toLocaleString('id-ID')}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value >= 1000000) {
-                                        return 'Rp ' + (value / 1000000).toFixed(1) + 'Jt';
-                                    } else if (value >= 1000) {
-                                        return 'Rp ' + (value / 1000).toFixed(0) + 'K';
-                                    }
-                                    return 'Rp ' + value;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Laba vs Pengeluaran Chart - FIXED: data real
-            const labaCtx = document.getElementById('labaChart').getContext('2d');
-            const chartData = <%- JSON.stringify(data.chart_pengeluaran || {}) %>;
-            
-            const modal = chartData.modal || 0;
-            const pengeluaran = chartData.pengeluaran || 0;
-            const labaBersih = chartData.laba_bersih || 0;
-            
-            labaChart = new Chart(labaCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Modal Produk', 'Pengeluaran Operasional', 'Laba Bersih'],
-                    datasets: [{
-                        data: [modal, pengeluaran, labaBersih],
-                        backgroundColor: [
-                            'rgba(245, 158, 11, 0.7)',
-                            'rgba(239, 68, 68, 0.7)',
-                            'rgba(34, 197, 94, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(245, 158, 11)',
-                            'rgb(239, 68, 68)',
-                            'rgb(34, 197, 94)'
-                        ],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: { size: 12 }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.label}: Rp ${context.parsed.toLocaleString('id-ID')}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Change chart type
-        function changeChartType(chartId, type) {
-            if (chartId === 'omsetChart' && omsetChart) {
-                omsetChart.config.type = type;
-                omsetChart.update();
-            }
-        }
-    </script>
+// Helper function
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+</script>
 </body>
 </html>
