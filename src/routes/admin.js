@@ -6,7 +6,7 @@ const dashboardController = require('../controllers/dashboardController');
 const ordersController = require('../controllers/ordersController');
 const productsController = require('../controllers/productsController');
 const usersController = require('../controllers/usersController');
-const keuanganController = require('../controllers/keuanganController')
+const keuanganController = require('../controllers/keuanganController');
 
 // Middleware untuk check admin
 const { isAdmin } = require('../middleware/authMiddleware');
@@ -327,9 +327,9 @@ router.delete('/keuangan/laporan/:id', keuanganController.deleteLaporan);
 router.get('/keuangan/omset/harian', keuanganController.getOmsetHarian);
 router.get('/keuangan/omset/bulanan', keuanganController.getOmsetBulanan);
 router.get('/keuangan/omset/tahunan', keuanganController.getOmsetTahunan);
-
-// Laba Rugi (AJAX)
 router.get('/keuangan/laba-rugi', keuanganController.getLabaRugi);
+
+router.get('/keuangan/detail-omset', keuanganController.getDetailOmset);
 
 // Dashboard Statistik (AJAX)
 router.get('/keuangan/dashboard-statistik', keuanganController.getStatistikDashboard);
