@@ -280,6 +280,35 @@
         .floating {
             animation: float 3s ease-in-out infinite;
         }
+
+        .about-card {
+    position: relative;
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.about-card.delay-100 {
+    animation-delay: 0.2s;
+}
+
+.about-card.delay-200 {
+    animation-delay: 0.4s;
+}
+
+
+/* Icon Circle Pulse Effect */
+.icon-circle {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 30px rgba(255, 193, 7, 0.6);
+    }
+}
+
     </style>
 </head>
 
@@ -617,42 +646,49 @@
 
    <!-- About Section - Diperbarui -->
 <!-- About Section Simpel seperti di Gambar -->
-<section id="about" class="py-20 bg-white">
+<section id="about" class="py-20 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
     <div class="container mx-auto px-4">
         <!-- Grid 3 kolom -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             
             <!-- Card 1 -->
-            <div class="text-center">
-                <div class="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="about-card text-center bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 group">
+                <div class="icon-circle w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 transform transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Pengiriman Cepat</h3>
-                <p class="text-gray-600">Pesanan Anda akan tiba dalam waktu singkat dengan pengemasan yang aman.</p>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors duration-300">Pengiriman Cepat</h3>
+                <p class="text-gray-600 group-hover:text-gray-700 transition-colors duration-300">Pesanan Anda akan tiba dalam waktu singkat dengan pengemasan yang aman.</p>
+                
+                <!-- Decorative circle -->
+                <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-200 rounded-full opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 -z-10"></div>
             </div>
 
             <!-- Card 2 -->
-            <div class="text-center">
-                <div class="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="about-card text-center bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 group delay-100">
+                <div class="icon-circle w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 transform transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Kualitas Terjamin</h3>
-                <p class="text-gray-600">Produk kami dibuat dengan bahan berkualitas tinggi dan proses yang higienis.</p>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors duration-300">Kualitas Terjamin</h3>
+                <p class="text-gray-600 group-hover:text-gray-700 transition-colors duration-300">Produk kami dibuat dengan bahan berkualitas tinggi dan proses yang higienis.</p>
+                
+                <div class="absolute top-0 right-0 w-24 h-24 bg-green-200 rounded-full opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 -z-10"></div>
             </div>
 
             <!-- Card 3 -->
-            <div class="text-center">
-                <div class="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="about-card text-center bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 group delay-200">
+                <div class="icon-circle w-20 h-20 bg-gradient-to-br from-pink-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6 transform transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Dibuat dengan Cinta</h3>
-                <p class="text-gray-600">Setiap produk dibuat dengan perhatian khusus untuk memberikan pengalaman terbaik.</p>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors duration-300">Dibuat dengan Cinta</h3>
+                <p class="text-gray-600 group-hover:text-gray-700 transition-colors duration-300">Setiap produk dibuat dengan perhatian khusus untuk memberikan pengalaman terbaik.</p>
+                
+                <div class="absolute top-0 right-0 w-24 h-24 bg-pink-200 rounded-full opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 -z-10"></div>
             </div>
 
         </div>
@@ -1044,29 +1080,29 @@
     </footer>
     
     <script>    // Toggle Mobile Menu
-    const menuToggle = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
+    // const menuToggle = document.getElementById("menu-toggle");
+    // const mobileMenu = document.getElementById("mobile-menu");
 
-    menuToggle.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
-    });
+    // menuToggle.addEventListener("click", () => {
+    //     mobileMenu.classList.toggle("hidden");
+    // });
 
-    // Tutup menu ketika salah satu item di klik
-    const mobileLinks = mobileMenu.querySelectorAll("a");
+    // // Tutup menu ketika salah satu item di klik
+    // const mobileLinks = mobileMenu.querySelectorAll("a");
 
-    mobileLinks.forEach(link => {
-        link.addEventListener("click", () => {
-            mobileMenu.classList.add("hidden");
-        });
-    });
+    // mobileLinks.forEach(link => {
+    //     link.addEventListener("click", () => {
+    //         mobileMenu.classList.add("hidden");
+    //     });
+    // });
 
-    // Opsional: tutup menu saat klik di luar navigation
-    document.addEventListener("click", (event) => {
-        const isClickInside = menuToggle.contains(event.target) || mobileMenu.contains(event.target);
-        if (!isClickInside) {
-            mobileMenu.classList.add("hidden");
-        }
-    });
+    // // Opsional: tutup menu saat klik di luar navigation
+    // document.addEventListener("click", (event) => {
+    //     const isClickInside = menuToggle.contains(event.target) || mobileMenu.contains(event.target);
+    //     if (!isClickInside) {
+    //         mobileMenu.classList.add("hidden");
+    //     }
+    // });
 // Data produk dan cart
 let products = [];
 let cart = [];
