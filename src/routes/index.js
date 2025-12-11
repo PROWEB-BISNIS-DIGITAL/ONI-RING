@@ -36,4 +36,12 @@ router.get('/contact', (req, res) => {
     });
 });
 
+router.get('/Sosial-media', (req, res) => {
+    res.render('sosial-media', {
+        title: 'selamat datang di web kami',
+        user: req.session.user || null
+    });
+});
+
+
 module.exports = router;
